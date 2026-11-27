@@ -10,8 +10,8 @@ extends Control
 ##   island mixed, a region screen of its own at #thunderdome), the Relic Library (FAL-325,
 ##   optional worked examples) and the Bazaar (G6, ui/bazaar.gd). It reads as a
 ##   fast-travel map (FAL-988): every place has a pin in its state's colour (a padlock when
-##   locked) and its name on a banner under the pin, always shown, and a "you are here"
-##   marker stands at the place the player last went into (the save's "here"). No roads.
+##   locked), and a "you are here" marker stands at the place the player last went
+##   into (the save's "here"). No roads.
 ##   The header shows the Scrap there is to spend. Between the painting and the buttons,
 ##   the ambient layer (FAL-1075, ui/ambient_layer.gd, pieces in AMBIENT) plays a crow,
 ##   the beacon, smoke, neon and dust; it takes no taps, and holds still with reduced motion.
@@ -21,8 +21,8 @@ extends Control
 ##   with no built type is "coming soon", worked out from the engine, so a region lights
 ##   up when its situations merge. SPARK's pick (Progress.suggest() over the island's
 ##   regions) gets a beacon and first focus: a suggestion, never a gate.
-## - No names on an island's board. Hovering, focusing or tapping a place shows its card
-##   (on the world map too, under the banners): the name, then one line (the topic, the spot_line() progress, "Coming soon" or "Locked").
+## - No persistent place names on either board. Hovering, focusing or tapping a
+##   place shows its card: its name, then the topic, progress or availability.
 ##   With a mouse or keyboard a press goes in. On a touch screen the first tap shows the
 ##   card and lights the place, and a second tap on the place or the card goes in.
 ## - Going in zooms the board into the place (ZOOM_TIME), then the next layer fades in;
@@ -33,7 +33,7 @@ extends Control
 ##
 ## Island art by file name (FAL-362 batch 4, FAL-783 plan), in each island's own folder,
 ## MAP_ART/<island>/ (FAL-925): background.webp or .png, one painting with every place
-## painted in at its SPOTS point; then the buttons are invisible hit areas with state chips
+## painted in at its SPOTS point; then the buttons show a pin or a state chip
 ## (a dark wash and a padlock, or a flag). A landmark per spot and state
 ## (<spot>-<state>.png) still draws over it. With no painting the coded look draws the
 ## island's ground (ArtSlots.ground) and a ring per place, so a painting dropped into an
@@ -99,8 +99,6 @@ const BAZAAR_PIN := Vector2(25, 74)
 const TAP_AGAIN := "Tap again to go in"
 ## Where a new save stands on the world map (the save's "here").
 const HOME := "bazaar"
-## A name banner's text size on the world map: about 17 px on a phone held upright.
-const BANNER_NAME := 46
 ## True once overworld.png has the Bazaar painted in (FAL-791, its junk caravan fills
 ## BAZAAR_ZONE); while false a coded marker shows where it is.
 const BAZAAR_PAINTED := true
@@ -619,23 +617,28 @@ func _first_focus(b: Button) -> void:
 
 # ── Places and their cards ───────────────────────────────────
 
-## Makes a button a place: its card (name and line), its name for screen readers and
-## tooltips, its light, and what going in does (`enter`, nothing for a closed place).
+## Makes a button a place: one visible card, its name for screen readers, its glow,
+## and what going in does (`enter`, nothing for a closed place).
 func _place(b: Button, title: String, line: String, color: Color, enter: Callable, tooltip: String = "") -> void:
 	b.set_meta("card", [title, line, color])
 	b.set_meta("enter", enter)
-	b.tooltip_text = tooltip if tooltip != "" else "%s: %s" % [title, line]
 	b.accessibility_name = "%s: %s" % [title, line]
+	# The card is the visible hover label. Keep richer context for assistive
+	# technology without a second, native tooltip over the same marker.
+	if tooltip != b.accessibility_name:
+		b.accessibility_description = tooltip
 	var glow := Glow.new()
 	glow.name = "Glow"
 	glow.size = b.size
 	glow.round = b.size.x <= HIT + 1.0 and is_equal_approx(b.size.x, b.size.y)
 	glow.visible = false
 	b.add_child(glow)
-	b.mouse_entered.connect(func(): show_card(b))
+	b.mouse_entered.connect(func():
+		if not touch:
+			show_card(b))
 	b.mouse_exited.connect(func(): _let_go(b))
 	b.focus_entered.connect(func():
-		if not _quiet:
+		if not _quiet and not touch:
 			show_card(b))
 	b.focus_exited.connect(func(): _let_go(b))
 	b.pressed.connect(press.bind(b))
@@ -646,10 +649,18 @@ func _place(b: Button, title: String, line: String, color: Color, enter: Callabl
 			show_card(b))
 
 
+## Route switches can trigger old hover/pressed signals while a layer is hiding.
+func _active_place(b: Button) -> bool:
+	if not is_instance_valid(b) or not b.is_visible_in_tree():
+		return false
+	var board := b.get_parent()
+	return (screen == "world" and board == world_board) or (screen == "island" and board == island_board)
+
+
 ## A press on a place: on a touch screen the first one shows its card, then the next
 ## one goes in. With a mouse or a keyboard it goes in at once.
 func press(b: Button) -> void:
-	if _zooming or b.disabled:
+	if _zooming or b.disabled or not _active_place(b):
 		return
 	if touch and armed != b:
 		armed = b
@@ -662,7 +673,7 @@ func press(b: Button) -> void:
 
 ## A press on the card goes into its place.
 func press_card() -> void:
-	if card_for != null and is_instance_valid(card_for) and not card_for.disabled:
+	if _active_place(card_for) and not card_for.disabled:
 		var enter: Callable = card_for.get_meta("enter")
 		if enter.is_valid() and not _zooming:
 			enter.call()
@@ -674,6 +685,8 @@ func press_card() -> void:
 ## shows. When it can't fit beside (the place in the middle), and on the world map, it
 ## goes above or below, whichever has more room.
 func show_card(b: Button) -> void:
+	if not _active_place(b):
+		return
 	var board := b.get_parent() as Control
 	var card := board.get_node_or_null("Card") as Control
 	if card == null:
@@ -719,7 +732,6 @@ func show_card(b: Button) -> void:
 			at.y = r.get_center().y - card.size.y / 2.0
 		at.x = r.get_center().x - card.size.x / 2.0
 	card.position = Vector2(clampf(at.x, edge, BOARD.x - card.size.x - edge), clampf(at.y, edge, BOARD.y - card.size.y - edge))
-	board.move_child(card, -1)
 
 
 ## The pointer or focus left a place: its card goes, unless the place still holds the
@@ -824,18 +836,18 @@ func _fill_world() -> void:
 		_place(b, i.name, i.topic if open else "Coming soon", UiTheme.TEAL if open else UiTheme.DIM,
 			(func(): _go_from_world(i.id, _island_point(i.id), go.bind(to))) if open else Callable(),
 			"%s: %s" % [i.name, i.topic])
-		_landmark_pin(b, i.id, i.name, i.pin, world_state(i.id))
+		_landmark_pin(b, i.id, i.pin, world_state(i.id))
 	var td := _zone_button(world_board, "Thunderdome", THUNDERDOME_ZONE)
 	td.disabled = not thunderdome_open()
 	var td_at := Vector2(THUNDERDOME_ZONE.position.x, THUNDERDOME_ZONE.position.y) * BOARD / 100.0
 	_place(td, "Thunderdome", "Locked" if td.disabled else "Questions from all over the Wasteland", UiTheme.DIM if td.disabled else UiTheme.PINK,
 		Callable() if td.disabled else (func(): _go_from_world(Dungeon.THUNDERDOME, td_at, go.bind(MapLink.THUNDERDOME_ROUTE))),
 		"Thunderdome: opens once two places are open" if td.disabled else "")
-	_landmark_pin(td, Dungeon.THUNDERDOME, "Thunderdome", THUNDERDOME_PIN, world_state(Dungeon.THUNDERDOME))
+	_landmark_pin(td, Dungeon.THUNDERDOME, THUNDERDOME_PIN, world_state(Dungeon.THUNDERDOME))
 	var lib := _zone_button(world_board, "RelicLibrary", RELIC_LIBRARY_ZONE)
 	_place(lib, "Relic Library", RELIC_LIBRARY_LINE, UiTheme.TEAL, func():
 		MapLink.go(get_tree(), MapLink.RELIC_LIBRARY_ROUTE))
-	_landmark_pin(lib, "relic_library", "Relic Library", RELIC_LIBRARY_PIN, world_state("relic_library"))
+	_landmark_pin(lib, "relic_library", RELIC_LIBRARY_PIN, world_state("relic_library"))
 	var shop := _zone_button(world_board, "Bazaar", BAZAAR_ZONE)
 	if not BAZAAR_PAINTED:
 		var marker := Stall.new()
@@ -845,7 +857,7 @@ func _fill_world() -> void:
 	_place(shop, "Bazaar", "%d Scrap to spend" % scrap, UiTheme.SAND,
 		func(): _go_from_world(HOME, Vector2(BAZAAR_ZONE.position.x, BAZAAR_ZONE.position.y) * BOARD / 100.0, open_bazaar),
 		"Bazaar · %d Scrap to spend" % scrap)
-	_landmark_pin(shop, HOME, "Bazaar", BAZAAR_PIN, "open")
+	_landmark_pin(shop, HOME, BAZAAR_PIN, "open")
 	_card(world_board)
 	_first_focus.call_deferred(world_board.get_node("Island_functions") as Button)
 
@@ -882,25 +894,14 @@ func _go_from_world(id: String, at: Vector2, then: Callable) -> void:
 	zoom_to(world_board, at, then)
 
 
-## A world-map place's pin and name banner, as children of its button, and the "you are
-## here" marker when the player stands there. `at` is the pin, in % of the board. The
-## banner can hang past its zone, so it hands its hover and clicks to its place itself.
-func _landmark_pin(b: Button, id: String, title: String, at: Vector2, state: String) -> void:
+## A world-map place's pin and its "you are here" marker. `at` is in board %.
+func _landmark_pin(b: Button, id: String, at: Vector2, state: String) -> void:
 	var p := at * BOARD / 100.0 - b.position
 	var pin := Pin.new()
 	pin.name = "Pin"
 	pin.kind = state
 	pin.position = p - Vector2(Pin.R, Pin.R)
 	b.add_child(pin)
-	var banner := _banner(title)
-	banner.gui_input.connect(_banner_input.bind(b))
-	banner.mouse_entered.connect(func(): show_card(b))
-	banner.mouse_exited.connect(func(): _let_go(b))
-	b.add_child(banner)
-	banner.reset_size()
-	var top := Vector2(p.x - banner.size.x / 2.0, p.y + Pin.R + 6.0) + b.position
-	top.x = clampf(top.x, 12.0, BOARD.x - banner.size.x - 12.0)
-	banner.position = top - b.position
 	if id == here():
 		var mark := Here.new()
 		mark.name = "Here"
@@ -911,52 +912,20 @@ func _landmark_pin(b: Button, id: String, title: String, at: Vector2, state: Str
 		b.accessibility_name += " · You are here"
 
 
-## A click on a place's banner is a press on the place (a closed one shows its card).
-func _banner_input(e: InputEvent, b: Button) -> void:
-	if not (e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT and not e.pressed):
-		return
-	if b.disabled:
-		armed = b
-		show_card(b)
-	else:
-		press(b)
-
-
-## A place's name on the world map: the title font on a dark plate with a sand edge.
-func _banner(title: String) -> PanelContainer:
-	var plate := PanelContainer.new()
-	plate.name = "Banner"
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.08, 0.09, 0.12, 0.92)
-	sb.border_color = UiTheme.SAND
-	sb.set_border_width_all(4)
-	sb.set_corner_radius_all(10)
-	sb.content_margin_left = 22
-	sb.content_margin_right = 22
-	sb.content_margin_top = 2
-	sb.content_margin_bottom = 2
-	plate.add_theme_stylebox_override("panel", sb)
-	var n := UiTheme.label(title.to_upper(), BANNER_NAME, UiTheme.TEXT)
-	n.name = "Name"
-	n.autowrap_mode = TextServer.AUTOWRAP_OFF
-	n.add_theme_font_override("font", UiTheme.TITLE_FONT)
-	n.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	plate.add_child(n)
-	return plate
-
-
 ## A place's pin on the world map, its top-left at its position: a disc ringed in its
 ## state's colour (STATE_COLOR), with a dot when open, a flag when cleared and a padlock
 ## when locked.
 class Pin extends Control:
 	const R := 28.0
+	var radius := R
 	var kind := "open"
 
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		size = Vector2(2.0 * R, 2.0 * R)
+		size = Vector2.ONE * (2.0 * radius)
 
 	func _draw() -> void:
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE * (radius / R))
 		var c := Vector2(R, R)
 		var col: Color = STATE_COLOR[kind]
 		draw_circle(c, R, Color(0.05, 0.06, 0.09, 0.92))
@@ -1055,8 +1024,7 @@ class Jetty extends Control:
 
 
 ## A place on the island: a square button round its point with its landmark art for its
-## state, nothing over a painting (with a state chip: a padlock or a flag) or the coded
-## ring, and SPARK's beacon when it is the pick. Every spot but the Relic device opens
+## state, a compact pin or state chip over a painting, or the coded ring, and SPARK's beacon when it is the pick. Every spot but the Relic device opens
 ## its region screen; the Relic device is small and locked.
 func _spot(id: String, title: String, state: String, painted: bool = false) -> Button:
 	var at := _spot_point(route.island, id)
@@ -1081,6 +1049,14 @@ func _spot(id: String, title: String, state: String, painted: bool = false) -> B
 		chip.kind = state
 		chip.position = Vector2(d / 2.0 - Chip.R, d - 2.0 * Chip.R - 6.0)
 		b.add_child(chip)
+	else:
+		# Some locations exist only in the background painting. Never leave
+		# an invisible tap target when the persistent text plate is gone.
+		var pin := Pin.new()
+		pin.name = "Pin"
+		pin.radius = 39.0
+		pin.position = b.size / 2.0 - Vector2.ONE * pin.radius
+		b.add_child(pin)
 	if id == pick.get("region"):
 		var beacon := Beacon.new()
 		beacon.name = "Beacon"
@@ -1088,15 +1064,6 @@ func _spot(id: String, title: String, state: String, painted: bool = false) -> B
 		beacon.position = b.size / 2.0
 		b.add_child(beacon)
 	island_board.add_child(b)
-	# The place's name stays on the board, so nobody has to hover or tap to read it (#186).
-	var banner := _banner(title)
-	banner.gui_input.connect(_banner_input.bind(b))
-	banner.mouse_entered.connect(func(): show_card(b))
-	banner.mouse_exited.connect(func(): _let_go(b))
-	b.add_child(banner)
-	banner.reset_size()
-	var bx := clampf(b.position.x + (b.size.x - banner.size.x) / 2.0, 12.0, BOARD.x - banner.size.x - 12.0)
-	banner.position = Vector2(bx - b.position.x, b.size.y - banner.size.y * 0.6)
 	if relic:
 		b.disabled = true
 		_place(b, title, "Closed for now", UiTheme.DIM, Callable(), "Relic device: lessons coming")
@@ -1139,8 +1106,8 @@ func spot_line(id: String, state: String) -> String:
 	return " · ".join(bits) + pick_tag
 
 
-## The look of a spot in a state, filling its square: its landmark art, nothing when the
-## place is painted into the island (null), or the coded ring in the state's colour with
+## The look of a spot in a state, filling its square: its landmark art, a fallback
+## requested from the caller when the place is painted (null), or the coded ring in the state's colour with
 ## the region's glyph (mark()).
 func _landmark(id: String, state: String, box: float, painted: bool) -> Control:
 	var path := "%s%s-%s.png" % [island_art_dir(), spot_key(id), state]
