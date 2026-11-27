@@ -558,9 +558,13 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 		"poly":
 			return ans.label + poly_text(ans, v)
 		"named":
+			# fixed.exact names the values that are exact, which stay as they are beside a
+			# GDC's 3 s.f. one when they have 3 s.f. or fewer ("k = −1, x = 2.35", #272).
 			var parts: PackedStringArray = []
 			for i in fx.names.size():
-				parts.append("%s = %s%s" % [fx.names[i], shown(ans, v["v%d" % i]), fx.units[i] if fx.has("units") else ""])
+				var x: Variant = v["v%d" % i]
+				var t := exact_short(x) if ans.get("show", "") == "sf" and fx.names[i] in fx.get("exact", []) else ""
+				parts.append("%s = %s%s" % [fx.names[i], t if t != "" else shown(ans, x), fx.units[i] if fx.has("units") else ""])
 			return ", ".join(parts)
 		"pair":
 			var rs := _sorted([v.r1, v.r2])
@@ -711,6 +715,20 @@ static func poly_text(ans: Dictionary, v: Dictionary) -> String:
 		coeffs.append(fx.lead if i == 0 and fx.has("lead") else v["c%d" % i])
 		powers.append(int(Q.of(v["e%d" % i]).n) if fx.get("typed_powers", false) else int(fx.powers[i]))
 	return Fmt.terms(coeffs, powers, fx.get("var", "x"), ans.get("show", "") == "dec")
+
+
+## An exact value of 3 s.f. or fewer as it is ("−1", "6.4", "33"), else "" (#272). A
+## float, a fraction that doesn't end, or a longer decimal is "".
+static func exact_short(v: Variant) -> String:
+	if not (v is Q or v is int):
+		return ""
+	var t := Fmt.dec(v)
+	if t.contains("/"):
+		return ""
+	var digits := t.replace("−", "").replace(".", "").lstrip("0")
+	if not t.contains("."):
+		digits = digits.rstrip("0")
+	return t if digits.length() <= 3 else ""
 
 
 ## A typed number as the answer writes it: a fraction, a decimal or money (see show).

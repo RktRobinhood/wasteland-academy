@@ -4409,6 +4409,20 @@ def ext_shown(ans, x):
     return frac_text(x)
 
 
+def short_exact(r):
+    """An exact value of 3 s.f. or fewer as the game writes it ("−1", "0.5", "33"), else None (#272)."""
+    t = dec_text(r)
+    digits = t.replace("−", "").replace(".", "").lstrip("0")
+    if "." not in t:
+        digits = digits.rstrip("0")
+    return t if "/" not in t and len(digits) <= 3 else None
+
+
+def ext_named_value(ans, x):
+    """A named answer's value: exact when it ends in 3 s.f. or fewer, else as shown."""
+    return (ans.get("show") == "sf" and short_exact(R(x))) or ext_shown(ans, x)
+
+
 def ext_pi(x):
     x = R(x)
     if x == 0:
@@ -4439,8 +4453,12 @@ def ext_text(ans, v):
         cs, ps = ext_poly_parts(ans, v)
         return label + ext_terms(cs, ps, fx.get("var", "x"), ans.get("show") == "dec")
     if kind == "named":
+        # A value fixed.exact names stays exact when it has 3 s.f. or fewer (#272).
         units = fx.get("units", [""] * len(fx["names"]))
-        return ", ".join(f"{n} = {ext_shown(ans, v[f'v{i}'])}{units[i]}" for i, n in enumerate(fx["names"]))
+        exact = fx.get("exact", [])
+        parts = [f"{n} = {ext_named_value(ans, v[f'v{i}']) if n in exact else ext_shown(ans, v[f'v{i}'])}{units[i]}"
+                 for i, n in enumerate(fx["names"])]
+        return ", ".join(parts)
     if kind == "pair":
         a, b = sorted([R(v["r1"]), R(v["r2"])])
         return f"{label}{frac_text(a)} and {frac_text(b)}"
@@ -7281,6 +7299,12 @@ def gc_s(x):
     return ext_sf(sp.Float(x, 30)) if not isinstance(x, sp.Rational) else ext_sf(x)
 
 
+def gc_named(x):
+    """An exact value in a named answer, as the game writes it: as it is when it has 3 s.f.
+    or fewer ("−1", "3.5"), else to 3 s.f. (#272)."""
+    return short_exact(sp.Rational(x)) or gc_s(x)
+
+
 def gc_rounds(x):
     """Whether x needs rounding at 3 s.f. (an exact 2.5 doesn't)."""
     return not (isinstance(x, sp.Rational) and sp.Rational(sig3(x)) == x) and x != 0
@@ -7888,9 +7912,10 @@ def check_gdc_two_curves(q):
         others = [c for c in cs if abs(c[0]) > 1e-20]
         need(len(cs) == 2 and len(others) == 1, "the line doesn't meet the curve once more")
         need(gc_fair(others[0][0]), "the other crossing is not a fair 3 s.f. value")
-        want = f"k = {gc_s(k)}, x = {gc_s(others[0][0])}"
-        wr = {TC_GI + "6": {f"k = {gc_s(k)}, x = {gc_s(others[0][1])}"},  # the other crossing's y
-              TC_GI + "8": {f"k = {gc_s(mm)}, x = {gc_s(others[0][0])}"}}  # k = the gradient
+        # k is exact: it shows as it is when it has 3 s.f. or fewer, beside x to 3 s.f. (#272).
+        want = f"k = {gc_named(k)}, x = {gc_s(others[0][0])}"
+        wr = {TC_GI + "6": {f"k = {gc_named(k)}, x = {gc_s(others[0][1])}"},  # the other crossing's y
+              TC_GI + "8": {f"k = {gc_named(mm)}, x = {gc_s(others[0][0])}"}}  # k = the gradient
         gc_check_common(q, want, wr, gc_trap([k, others[0][0]], f"k = {gc_s2(k)}, x = {gc_s2(others[0][0])}"))
         return None, None
     f, g, lo, hi, open_left = tc_read(q)

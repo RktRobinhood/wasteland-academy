@@ -437,7 +437,8 @@ func u_constant_from_crossing(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var k: Q = s.g.c
 	var m: Q = s.g.m
 	var other: Array = s.crossings.filter(func(c): return absf(c[0]) > 1e-9)[0]
-	var ans := Answer.make("named", {"v0": k, "v1": qf(other[0])}, {"names": ["k", "x"]})
+	# k is exact, so it shows as it is beside the GDC's x to 3 s.f. (#272).
+	var ans := Answer.make("named", {"v0": k, "v1": qf(other[0])}, {"names": ["k", "x"], "exact": ["k"]})
 	ans.show = "sf"
 	var final := "So " + Answer.text(ans) + "."
 	var line := "y = %s + k" % GdcKit.first(m, "x")

@@ -611,6 +611,7 @@ static func make(view: Dictionary) -> Dictionary:
 	# the same numbers, but by this view's angle.
 	var rng_angle: String = view.get("same_angle", v.angle)
 	var shared: bool = view.get("shared", false)
+	v["shared"] = shared
 	var rng := Seeded.new("%s|%d" % [cell_key(v.t.id, v.u.id, v.rep, rng_angle), v.seed])
 	var recipe = SITUATIONS[v.t.situation][0]
 	var s: Dictionary
@@ -847,6 +848,11 @@ static func _build(v: Dictionary, s: Dictionary, rng: Seeded, paper: int) -> Dic
 	# A method with no working on these numbers can't be the one the question names (FAL-814).
 	if angle != "any" and not b.methods.has(angle):
 		return {"error": "method %s has no working on these numbers" % angle, "unsuited": true}
+	# A view lists in `fails` the methods whose working only says they fail on these numbers.
+	# A family's shared draw can't name such a method either, so it draws again told the
+	# method (#272). A view's own numbers were drawn for its method, so only a shared draw.
+	if angle != "any" and v.get("shared", false) and b.get("fails", []).has(angle):
+		return {"error": "method %s fails on these numbers" % angle, "unsuited": true}
 	var ans: Dictionary = b.answer
 	if ans.kind in Answer.MC_ONLY:
 		fmt = "mcq"
