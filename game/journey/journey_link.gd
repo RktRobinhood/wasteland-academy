@@ -15,7 +15,7 @@ extends RefCounted
 ## without the run, so its encounter can scroll on before the next question opens.
 
 ## Island -> the journey region folder in assets/journey/.
-const ISLAND_REGION := {"functions": "signal-tower", "algebra": "scrap-fields", "geometry": "dry-flats", "stats": "radio-spires"}
+const ISLAND_REGION := {"functions": "signal-tower", "algebra": "scrap-fields", "geometry": "dry-flats", "stats": "radio-spires", "calculus": "engine-core"}
 ## The run's outcomes -> the strip's. A glancing hit is the strip's partial.
 const OUTCOME := {"glancing": "partial"}
 

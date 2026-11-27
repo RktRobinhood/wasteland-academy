@@ -48,7 +48,7 @@ the walk cycle with no foot slide: the planted boot moves 36 px per walk frame o
 different stride sets `stride` in place of 36 / 880: the dog's is `0.08` (16 px per frame on its 203 px figure,
 measured from where its paws touch down in `walk1` to `walk4`), so at 48 px and 8 fps it walks at 30.7 px/s.
 
-**Scrap Fields, Dry Flats and Radio Spires** use two independently scrolling planes in their `layers.json`:
+**Scrap Fields, Dry Flats, Radio Spires and Engine Core** use two independently scrolling planes in their `layers.json`:
 each island’s skyline/backdrop and a separate opaque ground band. There is no middle plane. An optional `day_image` names a paired tile of
 the same size and registration; `image` is the night/default tile. Lighting is picked once at run start
 (07:00–18:59 local for day). Do not add a second copy of the skyline under a faster scroll factor. Until local

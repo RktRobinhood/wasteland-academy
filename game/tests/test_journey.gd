@@ -724,7 +724,7 @@ func test_scrap_fields_uses_two_real_planes_and_keeps_other_islands() -> void:
 		check_eq(JourneyLink.region_for(r), "scrap-fields", r)
 	check_eq(JourneyLink.region_for("quadratics"), "signal-tower")
 	check_eq(JourneyLink.region_for("all-geometry"), "dry-flats")
-	check_eq(JourneyLink.region_for("all-calculus"), "")
+	check_eq(JourneyLink.region_for("all-calculus"), "engine-core")
 	var stage := _stage()
 	tree.root.add_child(stage)
 	var a := JourneyStage.shared_assets()
@@ -822,7 +822,7 @@ func test_dry_flats_reuses_the_native_strip_with_its_own_arch_and_ground() -> vo
 	check_eq(JourneyLink.region_for("all-algebra"), "scrap-fields")
 	check_eq(JourneyLink.region_for("quadratics"), "signal-tower")
 	check_eq(JourneyLink.region_for("all-stats"), "radio-spires")
-	check_eq(JourneyLink.region_for("all-calculus"), "")
+	check_eq(JourneyLink.region_for("all-calculus"), "engine-core")
 	var stage := _stage()
 	tree.root.add_child(stage)
 	var a := JourneyStage.shared_assets()
@@ -885,7 +885,7 @@ func test_radio_spires_reuses_the_native_strip_with_its_own_spires_and_ground() 
 	check_eq(JourneyLink.region_for("all-algebra"), "scrap-fields")
 	check_eq(JourneyLink.region_for("quadratics"), "signal-tower")
 	check_eq(JourneyLink.region_for("all-geometry"), "dry-flats")
-	check_eq(JourneyLink.region_for("all-calculus"), "")
+	check_eq(JourneyLink.region_for("all-calculus"), "engine-core")
 	var stage := _stage()
 	tree.root.add_child(stage)
 	var a := JourneyStage.shared_assets()
@@ -939,4 +939,67 @@ func test_radio_spires_strip_never_changes_a_probability_run() -> void:
 	check(results[0][0].size() >= 5, "the authentic Probability run has answers")
 	check_eq(results[0], results[1], "the shared strip is read-only")
 	check(stage.active and stage.region == "radio-spires")
+	stage.free()
+
+
+func test_engine_core_reuses_the_native_strip_with_its_own_furnace_and_ground() -> void:
+	for r in ["all-calculus", "kinematics", "stationary-points", "tangents-normals", "definite-integrals", "derivative-rules", "derivative-basics", "integration"]:
+		check_eq(JourneyLink.region_for(r), "engine-core", r)
+	check_eq(JourneyLink.region_for("all-algebra"), "scrap-fields")
+	check_eq(JourneyLink.region_for("quadratics"), "signal-tower")
+	check_eq(JourneyLink.region_for("all-geometry"), "dry-flats")
+	check_eq(JourneyLink.region_for("all-stats"), "radio-spires")
+	var stage := _stage()
+	tree.root.add_child(stage)
+	var a := JourneyStage.shared_assets()
+	check_eq(a.regions["engine-core"].layers.map(func(l): return l.name), ["far", "near"])
+	check_eq(a.regions["engine-core"].layers.map(func(l): return l.scroll), [0.15, 1.0])
+	for pair in [[6, "night"], [7, "day"], [18, "day"], [19, "night"]]:
+		stage.start_run("engine-core", "learner-female", "rebar", 42, pair[0])
+		check(stage.active and stage.visible, "both light variants show the strip")
+		for l in stage._layers:
+			var file := "res://assets/journey/engine-core/%s-%s.webp" % [l.name, pair[1]]
+			check_eq(l.tex, a.texture(file), file)
+			check(l.tex != a.texture("res://assets/journey/radio-spires/%s-%s.webp" % [l.name, pair[1]]), "this is not the Radio Spires tile")
+		check_eq(stage._layers.size(), 2)
+		check(absf(stage._ground - 159.8) < 0.2, "the native walk anchor is preserved")
+	stage.fight_started(1, 1, 1)
+	stage.question_opened()
+	stage.advance(0.1)
+	var at: float = stage.snapshot().cam
+	stage.advance(1.0)
+	check_eq(stage.snapshot().cam, at, "no distracting scenery movement during a question")
+	check_eq(stage.encounter.group, ["d1-scavenger"], "shared visual roster")
+	stage.answer_resolved("right", {"hit": Tuning.HIT})
+	stage.fight_ended()
+	stage.fight_ahead(2, 2, 2)
+	var phases := {}
+	var move := at
+	for _frame in 600:
+		stage.advance(DT)
+		var snapshot := stage.snapshot()
+		move = maxf(move, snapshot.cam)
+		for pose in snapshot.anims:
+			phases[pose] = true
+	check(move > at + 0.5, "the party scrolls toward the next question")
+	for pose in ["attack", "defeated", "victory", "walk"]:
+		check(phases.has(pose), "standard motion pose %s" % pose)
+	stage.free()
+
+
+func test_engine_core_strip_never_changes_a_derivative_basics_run() -> void:
+	var stage := _stage()
+	tree.root.add_child(stage)
+	var results := []
+	for stage_enabled in [false, true]:
+		var run := Run.new(SaveData.blank(), "derivative-basics", 1, 42)
+		run.clock = func() -> int: return 1_800_000_000
+		if stage_enabled:
+			JourneyLink.attach(run, stage)
+		preload("res://tests/test_combat.gd").play(run)
+		await tree.process_frame
+		results.append([run.answers, run.summary, JSON.stringify(run.save)])
+	check(results[0][0].size() >= 5, "the authentic Derivative Basics run has answers")
+	check_eq(results[0], results[1], "the shared strip is read-only")
+	check(stage.active and stage.region == "engine-core")
 	stage.free()
