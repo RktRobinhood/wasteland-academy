@@ -382,7 +382,7 @@ func test_the_world_map_opens_the_bazaar_and_leaving_it_goes_back() -> void:
 	var m: Control = made[1]
 	var shop := m.world_board.get_node("Bazaar") as Button
 	check_eq(_card_of(m, shop), "Bazaar · 1240 Scrap to spend", "the Scrap to spend")
-	check_eq(shop.accessibility_name, "Bazaar: 1240 Scrap to spend · You are here")
+	check_eq(shop.accessibility_name, "Bazaar: 1240 Scrap to spend")
 	check_eq((m.world.get_node("Header").get_child(0).get_node("Scrap") as Label).text, "Scrap: 1240")
 	# The Bazaar's zone, the caravan on the FAL-986 painting, trimmed clear of the Engine Core.
 	var zone: Rect2 = preload("res://ui/map.gd").BAZAAR_ZONE
@@ -501,34 +501,26 @@ func test_each_world_pin_shows_its_state() -> void:
 	_done(made)
 
 
-func test_you_are_here_starts_at_the_bazaar_and_follows_the_player() -> void:
+func test_last_travel_location_is_saved_without_an_overworld_marker() -> void:
 	check_eq(SaveData.blank().here, "bazaar", "a new save starts at the Bazaar")
-	var made: Array = await _map({"screen": "world"})
-	var m: Control = made[1]
-	var marks: Array = m.world_board.find_children("Here", "", true, false)
-	check_eq(marks.size(), 1, "one marker")
-	check_eq(String(marks[0].get_parent().name), "Bazaar")
-	check(marks[0].pulsing, "it pulses")
-	check(m.world_board.get_node("Bazaar").accessibility_name.ends_with("You are here"), "said to screen readers")
-	_done(made)
 	var save := SaveData.blank()
 	save.settings.reduced_motion = true
-	made = await _map({"screen": "world"}, save)
-	m = made[1]
-	(m.world_board.get_node("Island_geometry") as Button).pressed.emit()
+	var made: Array = await _map({"screen": "world"}, save)
+	var m: Control = made[1]
+	check(m.world_board.find_children("Here", "", true, false).is_empty())
+	var b := m.world_board.get_node("Island_geometry") as Button
+	b.pressed.emit()
 	check_eq(MapLink.current, {"screen": "island", "island": "geometry"})
-	check_eq(SaveData.load_from(SAVE).here, "geometry", "the save records where the player went")
+	check_eq(SaveData.load_from(SAVE).here, "geometry", "the save still records travel")
 	MapLink.go(m.get_tree(), MapLink.WORLD)
 	await tree.process_frame
 	m.show_route(MapLink.WORLD)
-	marks = m.world_board.find_children("Here", "", true, false)
-	check_eq(marks.size(), 1)
-	check_eq(String(marks[0].get_parent().name), "Island_geometry", "the marker moved to the Dry Flats")
-	check(not marks[0].pulsing, "no pulse with reduced motion")
+	check(m.world_board.find_children("Here", "", true, false).is_empty(), "no replacement marker")
+	check(not m.world_board.get_node("Island_geometry").accessibility_name.contains("You are here"))
 	_done(made)
 
 
-func test_a_save_from_before_the_marker_starts_at_the_bazaar() -> void:
+func test_a_save_from_before_last_travel_keeps_the_bazaar_default() -> void:
 	var v5 := SaveData.blank()
 	v5.version = 5
 	v5.erase("here")
@@ -536,8 +528,7 @@ func test_a_save_from_before_the_marker_starts_at_the_bazaar() -> void:
 	check_eq(s.version, SaveData.VERSION)
 	check_eq(s.here, "bazaar")
 	var made: Array = await _map({"screen": "world"}, {"version": 6, "here": "relic_library", "settings": {}})
-	check_eq(String(made[1].world_board.find_children("Here", "", true, false)[0].get_parent().name), "Bazaar",
-		"a place that can't be gone into falls back to the Bazaar")
+	check_eq(made[1].here(), "bazaar", "an invalid travel location still falls back")
 	_done(made)
 
 
@@ -1152,12 +1143,14 @@ func test_every_screen_fits_a_phone_and_a_pc_window() -> void:
 					check((l as Label).get_visible_line_count() == (l as Label).get_line_count(), "%s: %s clips" % [what, l.name])
 			else:
 				var board: Control = m.world_board if r.screen == "world" else m.island_board
-				check(screen.encloses(board.get_global_rect()), "%s: board %s outside %s" % [what, board.get_global_rect(), screen])
+				var frame: Rect2 = m._map_frames[board]
+				var painted := board.get_global_transform_with_canvas() * frame
+				check(screen.grow(1).encloses(painted), "%s: visible painting %s outside %s" % [what, painted, screen])
 				for b in board.get_children():
 					if b is Button:
 						check(screen.encloses((b as Control).get_global_rect()), "%s: %s outside" % [what, b.name])
 				var head: Control = (m.world if r.screen == "world" else m.island).get_node("Header")
-				check(head.get_global_rect().end.y <= board.get_global_rect().position.y + 1.0, "%s: the header overlaps the board" % what)
+				check(head.get_global_rect().end.y <= painted.position.y + 1.0, "%s: the header overlaps the board" % what)
 				if r.screen == "world":
 					check(m.world.get_node_or_null("Footer") == null, "%s: no bar under the board" % what)
 					var scrap := m.world.get_node("Header").get_child(0).get_node("Scrap") as Control
@@ -1363,3 +1356,103 @@ func test_relic_library_uses_one_address_and_does_not_gate_a_new_player() -> voi
 	check_eq(m.world_state("relic_library"), "open")
 	check_eq(m.here(), "bazaar", "study does not become a travel location")
 	_done(made)
+
+
+func test_responsive_art_uses_authored_world_registration_and_keeps_every_target() -> void:
+	var map_script := preload("res://ui/map.gd")
+	var save := SaveData.blank()
+	save.settings.reduced_motion = true
+	for window in [Vector2i(320, 568), Vector2i(390, 844), Vector2i(900, 650), Vector2i(1440, 900), Vector2i(1920, 1080)]:
+		var area := _area(window)
+		var wide: bool = window.x > window.y
+		var made: Array = await _map(MapLink.WORLD, save, area)
+		var m: Control = made[1]
+		var board: Control = m.world_board
+		var art := board.get_node("Art") as TextureRect
+		var frame: Rect2 = m._map_frames[board]
+		var active_width: float = (board.get_global_transform_with_canvas() * frame).size.x / area.x
+		check(active_width >= (0.895 if wide else 0.98), "uses the width: " + str(window))
+		check_eq(art.size, art.texture.get_size(), "never stretches map paint")
+		check_eq(m._wide_world, wide, str(window))
+		check_eq(m.world_board.find_children("Here", "", true, false).size(), 0)
+		var nodes := {"algebra": "Island_algebra", "functions": "Island_functions", "geometry": "Island_geometry",
+			"stats": "Island_stats", "calculus": "Island_calculus", "thunderdome": "Thunderdome",
+			"relic-library": "RelicLibrary", "bazaar": "Bazaar"}
+		for id in nodes:
+			var button := board.get_node(nodes[id]) as Button
+			var pin := button.get_node("Pin") as Control
+			var at := button.position + pin.position + pin.size * 0.5
+			check(frame.grow(0.5).encloses(Rect2(button.position, button.size)), id + " target in frame")
+			if wide:
+				var registered: Vector2 = map_script.WIDE_WORLD[id][1]
+				check(at.distance_to(frame.position + frame.size * registered / 100.0) < 0.01, id + " pinned to wide art")
+			m.show_card(button)
+			var card := board.get_node("Card") as Control
+			check(frame.grow(1.0).encloses(Rect2(card.position, card.size)), id + " card fits")
+		var ambient := board.get_node("Ambient") as AmbientLayer
+		check_eq(ambient.things.size(), 3 if wide else 5)
+		check_eq(ambient.thing("engine-smoke").base, Vector2(1058, 677) if wide else Vector2(554, 1003))
+		check(not (ambient.thing("engine-smoke").holder as Node2D).visible, "moving smoke is hidden for reduced motion")
+		_done(made)
+
+
+func test_wide_map_ambient_animates_while_the_reduced_motion_map_stays_still() -> void:
+	var size := Vector2(2600, 1920)
+	for reduce in [false, true]:
+		var save := SaveData.blank()
+		save.settings.reduced_motion = reduce
+		var made: Array = await _map(MapLink.WORLD, save, size)
+		var m: Control = made[1]
+		var ambient := m.world_board.get_node("Ambient") as AmbientLayer
+		var expected := Vector2(1920, 1080)
+		check_eq(ambient.size, expected)
+		check_eq(AmbientLayer.check(AmbientLayer.entries(m.AMBIENT, "map_wide"), expected), PackedStringArray())
+		var smoke := ambient.thing("engine-smoke")
+		var crow := ambient.thing("crow")
+		check_eq(smoke.base, Vector2(1058, 677))
+		var from: Vector2 = crow.holder.position
+		var first: int = smoke.frame
+		ambient._process(1.0)
+		if reduce:
+			check_eq(crow.holder.position, from)
+			check(not (smoke.holder as Node2D).visible)
+		else:
+			check((smoke.holder as Node2D).visible and (crow.holder as Node2D).visible)
+			check(crow.holder.position.distance_to(from) > 10.0, "crow moved through registered sky")
+			check(smoke.frame != first, "stack smoke advances its animation")
+			m.save.settings.reduced_motion = true
+			m.apply_settings()
+			check(ambient.reduced_motion and not (ambient.thing("engine-smoke").holder as Node2D).visible)
+		_done(made)
+
+
+func test_all_five_wide_islands_keep_registered_targets_and_cards_inside() -> void:
+	var save := SaveData.blank()
+	save.settings.reduced_motion = true
+	for window in [Vector2i(900, 650), Vector2i(1440, 900), Vector2i(1920, 1080)]:
+		var area := _area(window)
+		for id in MapLink.OPEN_ISLANDS:
+			var made: Array = await _map({"screen": "island", "island": id}, save, area)
+			var m: Control = made[1]
+			var board: Control = m.island_board
+			var art := board.get_node("Art") as TextureRect
+			check_eq(art.texture.resource_path, "res://assets/map/%s/background-wide.webp" % id)
+			var frame: Rect2 = m._map_frames[board]
+			var playable := 0
+			for node in board.get_children():
+				if not node is Button or not node.name.begins_with("Spot_"):
+					continue
+				var b: Button = node
+				var center := b.position + b.size / 2.0
+				var spot_id := String(b.name).trim_prefix("Spot_")
+				check(center.distance_to(m._spot_point(id, spot_id)) < 0.01, str([id, spot_id, "native landmark anchor is unchanged"]))
+				check(frame.grow(0.5).encloses(Rect2(b.position, b.size)), str([id, spot_id, "hit target is inside the painting"]))
+				m.show_card(b)
+				var card := board.get_node("Card") as Control
+				check(frame.grow(1.0).encloses(Rect2(card.position, card.size)), str([id, spot_id, "card fits"]))
+				if not b.disabled:
+					var hit := b.get_global_rect().size * Vector2(window) / area
+					check(minf(hit.x, hit.y) >= 44.0, str([id, spot_id, hit]))
+					playable += 1
+			check_eq(playable, MapLink.region_ids(id).size() + 1, id + " all normal regions plus the island run")
+			_done(made)

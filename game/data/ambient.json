@@ -5,13 +5,22 @@
      "fps": 12, "frames": "cycle", "motion": "none", "phase": 0.13},
     {"id": "dome-neon", "sheet": "dome-neon", "position": [375, 690], "anchor": [0, 0], "scale": 1.0,
      "fps": 12, "frames": "cycle", "motion": "none", "phase": 0.41, "still": 0},
-    {"id": "engine-smoke", "sheet": "engine-smoke", "position": [470, 860], "anchor": [0, 0], "scale": 1.0,
-     "fps": 12, "frames": "cycle", "motion": "none", "phase": 0.77},
+    {"id": "engine-smoke", "sheet": "engine-smoke", "position": [554, 1003], "anchor": [130, 128], "scale": 1.0,
+     "fps": 12, "frames": "cycle", "motion": "none", "phase": 0.77, "stir": true},
     {"id": "signal-beacon", "sheet": "signal-beacon", "position": [919, 296], "anchor": [20, 20], "scale": 1.0,
      "fps": 10, "frames": "cycle", "motion": "none", "phase": 0.29, "still": 2},
     {"id": "crow", "sheet": "crow", "position": [-50, 235], "anchor": [36, 22], "scale": 1.0,
      "fps": 10, "frames": "cycle", "motion": "path", "path": [[300, 175], [700, 215], [1130, 150]],
      "seconds": 14, "loop": false, "face": "flip", "bob": 4, "bob_period": 1.2, "phase": 0.0}
+  ],
+  "map_wide": [
+    {"id": "flats-dust", "sheet": "flats-dust", "position": [78, 492], "anchor": [0, 0], "scale": 1.25,
+     "fps": 10, "frames": "cycle", "motion": "none", "phase": 0.13, "alpha": 0.62},
+    {"id": "engine-smoke", "sheet": "engine-smoke", "position": [1058, 677], "anchor": [130, 128], "scale": 1.15,
+     "fps": 10, "frames": "cycle", "motion": "none", "phase": 0.77, "alpha": 0.68, "stir": true},
+    {"id": "crow", "sheet": "crow", "position": [-48, 138], "anchor": [36, 22], "scale": 1.05,
+     "fps": 10, "frames": "cycle", "motion": "path", "path": [[455, 95], [1005, 135], [1700, 95], [1960, 128]],
+     "seconds": 18, "loop": false, "face": "flip", "bob": 4, "bob_period": 1.2, "phase": 0.0, "alpha": 0.8}
   ],
   "fight": {
     "hit-spark": {"sheet": "hit-spark", "anchor": [128, 128], "fps": 12, "chest": 20},

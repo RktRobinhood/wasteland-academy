@@ -10,8 +10,7 @@ extends Control
 ##   island mixed, a region screen of its own at #thunderdome), the Relic Library (FAL-325,
 ##   optional worked examples) and the Bazaar (G6, ui/bazaar.gd). It reads as a
 ##   fast-travel map (FAL-988): every place has a pin in its state's colour (a padlock when
-##   locked), and a "you are here" marker stands at the place the player last went
-##   into (the save's "here"). No roads.
+##   locked). Last travel location stays in the save, not on the painting. No roads.
 ##   The header shows the Scrap there is to spend. Between the painting and the buttons,
 ##   the ambient layer (FAL-1075, ui/ambient_layer.gd, pieces in AMBIENT) plays a crow,
 ##   the beacon, smoke, neon and dust; it takes no taps, and holds still with reduced motion.
@@ -48,8 +47,26 @@ const OVERWORLD := preload("res://assets/map/overworld.png")
 const AMBIENT := "res://data/ambient.json"
 ## Each island's art is in its own folder here: MAP_ART/<island id>/ (island_art_dir()).
 const MAP_ART := "res://assets/map/"
-## Both maps are drawn on a portrait board of this size, scaled to fit under the header.
+## Logical portrait art and hit coordinate space, also used to anchor wide artwork.
 const BOARD := Vector2(1080, 1920)
+## Keep all hit/zoom coordinates in portrait art pixels. The wide islands share
+## the portrait painting's middle square exactly in layout, at x −420, y +420.
+const WIDE_FRAME := Rect2(-420, 420, 1920, 1080)
+const WIDE_AT_RATIO := 1.15
+const OVERWORLD_WIDE := "res://assets/map/overworld-wide.webp"
+## Authored W1-4 registration (assets/art/intake/world/zones.json). World wide
+## has a different composition, so its gates cannot use the island transform.
+const WIDE_WORLD := {
+	"algebra": [Rect2(31.8, 19, 33.5, 22), Vector2(33, 25)],
+	"functions": [Rect2(67, 19.5, 24, 23), Vector2(68, 26)],
+	"geometry": [Rect2(19, 44.5, 32, 27), Vector2(18, 47)],
+	"thunderdome": [Rect2(51, 42.5, 28, 25), Vector2(51, 51)],
+	"stats": [Rect2(82.5, 42, 29, 30), Vector2(84, 53)],
+	"bazaar": [Rect2(15.8, 74.5, 28.5, 27), Vector2(16, 78)],
+	"calculus": [Rect2(49.8, 73, 35.5, 34), Vector2(50, 84)],
+	"relic-library": [Rect2(83.5, 74.5, 26, 23), Vector2(85, 79)],
+}
+
 const HEADER := 190.0
 ## A header title's size, and the smallest it shrinks to on a narrow screen.
 const TITLE_SIZE := 84
@@ -186,6 +203,9 @@ var _headers: Array = []
 var _side := 36.0
 ## Each board's fitted [position, scale], from _fit().
 var _fitted := {}
+var _map_frames := {}
+var _wide_world := false
+var _wide_island := false
 var _tween: Tween
 ## True while the board zooms into a place: presses wait for the next layer.
 var _zooming := false
@@ -232,7 +252,7 @@ func show_route(r: Dictionary) -> void:
 	world.visible = screen == "world"
 	island.visible = screen == "island"
 	region_view.visible = screen == "region"
-	_fit()
+	_fit(false)
 	match screen:
 		"world":
 			_fill_world()
@@ -270,6 +290,15 @@ func go(r: Dictionary) -> void:
 ## or the browser's prefers-reduced-motion on the web.
 func reduced_motion() -> bool:
 	return AmbientLayer.motion_reduced(save)
+
+
+## Settings calls this when the student's motion preference changes on the map.
+func apply_settings() -> void:
+	var ambient := world_board.get_node("Ambient") as AmbientLayer
+	var reduce := reduced_motion()
+	if ambient.reduced_motion != reduce:
+		ambient.reduced_motion = reduce
+		ambient.build(AmbientLayer.entries(AMBIENT, "map_wide" if _wide_world else "map"))
 
 
 static func island_info(id: String) -> Dictionary:
@@ -346,6 +375,46 @@ func background_path() -> String:
 		if ResourceLoader.exists(path):
 			return path
 	return ""
+
+
+func _island_wide_path() -> String:
+	return "%sbackground-wide.webp" % island_art_dir()
+
+
+## Texture and hotspot registration share the same board units. Crop portrait
+## art through its atlas rather than stretching it or moving the controls.
+func _frame_painting(board: Control) -> void:
+	var art := board.get_node_or_null("Art") as TextureRect
+	if art == null or not _map_frames.has(board):
+		return
+	var on_world := board == world_board
+	var wide := _wide_world if on_world else _wide_island
+	var path := OVERWORLD_WIDE if on_world else _island_wide_path()
+	var frame: Rect2 = _map_frames[board]
+	if wide:
+		art.texture = load(path)
+	else:
+		var source: Texture2D = OVERWORLD if on_world else art.get_meta("portrait") as Texture2D
+		if source == null:
+			return
+		if frame == Rect2(Vector2.ZERO, BOARD) or source.get_size() != BOARD:
+			art.texture = source
+		else:
+			var crop := AtlasTexture.new()
+			crop.atlas = source
+			crop.region = frame
+			crop.filter_clip = true
+			art.texture = crop
+	art.position = frame.position
+	art.size = frame.size
+	if on_world:
+		var ambient := board.get_node("Ambient") as AmbientLayer
+		var key := "map_wide" if wide else "map"
+		if ambient.get_meta("layout", "map") != key:
+			ambient.set_meta("layout", key)
+			ambient.position = WIDE_FRAME.position if wide else Vector2.ZERO
+			ambient.size = WIDE_FRAME.size if wide else BOARD
+			ambient.build(AmbientLayer.entries(AMBIENT, key))
 
 
 # ── Building ─────────────────────────────────────────────────
@@ -519,14 +588,57 @@ func open_bazaar() -> void:
 	go(MapLink.BAZAAR_ROUTE)
 
 
-func _fit() -> void:
+## Fit wide artwork on landscape screens. Portrait keeps its entire width and
+## crops only empty top/bottom strips when height would shrink its hotspots.
+static func map_frame(room: Vector2, wide: bool, island_map: bool) -> Rect2:
+	if wide:
+		return WIDE_FRAME
+	# Ensure all registered targets and surrounding interaction area remain in
+	# frame even in a squat viewport with a missing/unregistered wide painting.
+	var required: Rect2 = Rect2(0, 360, BOARD.x, 1230) if island_map else Rect2(0, 256, BOARD.x, 1312)
+	var h := floorf(clampf(room.y / maxf(1.0, room.x) * BOARD.x, required.size.y, BOARD.y))
+	var y := floorf(clampf(required.get_center().y - h / 2.0, 0.0, BOARD.y - h))
+	return Rect2(0, y, BOARD.x, h)
+
+
+func _fit(refresh_assets := true) -> void:
 	var area := size
 	var room := Rect2(0, HEADER, area.x, maxf(1.0, area.y - HEADER))
+	var had_frame := not _map_frames.is_empty()
+	var was_wide_world := _wide_world
+	var was_wide_island := _wide_island
+	var landscape := room.size.x / room.size.y >= WIDE_AT_RATIO
+	_wide_world = landscape and ResourceLoader.exists(OVERWORLD_WIDE)
+	_wide_island = landscape and art_dir == "" and route.has("island") and ResourceLoader.exists(_island_wide_path())
 	for b in [world_board, island_board]:
-		var s := minf(room.size.x / BOARD.x, room.size.y / BOARD.y)
-		b.scale = Vector2(s, s)
-		b.position = room.position + (room.size - BOARD * s) / 2.0
+		var island_map: bool = b == island_board
+		var frame := map_frame(room.size, _wide_island if island_map else _wide_world, island_map)
+		_map_frames[b] = frame
+		var scaler := minf(room.size.x / frame.size.x, room.size.y / frame.size.y)
+		b.scale = Vector2(scaler, scaler)
+		var stage := room.position + (room.size - frame.size * scaler) / 2.0
+		b.position = stage - frame.position * scaler
 		_fitted[b] = [b.position, b.scale]
+		if not island_map or screen == "island":
+			_frame_painting(b)
+	# Only switching the authored layout rebuilds the hit controls. A normal
+	# resize keeps the current controls and exact input registrations.
+	if refresh_assets and had_frame and screen == "world" and was_wide_world != _wide_world and world_board.has_node("Card"):
+		var focus := world_board.get_viewport().gui_get_focus_owner()
+		var focus_name := String(focus.name) if is_instance_valid(focus) and focus.get_parent() == world_board else ""
+		armed = null
+		card_for = null
+		_fill_world()
+		if focus_name != "":
+			_first_focus.call_deferred(world_board.get_node_or_null(focus_name) as Button)
+	elif refresh_assets and had_frame and screen == "island" and was_wide_island != _wide_island and island_board.has_node("Card"):
+		var focus := island_board.get_viewport().gui_get_focus_owner()
+		var focus_name := String(focus.name) if is_instance_valid(focus) and focus.get_parent() == island_board else ""
+		armed = null
+		card_for = null
+		_fill_island()
+		if focus_name != "":
+			_first_focus.call_deferred(island_board.get_node_or_null(focus_name) as Button)
 	var side := maxf(36.0, (area.x - (COLUMN_WIDE if area.x > area.y else COLUMN)) / 2.0)
 	for m in _headers:
 		m.add_theme_constant_override("margin_left", 36)
@@ -551,8 +663,26 @@ func _zoomed(board: Control, at: Vector2) -> Array:
 	return [centre - at * s, s]
 
 
-static func _island_point(id: String) -> Vector2:
-	var z: Rect2 = island_info(id).zone
+## Convert a registered landscape percentage into the common art space.
+static func wide_percent(p: Vector2) -> Vector2:
+	return (WIDE_FRAME.position + p * WIDE_FRAME.size / 100.0) * 100.0 / BOARD
+
+
+func _world_zone(id: String, portrait: Rect2) -> Rect2:
+	if not _wide_world:
+		return portrait
+	var z: Rect2 = WIDE_WORLD[id][0]
+	return Rect2(wide_percent(z.position), z.size * WIDE_FRAME.size / BOARD)
+
+
+func _world_pin(id: String, portrait: Vector2) -> Vector2:
+	return wide_percent(WIDE_WORLD[id][1]) if _wide_world else portrait
+
+
+func _island_point(id: String) -> Vector2:
+	# Only a real island links back this way. Direct routes keep their own ids.
+	var info := island_info(id)
+	var z: Rect2 = _world_zone(id, info.zone) if WIDE_WORLD.has(id) else info.zone
 	return z.position * BOARD / 100.0
 
 
@@ -712,8 +842,9 @@ func show_card(b: Button) -> void:
 	var r := Rect2(b.position, b.size)
 	var gap := 14.0
 	var edge := 12.0
-	var left_room := r.position.x - gap - edge
-	var right_room := BOARD.x - r.end.x - gap - edge
+	var frame: Rect2 = _map_frames[board]
+	var left_room := r.position.x - gap - edge - frame.position.x
+	var right_room := frame.end.x - r.end.x - gap - edge
 	var room := maxf(left_room, right_room)
 	if board == island_board and card.size.x > room and room > CARD_LEAST:
 		var inside := room - (card.size.x - maxf(_width(title), _width(line)))
@@ -727,11 +858,11 @@ func show_card(b: Button) -> void:
 	else:
 		var above := r.position.y - card.size.y - gap
 		var below := r.end.y + gap
-		at.y = above if above >= 0.0 and (above >= BOARD.y - below - card.size.y or board != island_board) else below
-		if at.y + card.size.y > BOARD.y:
+		at.y = above if above >= frame.position.y and (above - frame.position.y >= frame.end.y - below - card.size.y or board != island_board) else below
+		if at.y + card.size.y > frame.end.y:
 			at.y = r.get_center().y - card.size.y / 2.0
 		at.x = r.get_center().x - card.size.x / 2.0
-	card.position = Vector2(clampf(at.x, edge, BOARD.x - card.size.x - edge), clampf(at.y, edge, BOARD.y - card.size.y - edge))
+	card.position = at.clamp(frame.position + Vector2.ONE * edge, frame.end - card.size - Vector2.ONE * edge)
 
 
 ## The pointer or focus left a place: its card goes, unless the place still holds the
@@ -826,38 +957,41 @@ class Glow extends Control:
 
 func _fill_world() -> void:
 	_clear(world_board, 2)
+	_frame_painting(world_board)
 	var scrap := int(save.get("scrap", 0))
 	(world.get_node("Header").get_child(0).get_node("Scrap") as Label).text = "Scrap: %d" % scrap
 	for i in ISLANDS:
 		var open := island_open(i.id)
-		var b := _zone_button(world_board, "Island_" + i.id, i.zone)
+		var b := _zone_button(world_board, "Island_" + i.id, _world_zone(i.id, i.zone))
 		b.disabled = not open
 		var to := {"screen": "island", "island": i.id}
 		_place(b, i.name, i.topic if open else "Coming soon", UiTheme.TEAL if open else UiTheme.DIM,
 			(func(): _go_from_world(i.id, _island_point(i.id), go.bind(to))) if open else Callable(),
 			"%s: %s" % [i.name, i.topic])
-		_landmark_pin(b, i.id, i.pin, world_state(i.id))
-	var td := _zone_button(world_board, "Thunderdome", THUNDERDOME_ZONE)
+		_landmark_pin(b, _world_pin(i.id, i.pin), world_state(i.id))
+	var td_zone := _world_zone("thunderdome", THUNDERDOME_ZONE)
+	var td := _zone_button(world_board, "Thunderdome", td_zone)
 	td.disabled = not thunderdome_open()
-	var td_at := Vector2(THUNDERDOME_ZONE.position.x, THUNDERDOME_ZONE.position.y) * BOARD / 100.0
+	var td_at := td_zone.position * BOARD / 100.0
 	_place(td, "Thunderdome", "Locked" if td.disabled else "Questions from all over the Wasteland", UiTheme.DIM if td.disabled else UiTheme.PINK,
 		Callable() if td.disabled else (func(): _go_from_world(Dungeon.THUNDERDOME, td_at, go.bind(MapLink.THUNDERDOME_ROUTE))),
 		"Thunderdome: opens once two places are open" if td.disabled else "")
-	_landmark_pin(td, Dungeon.THUNDERDOME, THUNDERDOME_PIN, world_state(Dungeon.THUNDERDOME))
-	var lib := _zone_button(world_board, "RelicLibrary", RELIC_LIBRARY_ZONE)
+	_landmark_pin(td, _world_pin("thunderdome", THUNDERDOME_PIN), world_state(Dungeon.THUNDERDOME))
+	var lib := _zone_button(world_board, "RelicLibrary", _world_zone("relic-library", RELIC_LIBRARY_ZONE))
 	_place(lib, "Relic Library", RELIC_LIBRARY_LINE, UiTheme.TEAL, func():
 		MapLink.go(get_tree(), MapLink.RELIC_LIBRARY_ROUTE))
-	_landmark_pin(lib, "relic_library", RELIC_LIBRARY_PIN, world_state("relic_library"))
-	var shop := _zone_button(world_board, "Bazaar", BAZAAR_ZONE)
+	_landmark_pin(lib, _world_pin("relic-library", RELIC_LIBRARY_PIN), world_state("relic_library"))
+	var shop_zone := _world_zone("bazaar", BAZAAR_ZONE)
+	var shop := _zone_button(world_board, "Bazaar", shop_zone)
 	if not BAZAAR_PAINTED:
 		var marker := Stall.new()
 		marker.name = "Marker"
 		marker.size = shop.size
 		shop.add_child(marker)
 	_place(shop, "Bazaar", "%d Scrap to spend" % scrap, UiTheme.SAND,
-		func(): _go_from_world(HOME, Vector2(BAZAAR_ZONE.position.x, BAZAAR_ZONE.position.y) * BOARD / 100.0, open_bazaar),
+		func(): _go_from_world(HOME, shop_zone.position * BOARD / 100.0, open_bazaar),
 		"Bazaar · %d Scrap to spend" % scrap)
-	_landmark_pin(shop, HOME, BAZAAR_PIN, "open")
+	_landmark_pin(shop, _world_pin("bazaar", BAZAAR_PIN), "open")
 	_card(world_board)
 	_first_focus.call_deferred(world_board.get_node("Island_functions") as Button)
 
@@ -894,23 +1028,14 @@ func _go_from_world(id: String, at: Vector2, then: Callable) -> void:
 	zoom_to(world_board, at, then)
 
 
-## A world-map place's pin and its "you are here" marker. `at` is in board %.
-func _landmark_pin(b: Button, id: String, at: Vector2, state: String) -> void:
+## A world-map place's state pin. `at` is in common board %.
+func _landmark_pin(b: Button, at: Vector2, state: String) -> void:
 	var p := at * BOARD / 100.0 - b.position
 	var pin := Pin.new()
 	pin.name = "Pin"
 	pin.kind = state
 	pin.position = p - Vector2(Pin.R, Pin.R)
 	b.add_child(pin)
-	if id == here():
-		var mark := Here.new()
-		mark.name = "Here"
-		mark.position = p + Vector2(Pin.R + Here.R - 4.0, -Pin.R - Here.R + 12.0)
-		b.add_child(mark)
-		if not reduced_motion():
-			mark.pulse()
-		b.accessibility_name += " · You are here"
-
 
 ## A place's pin on the world map, its top-left at its position: a disc ringed in its
 ## state's colour (STATE_COLOR), with a dot when open, a flag when cleared and a padlock
@@ -941,28 +1066,6 @@ class Pin extends Control:
 				draw_circle(c, 9.0, col)
 
 
-## The "you are here" marker beside a pin, centred on its position: a figure on a dark
-## disc in a pink ring. pulse() makes the ring breathe; with reduced motion it stays still.
-class Here extends Control:
-	const R := 30.0
-	var pulsing := false
-
-	func _ready() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	func pulse() -> void:
-		pulsing = true
-		var t := create_tween().set_loops()
-		t.tween_property(self, "modulate:a", 0.55, 0.8).set_trans(Tween.TRANS_SINE)
-		t.tween_property(self, "modulate:a", 1.0, 0.8).set_trans(Tween.TRANS_SINE)
-
-	func _draw() -> void:
-		draw_circle(Vector2.ZERO, R, Color(0.05, 0.06, 0.09, 0.95))
-		draw_arc(Vector2.ZERO, R - 3.0, 0.0, TAU, 48, UiTheme.PINK, 6.0, true)
-		draw_circle(Vector2(0, -8), 7.0, UiTheme.TEXT)
-		draw_arc(Vector2(0, 14), 13.0, PI, TAU, 24, UiTheme.TEXT, 8.0, true)
-
-
 # ── An island ────────────────────────────────────────────────
 
 func _fill_island() -> void:
@@ -977,11 +1080,13 @@ func _fill_island() -> void:
 		var art := TextureRect.new()
 		art.name = "Art"
 		art.texture = load(bg_path)
+		art.set_meta("portrait", art.texture)
 		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		art.stretch_mode = TextureRect.STRETCH_SCALE
 		art.size = BOARD
 		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		island_board.add_child(art)
+		_frame_painting(island_board)
 	else:
 		island_board.add_child(_coded_ground(route.island))
 	var regions := MapLink.region_ids(route.island)
@@ -1030,6 +1135,12 @@ func _spot(id: String, title: String, state: String, painted: bool = false) -> B
 	var at := _spot_point(route.island, id)
 	var relic := id == "relic"
 	var d := RELIC_HIT if relic else HIT
+	# The central core keeps the exact same anchor, but wide art has no
+	# extra sky above it. Peripheral oversized hit squares remain entirely
+	# on the painting; their centers and minimum useful size are unchanged.
+	if _wide_island:
+		var clearance := minf(at.y - WIDE_FRAME.position.y, WIDE_FRAME.end.y - at.y)
+		d = minf(d, 2.0 * clearance)
 	var b := Button.new()
 	b.name = "Spot_" + spot_key(id)
 	b.flat = true
