@@ -10,6 +10,16 @@
       "practice": "turn-1",
       "practice_mode": "authored-twin",
       "courses": ["aa-sl", "aa-hl", "ai-sl", "ai-hl"]
+    },
+    {
+      "lesson": "ex.foundations.pre-substitute",
+      "title": "Brackets Round Negatives",
+      "zone": "Scrapworks",
+      "prompt": "Find the test drum’s reading when its input is negative.",
+      "worked": "example-1",
+      "practice": "turn-1",
+      "practice_mode": "authored-twin",
+      "courses": ["aa-sl", "aa-hl", "ai-sl", "ai-hl"]
     }
   ]
 }

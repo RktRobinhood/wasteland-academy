@@ -1825,39 +1825,34 @@
         "say": "9c0bf8a5ff4ed9c5",
         "take": null
       },
-      "b5fxtk": {
+      "t1s7ma": {
         "speaker": "tin-can-tess",
-        "say": "b3beff4755d205aa",
+        "say": "3224457fcfeb0631",
         "take": null
       },
-      "yeuota": {
+      "t1s7mb": {
         "speaker": "tin-can-tess",
-        "say": "9846d50ff82ac0fe",
+        "say": "be0b072614afa75e",
         "take": null
       },
-      "gzl7b5": {
+      "t1s7md": {
         "speaker": "tin-can-tess",
-        "say": "81102c9bd50e250f",
+        "say": "b31c285cc54fe45b",
         "take": null
       },
-      "tr0kh6": {
+      "t1s7mc": {
         "speaker": "tin-can-tess",
-        "say": "4fda5f95209dd282",
+        "say": "54455dabd05620b9",
         "take": null
       },
-      "kjr7wr": {
+      "t1s7me": {
         "speaker": "tin-can-tess",
-        "say": "2c40b258289387c7",
+        "say": "c8915befda0aff31",
         "take": null
       },
-      "ikaa8r": {
+      "t1s7mf": {
         "speaker": "tin-can-tess",
-        "say": "1ca8104b6e7e9261",
-        "take": null
-      },
-      "k9bbj5": {
-        "speaker": "tin-can-tess",
-        "say": "5e2487124a2be28c",
+        "say": "e8801089a6ee9654",
         "take": null
       },
       "vogcm3": {
@@ -1875,14 +1870,14 @@
         "say": "4d9744d09ab41db7",
         "take": null
       },
-      "k0qklt": {
+      "t1s7mg": {
         "speaker": "tin-can-tess",
-        "say": "da7000d235a7a48b",
+        "say": "1a6f958c34055455",
         "take": null
       },
-      "vnm06n": {
+      "t1s7mh": {
         "speaker": "tin-can-tess",
-        "say": "e13f58ae237aeb61",
+        "say": "db8d3d9516fa497a",
         "take": null
       },
       "t092d7": {
@@ -8944,6 +8939,53 @@
       "lgs46l": {
         "speaker": "rook-dead-air",
         "say": "15ed3010a19826d1",
+        "take": null
+      }
+    },
+    "ex.foundations.pre-substitute": {
+      "b5fxtk": {
+        "speaker": "tin-can-tess",
+        "say": "b3beff4755d205aa",
+        "take": null
+      },
+      "yeuota": {
+        "speaker": "tin-can-tess",
+        "say": "9846d50ff82ac0fe",
+        "take": null
+      },
+      "gzl7b5": {
+        "speaker": "tin-can-tess",
+        "say": "81102c9bd50e250f",
+        "take": null
+      },
+      "tr0kh6": {
+        "speaker": "tin-can-tess",
+        "say": "4fda5f95209dd282",
+        "take": null
+      },
+      "kjr7wr": {
+        "speaker": "tin-can-tess",
+        "say": "2c40b258289387c7",
+        "take": null
+      },
+      "ikaa8r": {
+        "speaker": "tin-can-tess",
+        "say": "1ca8104b6e7e9261",
+        "take": null
+      },
+      "k9bbj5": {
+        "speaker": "tin-can-tess",
+        "say": "5e2487124a2be28c",
+        "take": null
+      },
+      "k0qklt": {
+        "speaker": "tin-can-tess",
+        "say": "da7000d235a7a48b",
+        "take": null
+      },
+      "vnm06n": {
+        "speaker": "tin-can-tess",
+        "say": "e13f58ae237aeb61",
         "take": null
       }
     }

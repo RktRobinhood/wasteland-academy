@@ -43,7 +43,8 @@
     "No second-method section: the map lists no methods. The lesson's four (bracket-first, order of operations, top-and-bottom, estimate-check) are all here except top-and-bottom, which needs a fraction input and is left to the question type.",
     "Example 3 is a two-part course-style item (SL2.2 function notation), as FAL-953 allows for Foundations.",
     "Live numbers for the turns come from fn-pre-substitute (game/engine/situations/substitute.gd); the fallbacks are fixed and worked below.",
-    "Format 2 (FAL-1043): moved from approved back to draft until it passes the format 2 checks (#188, #190, #191). `node tools/explainer-scripts.mjs --todo` lists what is left: turn lines with numbers or story words, not-yet lines to key to misconceptions, repeated frames and jokes."
+    "Format 2 (FAL-1043): moved from approved back to draft until it passes the format 2 checks (#188, #190, #191). `node tools/explainer-scripts.mjs --todo` lists what is left: turn lines with numbers or story words, not-yet lines to key to misconceptions, repeated frames and jokes.",
+    "Archive candidate: focused context-first worked excerpt and independent fixed twin. Wider format-3 rewrite and toy are not part of this candidate. Do not record or release until reviewed."
   ],
   "sections": [
     {
@@ -218,104 +219,108 @@
       "kind": "example",
       "level": "full",
       "problem": {
-        "setup": "Find the value of x² + 5 when x = −3."
+        "setup": "The test drum returns x² + 5 for a setting x. Find the reading when x = −3.",
+        "setting": "The test drum at Tess’s Scrapworks bench."
       },
       "beats": [
         {
-          "line": "b5fxtk",
+          "line": "t1s7ma",
           "speaker": "tin-can-tess",
-          "say": "Step one: what we're finding. The value of x squared plus five, when x is minus three.",
-          "caption": "Step one: what we're finding. The value of x² + 5, when x is −3.",
-          "clear": true,
+          "say": "This drum squares the setting, then adds five. Its setting is minus three. What reading should it give?",
+          "caption": "This drum squares the setting, then adds 5. Its setting is −3. What reading should it give?",
           "board": [
             {
-              "write": "Find the value of x² + 5 when x = −3.",
-              "kind": "heading",
-              "label": "Step 1: what are we finding?"
+              "write": "Drum reading: x² + 5",
+              "kind": "heading"
+            },
+            {
+              "write": "Setting: x = −3",
+              "kind": "step"
             }
-          ]
+          ],
+          "clear": true,
+          "pause": 1
         },
         {
-          "line": "yeuota",
+          "line": "t1s7mb",
           "speaker": "tin-can-tess",
-          "say": "Step two: substitute. Take x out, and put minus three in, brackets and all.",
-          "caption": "Step two: substitute. Take x out, and put −3 in, brackets and all.",
+          "say": "Put the whole setting in for x. The brackets keep the minus sign with the three. The square acts on both.",
+          "caption": "Put the whole setting in for x. The brackets keep the minus sign with the 3. The square acts on both.",
           "board": [
             {
-              "write": "(−3)² + 5",
-              "move": "substitute",
-              "label": "Step 2: substitute, in brackets"
+              "write": "x² + 5 = (−3)² + 5",
+              "kind": "step",
+              "move": "substitute"
             }
-          ]
+          ],
+          "pause": 1.15
         },
         {
           "ask": {
             "kind": "why",
-            "prompt": "Why the brackets round −3?",
+            "prompt": "Which number does the square act on here?",
             "choices": [
-              "So the whole −3 is squared, sign and all",
-              "Brackets make the answer bigger",
-              "The question had brackets"
+              "The whole −3",
+              "Only the 3",
+              "The 5 we add afterwards"
             ],
             "answer": 0,
-            "right": [
-              {
-                "line": "gzl7b5",
-                "speaker": "tin-can-tess",
-                "say": "That's it. The minus goes in with the three, and the brackets keep them together."
-              }
-            ],
+            "right": [],
             "not_yet": [
               {
-                "line": "tr0kh6",
+                "line": "t1s7md",
                 "speaker": "tin-can-tess",
-                "say": "The brackets mean the whole minus three gets squared, sign and all. Without them, only the three would be.",
-                "caption": "The brackets mean the whole −3 gets squared, sign and all. Without them, only the three would be."
+                "say": "Look at what is inside the brackets. The square acts on the whole number in there."
               }
             ]
           }
         },
         {
-          "line": "kjr7wr",
+          "line": "t1s7mc",
           "speaker": "tin-can-tess",
-          "say": "Step three: the order, and the power goes first, so minus three, in brackets, squared, is nine, and then you add the five and you've got fourteen.",
-          "caption": "Step three: the order, and the power goes first, so (−3)² is 9, and then you add the 5 and you've got 14.",
+          "say": "The whole minus three. Minus three times minus three is nine. Without the brackets, the minus stays outside the square.",
+          "caption": "The whole −3. −3 times −3 is 9. Without the brackets, the minus stays outside the square.",
+          "board": [
+            {
+              "write": "(−3)² = (−3) × (−3) = 9",
+              "kind": "step"
+            },
+            {
+              "write": "−3² = −(3²) = −9",
+              "kind": "note"
+            }
+          ],
+          "pause": 1.3
+        },
+        {
+          "line": "t1s7me",
+          "speaker": "tin-can-tess",
+          "say": "Now add five to nine. The drum should read fourteen.",
+          "caption": "Now add 5 to 9. The drum should read 14.",
           "board": [
             {
               "write": "= 9 + 5",
-              "move": "evaluate",
-              "label": "Step 3: powers first, then add"
+              "kind": "step",
+              "move": "evaluate"
             },
             {
-              "write": "= 14",
-              "move": "evaluate"
-            }
-          ]
-        },
-        {
-          "line": "ikaa8r",
-          "speaker": "tin-can-tess",
-          "say": "Step four: the answer. When x is minus three, x squared plus five is fourteen.",
-          "caption": "Step four: the answer. When x is −3, x² + 5 is 14.",
-          "board": [
-            {
-              "write": "When x = −3, x² + 5 = 14.",
-              "move": "state-answer",
+              "write": "= 14: the expected reading",
               "kind": "answer",
-              "label": "Step 4: the answer"
+              "move": "state-answer"
             }
-          ]
+          ],
+          "pause": 0.9
         },
         {
-          "line": "k9bbj5",
+          "line": "t1s7mf",
           "speaker": "tin-can-tess",
-          "say": "Then check the sign. A square is never negative, so x squared plus five can't come out under five, and fourteen doesn't. Sweet as.",
-          "caption": "Then check the sign. A square is never negative, so x² + 5 can't come out under five, and fourteen doesn't. Sweet as.",
+          "say": "Check it before you send the drum out. A square cannot be negative, so the reading has to be at least five. Fourteen fits.",
+          "caption": "Check it before you send the drum out. A square cannot be negative, so the reading has to be at least 5. 14 fits.",
           "board": [
             {
-              "write": "Check: x² ≥ 0, so x² + 5 ≥ 5, and 14 ≥ 5 ✓",
-              "move": "check",
-              "kind": "check"
+              "write": "Check: x² + 5 ≥ 5, and 14 ≥ 5",
+              "kind": "check",
+              "move": "check"
             }
           ]
         }
@@ -344,18 +349,24 @@
           }
         ],
         "fallback": {
-          "setup": "Find the value of x² + 7 when x = −4.",
+          "setup": "The test drum now returns x² + 7 for a setting x.",
           "parts": [
             {
-              "text": "Find the value.",
-              "answer": "23"
+              "text": "Find the reading when x = −4.",
+              "answer": "23",
+              "wrong": [
+                {
+                  "answer": "−9",
+                  "misconception": "fn-pre-substitute#0"
+                }
+              ]
             }
           ],
           "working": [
-            "(−4)² + 7",
+            "x² + 7 = (−4)² + 7",
             "= 16 + 7",
-            "= 23",
-            "Check: 23 ≥ 7 ✓"
+            "= 23: the expected reading",
+            "Check: the reading is at least 7"
           ]
         },
         "right": [
@@ -372,14 +383,15 @@
         ],
         "not_yet": [
           {
-            "line": "k0qklt",
+            "line": "t1s7mg",
             "speaker": "tin-can-tess",
-            "say": "Back on the bench with it. Can a square come out negative?"
+            "say": "Your result treated the minus as outside the square. Put the negative input inside the brackets, then square the whole number.",
+            "misconception": "fn-pre-substitute#0"
           },
           {
-            "line": "vnm06n",
+            "line": "t1s7mh",
             "speaker": "tin-can-tess",
-            "say": "Put the number in with its brackets, then do the power first."
+            "say": "Write down the substituted expression first. Do the square before adding the constant."
           }
         ]
       }
