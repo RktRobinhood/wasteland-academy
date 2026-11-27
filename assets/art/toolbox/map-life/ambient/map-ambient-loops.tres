@@ -1,0 +1,125 @@
+[gd_resource type="AnimationLibrary" load_steps=5 format=3]
+
+[sub_resource type="Animation" id="Animation_tumbleweed"]
+resource_name = "tumbleweed"
+length = 12
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Tumbleweed:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1, 2.5, 4, 5.5, 7, 8.5, 10, 11, 11.1, 12),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(334, 1670), Vector2(334, 1670), Vector2(391, 1663), Vector2(448, 1670), Vector2(505, 1661), Vector2(562, 1668), Vector2(619, 1664), Vector2(676, 1670), Vector2(714, 1670), Vector2(334, 1670), Vector2(334, 1670)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Tumbleweed:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1, 11, 11.1, 12),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 10.857142857142858, 0.0, 0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Tumbleweed:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 1, 2, 9.2, 10.9, 12),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 0), Color(1, 1, 1, 0.93), Color(1, 1, 1, 0.93), Color(1, 1, 1, 0), Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_dust"]
+resource_name = "dust"
+length = 14
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("DustEddy:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1, 12.8, 13, 14),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(742, 1654), Vector2(742, 1654), Vector2(931, 1642), Vector2(742, 1654), Vector2(742, 1654)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("DustEddy:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1, 4, 7.5, 10, 12.6, 14),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 0), Color(1, 1, 1, 0.26), Color(1, 1, 1, 0.42), Color(1, 1, 1, 0.24), Color(1, 1, 1, 0), Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_pennant"]
+resource_name = "pennant"
+length = 5.3
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Pennant:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.95, 1.85, 2.6, 3.35, 4.15, 5.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.02, -0.086, 0.052, -0.098, 0.072, -0.052, 0.02]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Pennant:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.95, 1.85, 2.6, 3.35, 4.15, 5.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(0.93, 1.05), Vector2(1.02, 0.97), Vector2(0.92, 1.06), Vector2(1.025, 0.99), Vector2(0.94, 1.03), Vector2(1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_lamp"]
+resource_name = "lamp"
+length = 5.6
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Lamp:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.8, 1.65, 2.1, 2.23, 3.15, 4.2, 5.1, 5.6),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.91, 0.85, 0.78, 1), Color(1, 0.96, 0.89, 1), Color(0.87, 0.79, 0.72, 1), Color(0.99, 0.89, 0.78, 1), Color(0.85, 0.78, 0.72, 1), Color(1, 0.97, 0.87, 1), Color(0.93, 0.86, 0.78, 1), Color(0.96, 0.9, 0.84, 1), Color(0.91, 0.85, 0.78, 1)]
+}
+
+[resource]
+_data = {
+&"tumbleweed": SubResource("Animation_tumbleweed"),
+&"dust": SubResource("Animation_dust"),
+&"pennant": SubResource("Animation_pennant"),
+&"lamp": SubResource("Animation_lamp")
+}

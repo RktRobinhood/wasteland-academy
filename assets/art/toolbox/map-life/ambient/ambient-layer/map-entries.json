@@ -1,0 +1,98 @@
+{
+  "map": [
+    {
+      "id": "toolbox-tumbleweed",
+      "sheet": "toolbox-tumbleweed",
+      "position": [
+        334,
+        1670
+      ],
+      "anchor": [
+        63,
+        63
+      ],
+      "scale": 1.043956043956044,
+      "fps": 4,
+      "frames": "cycle",
+      "motion": "path",
+      "path": [
+        [
+          460,
+          1666
+        ],
+        [
+          587,
+          1671
+        ],
+        [
+          714,
+          1670
+        ]
+      ],
+      "seconds": 20,
+      "loop": false,
+      "bob": 3,
+      "bob_period": 1.6,
+      "phase": 0
+    },
+    {
+      "id": "toolbox-dust-eddy",
+      "sheet": "toolbox-dust-eddy",
+      "position": [
+        742,
+        1654
+      ],
+      "anchor": [
+        92,
+        26
+      ],
+      "scale": 1.2065217391304348,
+      "fps": 2,
+      "frames": "cycle",
+      "motion": "drift",
+      "to": [
+        931,
+        1642
+      ],
+      "seconds": 14,
+      "phase": 0
+    },
+    {
+      "id": "toolbox-market-pennant",
+      "sheet": "toolbox-market-pennant",
+      "position": [
+        160,
+        1227
+      ],
+      "anchor": [
+        9.5,
+        28.1
+      ],
+      "scale": 0.5416666666666666,
+      "frames": "still",
+      "motion": "sway",
+      "period": 5.3,
+      "amount": 4.8,
+      "phase": 0.27,
+      "still": 0
+    },
+    {
+      "id": "toolbox-salvaged-lamp",
+      "sheet": "toolbox-salvaged-lamp",
+      "position": [
+        140,
+        1223
+      ],
+      "anchor": [
+        17,
+        5.6
+      ],
+      "scale": 0.4647058823529412,
+      "fps": 4,
+      "frames": "cycle",
+      "motion": "none",
+      "phase": 0.32,
+      "still": 0
+    }
+  ]
+}

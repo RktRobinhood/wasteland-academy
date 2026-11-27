@@ -1,0 +1,113 @@
+{
+  "scope": "Suggested positions in original 1080\u00d71920 portrait overworld, never a replacement for game/data/ambient.json",
+  "library": "map-ambient-loops.tres",
+  "layer": "World/Board/Ambient",
+  "input": "Decorative only. Mouse Filter Ignore on Control wrappers. Put all props below pins and buttons.",
+  "reducedMotion": "Do not start loops. Hide dust and tumbleweed; apply first Frame of pennant and lamp as stills.",
+  "boardSize": [
+    1080,
+    1920
+  ],
+  "clip": {
+    "tumbleweed": {
+      "nodePath": "Tumbleweed",
+      "texture": "tumbleweed.png",
+      "pivotUv": [
+        0.5,
+        0.51
+      ],
+      "basePosition": [
+        334,
+        1670
+      ],
+      "widthBoardUnits": 95,
+      "durationSeconds": 12,
+      "stillSeconds": null,
+      "coverage": {
+        "visibleSweptBounds": [
+          295.1,
+          1611.3,
+          750.0,
+          1721.9
+        ],
+        "hotspotsIntersected": 0,
+        "timesSampled": 401
+      }
+    },
+    "dust": {
+      "nodePath": "DustEddy",
+      "texture": "dust-eddy.png",
+      "pivotUv": [
+        0.5,
+        0.58
+      ],
+      "basePosition": [
+        742,
+        1654
+      ],
+      "widthBoardUnits": 222,
+      "durationSeconds": 14,
+      "stillSeconds": null,
+      "coverage": {
+        "visibleSweptBounds": [
+          652.0,
+          1625.0,
+          1019.4,
+          1662.4
+        ],
+        "hotspotsIntersected": 0,
+        "timesSampled": 401
+      }
+    },
+    "pennant": {
+      "nodePath": "Pennant",
+      "texture": "market-pennant.png",
+      "pivotUv": [
+        0.066,
+        0.52
+      ],
+      "basePosition": [
+        160,
+        1227
+      ],
+      "widthBoardUnits": 78,
+      "durationSeconds": 5.3,
+      "stillSeconds": 0,
+      "coverage": {
+        "visibleSweptBounds": [
+          157.6,
+          1210.4,
+          231.4,
+          1240.6
+        ],
+        "hotspotsIntersected": 0,
+        "timesSampled": 401
+      }
+    },
+    "lamp": {
+      "nodePath": "Lamp",
+      "texture": "salvaged-lamp.png",
+      "pivotUv": [
+        0.5,
+        0.087
+      ],
+      "basePosition": [
+        140,
+        1223
+      ],
+      "widthBoardUnits": 15.8,
+      "durationSeconds": 5.6,
+      "stillSeconds": 0,
+      "coverage": {
+        "visibleSweptBounds": [
+          133.6,
+          1222.4,
+          146.3,
+          1248.1
+        ],
+        "hotspotsIntersected": 0,
+        "timesSampled": 401
+      }
+    }
+  }
+}

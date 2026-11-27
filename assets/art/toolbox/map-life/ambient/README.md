@@ -1,0 +1,13 @@
+# Wasteland Academy: passive map life
+
+Four original alpha sprites for the 1080×1920 portrait overworld: a rolling tumbleweed, a low drifting dust eddy, a mounted frayed pennant, and a mounted caged lamp with a restrained glint. Draw **above the board painting but below all pins, banners and hit targets**. Keep Control wrappers at `MOUSE_FILTER_IGNORE`; these props never become choices and carry no game state.
+
+## Use one of these options, not both
+
+**Current Wasteland Academy AmbientLayer (recommended for the first integration):** Copy the texture/frame-map pairs from `ambient-layer/` into the game project’s `assets/ambient/`, the current runtime’s required location. Add, do not replace, the four `map` entries from `ambient-layer/map-entries.json` in the project’s `data/ambient.json`. Names are namespaced `toolbox-`. The atlas uses four-fps visible outward frames and blank frames on the hidden return. Existing wind/smoke/beacon/crow/fight effects are untouched. Reduced motion automatically hides the weed and dust and holds the cloth and lamp still. All eight stock hotspot rectangles were checked conservatively. Do not repeat these placements on a different crop without re-checking its art coordinates.
+
+**Native continuous Godot AnimationLibrary:** Use `map-ambient-loops.tres` and `placements.json`. Under a board-space, input-transparent ambient wrapper, create four Node2D siblings named `Tumbleweed`, `DustEddy`, `Pennant`, and `Lamp`. Each owns a non-centered Sprite2D. For each Sprite2D apply `offset = -texture.get_size() * pivot_uv` and a uniform scale of `widthBoardUnits / texture.get_width()`. Apply board position to the named Node2D holder, not the image. Add an AnimationPlayer per desired clip, set its `root_node` to the common wrapper, and give it the library; create all four holders before attaching the library. The named tracks animate the holders. For reduced motion do not start loops, hide the weed/dust, and explicitly apply frame zero to the pennant/lamp. Set earlier draw ordering explicitly if integrating in a new board. Keep the lamp deliberately sub-marker sized.
+
+Tumbleweed rotation tracks travel/radius during the visible run; there is no apparent un-rolling on reset. Cloth seam and lantern hook stay fixed. Full art origin and recorded prompts: `provenance.json`.
+
+Validation used Godot 4.7.2 with the actual cached AmbientLayer and the portrait concept board in an isolated project. The supplied pack is assets and recipes, not a live-map change or a published game build. Take the portrait anchor positions as draft placement if the game changes its board art or hotspots.

@@ -1,0 +1,139 @@
+{
+  "method": "Built-in OpenAI ImageGen, requested genuine transparent alpha. New art; the board is style reference only, not sampled sprite pixels.",
+  "reference": "Exact pinned Wasteland Academy overworld-wide board concept at navrefs/overworld-wide.webp. Proof composited over original 1080\u00d71920 portrait board.",
+  "production": "Tight alpha-aware production trim and resampling preserved RGBA; compatibility animation sheets constructed from these sprite transforms. Original generated sources preserved separately.",
+  "sprites": {
+    "tumbleweed": {
+      "source": "c7247713",
+      "dimensions": [
+        192,
+        192
+      ],
+      "coverage": [
+        158,
+        158
+      ],
+      "threshold": 8,
+      "pivot": [
+        0.5,
+        0.51
+      ],
+      "asset": "tumbleweed.png",
+      "source_name": "exec-c7247713-cfce-4027-9ef0-44d7da8b72c7.png",
+      "source_sha256": "1fce0b0f369e8d56f9e5a9547356cc24f044f6ed9f08a3bf983e55ba3f4d0e7b",
+      "trim_bounds": [
+        341,
+        111,
+        1289,
+        907
+      ],
+      "subject_bounds": [
+        17,
+        29,
+        175,
+        162
+      ],
+      "asset_sha256": "af3aebb16f1a4cddd2af07eeef80867870f3ebed60f1aa4886eac10ba04aa33b",
+      "prompt": "Game sprite. A dry round tumbleweed in 3/4 overhead orthographic view as if seen on the ground in the map, a roughly spherical mesh of pale straw and burnt sienna twigs with a more solid dark core, bright warm edges with restrained dark ink, small transparent holes visible between bold 7\u201312 outer twig shapes. Distinct asymmetric notch and a fork of longer branches on one side so rotation reads. Center it on its geometric center. No sweeping wind marks or dust. It will physically roll from a center pivot. Style reference: the supplied landscape is mood, palette and ink-language only, never a backdrop or something to cut out. Match that rusty terra-cotta, hand-painted dark-ink graphic-novel Wasteland Academy board game. The result is a newly invented standalone game sprite in straight RGBA with a genuinely transparent background; no ground, no sky, no letters, no labels, no border, no drop shadow, generous clear margin, one subject only. Major forms must read when small in a richly textured map."
+    },
+    "dust-eddy": {
+      "source": "e8241f0b",
+      "dimensions": [
+        268,
+        66
+      ],
+      "coverage": [
+        244,
+        50
+      ],
+      "threshold": 4,
+      "pivot": [
+        0.5,
+        0.58
+      ],
+      "asset": "dust-eddy.png",
+      "source_name": "exec-e8241f0b-24f1-4060-884a-ef1cfee59360.png",
+      "source_sha256": "104a62b6d41c59767b6d89efd9e39a6f87dafe3bac2804d274a37c53d77c4f12",
+      "trim_bounds": [
+        172,
+        246,
+        2044,
+        497
+      ],
+      "subject_bounds": [
+        17,
+        17,
+        252,
+        49
+      ],
+      "asset_sha256": "4b8fe41df531f59cbce95f1492f1f0f36033628a2b9f3b67c34b29a9acc48d05",
+      "prompt": "Isolated low-opacity drifting desert dust game sprite viewed from 3/4 overhead. A tight low horizontal tapered eddy of dusty pale warm-beige translucent sand, no giant billowing cloud, no stones or smoke from a chimney. A couple gently curling whorls, lower-density and very soft fading edge; 3:1 horizontal aspect of the object in the center of a transparent field. Sparse little grains, modest contrast so it overlays orange soil almost invisibly from a distance. Style reference: the supplied landscape is mood, palette and ink-language only, never a backdrop or something to cut out. Match that rusty terra-cotta, hand-painted dark-ink graphic-novel Wasteland Academy board game. The result is a newly invented standalone game sprite in straight RGBA with a genuinely transparent background; no ground, no sky, no letters, no labels, no border, no drop shadow, generous clear margin, one subject only. Major forms must read when small in a richly textured map."
+    },
+    "market-pennant": {
+      "source": "88d06eb5",
+      "dimensions": [
+        236,
+        88
+      ],
+      "coverage": [
+        214,
+        75
+      ],
+      "threshold": 8,
+      "pivot": [
+        0.066,
+        0.52
+      ],
+      "asset": "market-pennant.png",
+      "source_name": "exec-88d06eb5-3900-4c5c-942f-40122c8432f8.png",
+      "source_sha256": "48bd5f469f722df36baff9b67d5bf866b5bec93260bb7ba2eff0a1e5df3fc0d3",
+      "trim_bounds": [
+        319,
+        160,
+        1839,
+        552
+      ],
+      "subject_bounds": [
+        11,
+        16,
+        225,
+        72
+      ],
+      "asset_sha256": "e832ac8d10e56557f7602712bb634bc917d3e204f6f20f066bcc2a6103f00e19",
+      "prompt": "Isolated scavenged wind pennant PATCH only, not a full flagpole. A small torn deep rust magenta piece of cloth fluttering to the right with scrappy edge, faded salmon highlighted fold and one restrained shadow fold; left edge has a short upright seam to secure to a post, artwork originates at that seam and extends horizontally to the right. Frame the entire object centered in the image, transparent around all edges, bold silhouette readable at 20 pixels, no hardware extending beyond seam. Style reference: the supplied landscape is mood, palette and ink-language only, never a backdrop or something to cut out. Match that rusty terra-cotta, hand-painted dark-ink graphic-novel Wasteland Academy board game. The result is a newly invented standalone game sprite in straight RGBA with a genuinely transparent background; no ground, no sky, no letters, no labels, no border, no drop shadow, generous clear margin, one subject only. Major forms must read when small in a richly textured map."
+    },
+    "salvaged-lamp": {
+      "source": "620602b1",
+      "dimensions": [
+        98,
+        184
+      ],
+      "coverage": [
+        80,
+        160
+      ],
+      "threshold": 8,
+      "pivot": [
+        0.5,
+        0.087
+      ],
+      "asset": "salvaged-lamp.png",
+      "source_name": "exec-620602b1-9174-4809-85c4-658e6a35f8e8.png",
+      "source_sha256": "4be1a75b35b7e0dec74dc240734eb419bdd425e95dd2896c7ae26eefbe4b8485",
+      "trim_bounds": [
+        422,
+        106,
+        892,
+        1061
+      ],
+      "subject_bounds": [
+        9,
+        12,
+        88,
+        172
+      ],
+      "asset_sha256": "568a97d3f4027d0c865b85122bb6ee6d0f51c55b9a954bc677d02f48d6c6ca42",
+      "prompt": "An isolated tiny old salvaged amber caged lantern game sprite. Three-quarter simplified side view with a small dark hanging eye above, an aged blackened or rust iron cage surrounding one luminous honey-orange bulb, solid stylized base, warm small glass panel. Traditional scavenger industrial object not a fancy fantasy streetlamp. Tight distinct silhouette emphasized; deliberately no environmental glow or flare bleeding outside the cage because the pulse is animated separately. Style reference: the supplied landscape is mood, palette and ink-language only, never a backdrop or something to cut out. Match that rusty terra-cotta, hand-painted dark-ink graphic-novel Wasteland Academy board game. The result is a newly invented standalone game sprite in straight RGBA with a genuinely transparent background; no ground, no sky, no letters, no labels, no border, no drop shadow, generous clear margin, one subject only. Major forms must read when small in a richly textured map."
+    }
+  }
+}

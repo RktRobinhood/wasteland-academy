@@ -2,12 +2,15 @@
 
 An art-only shelf. The integration team can select, adapt, crop, animate or leave any item here. **Do not merge this branch or import the whole folder.** Bring only the selected exports into a normal issue-linked game PR. Masters and previews do not belong in the shipped build.
 
+[Shared art needs and integration handoff](ART_NEEDS.md)
+
 ## Pick a piece
 
 | Zone / set | What is available | Where to start |
 |---|---|---|
 | All five sectors · Battle day/night | 38 matched pairs on the art shelf, with the original dark plates preserved. Not wired into the game. | [Battle collection](day-night/README.md) · [Coverage](day-night/coverage.json) · [Preview](day-night/preview.jpg) |
 | Overworld + five sectors · Navigation day/night | 12 paired navigation plates in portrait and wide formats. Art shelf only; check live hotspots before using. | [Navigation collection](navigation-day-night/README.md) · [Index](navigation-day-night/index.json) · [Preview](navigation-day-night/preview-overworld-stats-calculus.jpg) |
+| Overworld · Ambient map life | Four original low-motion props, with reduced-motion fallbacks and draft hotspot-safe placements. Art shelf only. | [Ambient map-life kit](map-life/ambient/README.md) |
 | All five sectors · Creature families | 55 families, 11 per sector, with 50 static cutouts and five earlier kits. Art shelf only. | [Creature library](creature-library/README.md) · [Family lookup](creature-library/roster.json) |
 | Creature motion · Flyers | Canvas Ray, Dune Cutwing and Pulley Wasp have optional native hover and dodge clips. These are existing families, not new encounters. | [Flyer animation kits](flyer-animation/README.md) |
 | Named bosses · Animated portraits | All 13 canonical primary bosses, with three native Godot clips each: idle blink, signature taunt and hit reaction. Not wired into encounters. | [Boss animation library](boss-animation/README.md) · [Clip index](boss-animation/index.json) |
