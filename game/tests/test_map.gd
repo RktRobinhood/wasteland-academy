@@ -12,7 +12,7 @@ extends "res://tests/test_case.gd"
 ## own island, island_of() for every region, each island's spots laid out with no overlap,
 ## the Thunderdome's screen and the Relic Library's card.
 ## The world map as a fast-travel map (FAL-988): zones from the painting with none
-## overlapping, a pin and an always-shown name banner per place, the pin states and the
+## overlapping, a pin and a revealable name per place, the pin states and the
 ## "you are here" marker.
 
 const MAP := "res://scenes/map.tscn"
@@ -382,7 +382,7 @@ func test_the_world_map_opens_the_bazaar_and_leaving_it_goes_back() -> void:
 	var m: Control = made[1]
 	var shop := m.world_board.get_node("Bazaar") as Button
 	check_eq(_card_of(m, shop), "Bazaar · 1240 Scrap to spend", "the Scrap to spend")
-	check_eq(shop.tooltip_text, "Bazaar · 1240 Scrap to spend")
+	check_eq(shop.accessibility_name, "Bazaar: 1240 Scrap to spend")
 	check_eq((m.world.get_node("Header").get_child(0).get_node("Scrap") as Label).text, "Scrap: 1240")
 	# The Bazaar's zone, the caravan on the FAL-986 painting, trimmed clear of the Engine Core.
 	var zone: Rect2 = preload("res://ui/map.gd").BAZAAR_ZONE
@@ -432,16 +432,6 @@ func _rect(zone: Rect2) -> Rect2:
 	return Rect2(zone.position - zone.size / 2.0, zone.size)
 
 
-## WCAG contrast of two opaque colours.
-func _contrast(a: Color, b: Color) -> float:
-	var lum := func(c: Color) -> float:
-		var ch := [c.r, c.g, c.b].map(func(v): return v / 12.92 if v <= 0.04045 else pow((v + 0.055) / 1.055, 2.4))
-		return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2]
-	var la: float = lum.call(a)
-	var lb: float = lum.call(b)
-	return (maxf(la, lb) + 0.05) / (minf(la, lb) + 0.05)
-
-
 func test_the_world_zones_come_from_the_painting_with_no_two_overlapping() -> void:
 	var places := _world_places()
 	check_eq(places.size(), 8)
@@ -462,60 +452,36 @@ func test_the_world_zones_come_from_the_painting_with_no_two_overlapping() -> vo
 	_done(made)
 
 
-func test_the_world_map_names_every_place_on_a_banner() -> void:
+func test_the_world_map_uses_visible_pins_without_names_at_rest() -> void:
 	var made: Array = await _map({"screen": "world"})
 	var m: Control = made[1]
 	var board: Control = m.world_board
-	var shown := _board_text(board, true)
-	var banners: Array = []
 	for p in _world_places():
 		var b := board.get_node(p[0]) as Button
-		var banner := b.get_node("Banner") as PanelContainer
 		var name := (b.get_meta("card") as Array)[0] as String
-		check(banner.is_visible_in_tree(), "%s: its banner shows with nothing hovered" % p[0])
-		check_eq((banner.get_node("Name") as Label).text, name.to_upper())
-		check(name.to_upper() in shown, "%s: its name on the board" % p[0])
-		var label := banner.get_node("Name") as Label
-		check(label.get_theme_font("font") == UiTheme.TITLE_FONT, "%s: in the title font" % p[0])
-		check(label.get_theme_font_size("font_size") >= 40, "%s: readable on a phone" % p[0])
-		var plate := banner.get_theme_stylebox("panel") as StyleBoxFlat
-		check_eq(plate.border_color, UiTheme.SAND, "%s: a sand edge" % p[0])
-		var ratio := _contrast(label.get_theme_color("font_color"), Color(plate.bg_color, 1.0))
-		check(ratio >= 4.5, "%s: text on its plate at %.1f:1" % [p[0], ratio])
-		var r := Rect2(b.position + banner.position, banner.size)
-		check(Rect2(Vector2.ZERO, m.BOARD).encloses(r), "%s: its banner %s on the board" % [p[0], r])
-		var pin := b.get_node("Pin") as Control
-		check(r.position.y >= b.position.y + pin.position.y + pin.size.y - 1.0, "%s: the banner under its pin" % p[0])
-		for other in banners:
-			check(not r.intersects(other[1]), "%s's banner covers %s's" % [p[0], other[0]])
-		banners.append([p[0], r])
-	# Hover still brings the card with the second line.
+		var pin := b.get_node_or_null("Pin") as Control
+		check(pin != null and pin.is_visible_in_tree(), "%s: visible pin" % name)
+		check(b.get_node_or_null("Banner") == null, "%s: no permanent name plate" % name)
+		check(b.accessibility_name.begins_with(name + ": "), "%s: accessible identity" % name)
+		check_eq(b.tooltip_text, "", "%s: the game card is the only hover label" % name)
+	check(_board_text(board).is_empty(), "the world board has no resting name text")
 	var dome := board.get_node("Thunderdome") as Button
 	check_eq(_card_of(m, dome), "Thunderdome · Questions from all over the Wasteland")
 	check(not (board.get_node("Card") as Control).visible, "no card until a place is looked at")
 	_done(made)
 
 
-## A click on a place's banner goes into that place, even where the banner hangs past its
-## zone (the Engine Core's over the Relic Library's).
-func test_a_click_on_a_banner_goes_into_its_place() -> void:
+func test_the_world_map_pin_uses_its_button_for_a_single_desktop_click() -> void:
 	var save := SaveData.blank()
 	save.settings.reduced_motion = true
 	var made: Array = await _map({"screen": "world"}, save)
 	var m: Control = made[1]
-	var banner := m.world_board.get_node("Island_calculus/Banner") as Control
-	check_eq(banner.mouse_filter, Control.MOUSE_FILTER_STOP, "a banner takes its own clicks")
-	m._hide_card()
-	(m.world_board.get_node("Island_calculus/Banner") as Control).gui_input.emit(_release())
+	var b := m.world_board.get_node("Island_calculus") as Button
+	var pin := b.get_node("Pin") as Control
+	check_eq(pin.mouse_filter, Control.MOUSE_FILTER_IGNORE, "marker art must not intercept input")
+	b.pressed.emit()
 	check_eq(MapLink.current, {"screen": "island", "island": "calculus"}, "the Engine Core opens")
 	_done(made)
-
-
-func _release() -> InputEventMouseButton:
-	var e := InputEventMouseButton.new()
-	e.button_index = MOUSE_BUTTON_LEFT
-	e.pressed = false
-	return e
 
 
 func test_each_world_pin_shows_its_state() -> void:
@@ -535,34 +501,26 @@ func test_each_world_pin_shows_its_state() -> void:
 	_done(made)
 
 
-func test_you_are_here_starts_at_the_bazaar_and_follows_the_player() -> void:
+func test_last_travel_location_is_saved_without_an_overworld_marker() -> void:
 	check_eq(SaveData.blank().here, "bazaar", "a new save starts at the Bazaar")
-	var made: Array = await _map({"screen": "world"})
-	var m: Control = made[1]
-	var marks: Array = m.world_board.find_children("Here", "", true, false)
-	check_eq(marks.size(), 1, "one marker")
-	check_eq(String(marks[0].get_parent().name), "Bazaar")
-	check(marks[0].pulsing, "it pulses")
-	check(m.world_board.get_node("Bazaar").accessibility_name.ends_with("You are here"), "said to screen readers")
-	_done(made)
 	var save := SaveData.blank()
 	save.settings.reduced_motion = true
-	made = await _map({"screen": "world"}, save)
-	m = made[1]
-	(m.world_board.get_node("Island_geometry") as Button).pressed.emit()
+	var made: Array = await _map({"screen": "world"}, save)
+	var m: Control = made[1]
+	check(m.world_board.find_children("Here", "", true, false).is_empty())
+	var b := m.world_board.get_node("Island_geometry") as Button
+	b.pressed.emit()
 	check_eq(MapLink.current, {"screen": "island", "island": "geometry"})
-	check_eq(SaveData.load_from(SAVE).here, "geometry", "the save records where the player went")
+	check_eq(SaveData.load_from(SAVE).here, "geometry", "the save still records travel")
 	MapLink.go(m.get_tree(), MapLink.WORLD)
 	await tree.process_frame
 	m.show_route(MapLink.WORLD)
-	marks = m.world_board.find_children("Here", "", true, false)
-	check_eq(marks.size(), 1)
-	check_eq(String(marks[0].get_parent().name), "Island_geometry", "the marker moved to the Dry Flats")
-	check(not marks[0].pulsing, "no pulse with reduced motion")
+	check(m.world_board.find_children("Here", "", true, false).is_empty(), "no replacement marker")
+	check(not m.world_board.get_node("Island_geometry").accessibility_name.contains("You are here"))
 	_done(made)
 
 
-func test_a_save_from_before_the_marker_starts_at_the_bazaar() -> void:
+func test_a_save_from_before_last_travel_keeps_the_bazaar_default() -> void:
 	var v5 := SaveData.blank()
 	v5.version = 5
 	v5.erase("here")
@@ -570,8 +528,7 @@ func test_a_save_from_before_the_marker_starts_at_the_bazaar() -> void:
 	check_eq(s.version, SaveData.VERSION)
 	check_eq(s.here, "bazaar")
 	var made: Array = await _map({"screen": "world"}, {"version": 6, "here": "relic_library", "settings": {}})
-	check_eq(String(made[1].world_board.find_children("Here", "", true, false)[0].get_parent().name), "Bazaar",
-		"a place that can't be gone into falls back to the Bazaar")
+	check_eq(made[1].here(), "bazaar", "an invalid travel location still falls back")
 	_done(made)
 
 
@@ -629,10 +586,9 @@ func _card_of(m: Control, b: Button) -> String:
 
 
 ## The board's labels a player can see, other than the card's.
-func _board_text(board: Control, with_banners := false) -> Array:
-	# The names on their banners (#186) are the one text a board shows.
+func _board_text(board: Control) -> Array:
 	return board.find_children("*", "Label", true, false).filter(func(l): return l.is_visible_in_tree() \
-		and not board.get_node("Card").is_ancestor_of(l) and (with_banners or l.get_parent().name != "Banner")).map(func(l): return (l as Label).text)
+		and not board.get_node("Card").is_ancestor_of(l)).map(func(l): return (l as Label).text)
 
 
 func test_the_island_is_a_hub_laid_out_as_the_plan() -> void:
@@ -708,12 +664,11 @@ func test_no_roads_on_the_island() -> void:
 	_done(made)
 
 
-## On an island; the world map names its places on banners (FAL-988), and its card works
-## the same way (test_the_world_map_names_every_place_on_a_banner).
+## Both boards reveal a single card using the same hover and focus behavior.
 func test_names_hide_until_a_place_is_hovered_focused_or_tapped() -> void:
 	var save := SaveData.blank()
 	save.scrap = 75
-	for r in [{"screen": "island", "island": "functions"}]:
+	for r in [{"screen": "world"}, {"screen": "island", "island": "functions"}]:
 		var made: Array = await _map(r, save)
 		var m: Control = made[1]
 		var board: Control = m.world_board if r.screen == "world" else m.island_board
@@ -723,11 +678,11 @@ func test_names_hide_until_a_place_is_hovered_focused_or_tapped() -> void:
 		check(not card.visible, "%s: no card at first" % r.screen)
 		check(m.get_viewport().gui_get_focus_owner() in places, "%s: first focus on a place" % r.screen)
 		for t in _board_text(board):
-			check(not t in names, "%s: '%s' shows on the board" % [r.screen, t])
+			check(not t in names and not t.to_lower() in names.map(func(n): return String(n).to_lower()), "%s: '%s' shows on the board" % [r.screen, t])
 			check(not t.contains("Coming") and not t.contains("Locked") and not t.contains("Scrap"), "%s: '%s' on the board" % [r.screen, t])
 		for b in places:
 			check(b.accessibility_name.begins_with((b.get_meta("card") as Array)[0] + ": "), "%s: %s's name for screen readers" % [r.screen, b.name])
-			check(b.tooltip_text != "", "%s: %s's tooltip" % [r.screen, b.name])
+			check_eq(b.tooltip_text, "", "%s: no second tooltip for %s" % [r.screen, b.name])
 		# The mouse: hovering shows the card by the place, and leaving puts it away.
 		m._input(_mouse_motion())
 		var b: Button = places[1]
@@ -873,7 +828,12 @@ func test_painted_places_on_a_background() -> void:
 		check_eq(b.get_node_or_null("Padlock") != null, state == "locked", id + ": a padlock when locked")
 		check_eq(b.get_node_or_null("Wash") != null, state == "locked", id + ": a dark wash when locked")
 		check_eq(b.get_node_or_null("Flag") != null, state == "cleared", id + ": a flag when cleared")
-		check(b.flat and b.text == "", id + ": an invisible hit area")
+		var pin := b.get_node_or_null("Pin") as Control
+		check_eq(pin != null, state == "open", id + ": a pin when the painting needs an open marker")
+		if pin != null:
+			check(pin.is_visible_in_tree() and pin.size.x >= 72.0, id + ": visible pin")
+			check_eq(pin.mouse_filter, Control.MOUSE_FILTER_IGNORE, id + ": pin cannot swallow a tap")
+		check(b.flat and b.text == "", id + ": an unlabelled hit area")
 	check_eq(m.spot_state(open[0]), "cleared", "a cleared region to flag")
 	check(buttons[open[0]].size.is_equal_approx(Vector2(300, 300)), "a region's square")
 	check(buttons.relic.size.is_equal_approx(Vector2(160, 160)), "the relic's square")
@@ -1183,12 +1143,14 @@ func test_every_screen_fits_a_phone_and_a_pc_window() -> void:
 					check((l as Label).get_visible_line_count() == (l as Label).get_line_count(), "%s: %s clips" % [what, l.name])
 			else:
 				var board: Control = m.world_board if r.screen == "world" else m.island_board
-				check(screen.encloses(board.get_global_rect()), "%s: board %s outside %s" % [what, board.get_global_rect(), screen])
+				var frame: Rect2 = m._map_frames[board]
+				var painted := board.get_global_transform_with_canvas() * frame
+				check(screen.grow(1).encloses(painted), "%s: visible painting %s outside %s" % [what, painted, screen])
 				for b in board.get_children():
 					if b is Button:
 						check(screen.encloses((b as Control).get_global_rect()), "%s: %s outside" % [what, b.name])
 				var head: Control = (m.world if r.screen == "world" else m.island).get_node("Header")
-				check(head.get_global_rect().end.y <= board.get_global_rect().position.y + 1.0, "%s: the header overlaps the board" % what)
+				check(head.get_global_rect().end.y <= painted.position.y + 1.0, "%s: the header overlaps the board" % what)
 				if r.screen == "world":
 					check(m.world.get_node_or_null("Footer") == null, "%s: no bar under the board" % what)
 					var scrap := m.world.get_node("Header").get_child(0).get_node("Scrap") as Control
@@ -1393,4 +1355,159 @@ func test_relic_library_uses_one_address_and_does_not_gate_a_new_player() -> voi
 	check(not library.disabled)
 	check_eq(m.world_state("relic_library"), "open")
 	check_eq(m.here(), "bazaar", "study does not become a travel location")
+	_done(made)
+
+
+func test_responsive_art_uses_authored_world_registration_and_keeps_every_target() -> void:
+	var map_script := preload("res://ui/map.gd")
+	var save := SaveData.blank()
+	save.settings.reduced_motion = true
+	for window in [Vector2i(320, 568), Vector2i(390, 844), Vector2i(900, 650), Vector2i(1440, 900), Vector2i(1920, 1080)]:
+		var area := _area(window)
+		var wide: bool = window.x > window.y
+		var made: Array = await _map(MapLink.WORLD, save, area)
+		var m: Control = made[1]
+		var board: Control = m.world_board
+		var art := board.get_node("Art") as TextureRect
+		var frame: Rect2 = m._map_frames[board]
+		var active_width: float = (board.get_global_transform_with_canvas() * frame).size.x / area.x
+		check(active_width >= (0.895 if wide else 0.98), "uses the width: " + str(window))
+		check_eq(art.size, art.texture.get_size(), "never stretches map paint")
+		check_eq(m._wide_world, wide, str(window))
+		check_eq(m.world_board.find_children("Here", "", true, false).size(), 0)
+		var nodes := {"algebra": "Island_algebra", "functions": "Island_functions", "geometry": "Island_geometry",
+			"stats": "Island_stats", "calculus": "Island_calculus", "thunderdome": "Thunderdome",
+			"relic-library": "RelicLibrary", "bazaar": "Bazaar"}
+		for id in nodes:
+			var button := board.get_node(nodes[id]) as Button
+			var pin := button.get_node("Pin") as Control
+			var at := button.position + pin.position + pin.size * 0.5
+			check(frame.grow(0.5).encloses(Rect2(button.position, button.size)), id + " target in frame")
+			if wide:
+				var registered: Vector2 = map_script.WIDE_WORLD[id][1]
+				check(at.distance_to(frame.position + frame.size * registered / 100.0) < 0.01, id + " pinned to wide art")
+			m.show_card(button)
+			var card := board.get_node("Card") as Control
+			check(frame.grow(1.0).encloses(Rect2(card.position, card.size)), id + " card fits")
+		var ambient := board.get_node("Ambient") as AmbientLayer
+		check_eq(ambient.things.size(), 3 if wide else 5)
+		check_eq(ambient.thing("engine-smoke").base, Vector2(1058, 677) if wide else Vector2(554, 1003))
+		check(not (ambient.thing("engine-smoke").holder as Node2D).visible, "moving smoke is hidden for reduced motion")
+		_done(made)
+
+
+func test_wide_map_ambient_animates_while_the_reduced_motion_map_stays_still() -> void:
+	var size := Vector2(2600, 1920)
+	for reduce in [false, true]:
+		var save := SaveData.blank()
+		save.settings.reduced_motion = reduce
+		var made: Array = await _map(MapLink.WORLD, save, size)
+		var m: Control = made[1]
+		var ambient := m.world_board.get_node("Ambient") as AmbientLayer
+		var expected := Vector2(1920, 1080)
+		check_eq(ambient.size, expected)
+		check_eq(AmbientLayer.check(AmbientLayer.entries(m.AMBIENT, "map_wide"), expected), PackedStringArray())
+		var smoke := ambient.thing("engine-smoke")
+		var crow := ambient.thing("crow")
+		check_eq(smoke.base, Vector2(1058, 677))
+		var from: Vector2 = crow.holder.position
+		var first: int = smoke.frame
+		ambient._process(1.0)
+		if reduce:
+			check_eq(crow.holder.position, from)
+			check(not (smoke.holder as Node2D).visible)
+		else:
+			check((smoke.holder as Node2D).visible and (crow.holder as Node2D).visible)
+			check(crow.holder.position.distance_to(from) > 10.0, "crow moved through registered sky")
+			check(smoke.frame != first, "stack smoke advances its animation")
+			m.save.settings.reduced_motion = true
+			m.apply_settings()
+			check(ambient.reduced_motion and not (ambient.thing("engine-smoke").holder as Node2D).visible)
+		_done(made)
+
+
+func test_all_five_wide_islands_keep_registered_targets_and_cards_inside() -> void:
+	var save := SaveData.blank()
+	save.settings.reduced_motion = true
+	for window in [Vector2i(900, 650), Vector2i(1440, 900), Vector2i(1920, 1080)]:
+		var area := _area(window)
+		for id in MapLink.OPEN_ISLANDS:
+			var made: Array = await _map({"screen": "island", "island": id}, save, area)
+			var m: Control = made[1]
+			var board: Control = m.island_board
+			var art := board.get_node("Art") as TextureRect
+			check_eq(art.texture.resource_path, "res://assets/map/%s/background-wide.webp" % id)
+			var frame: Rect2 = m._map_frames[board]
+			var playable := 0
+			for node in board.get_children():
+				if not node is Button or not node.name.begins_with("Spot_"):
+					continue
+				var b: Button = node
+				var center := b.position + b.size / 2.0
+				var spot_id := String(b.name).trim_prefix("Spot_")
+				check(center.distance_to(m._spot_point(id, spot_id)) < 0.01, str([id, spot_id, "native landmark anchor is unchanged"]))
+				check(frame.grow(0.5).encloses(Rect2(b.position, b.size)), str([id, spot_id, "hit target is inside the painting"]))
+				m.show_card(b)
+				var card := board.get_node("Card") as Control
+				check(frame.grow(1.0).encloses(Rect2(card.position, card.size)), str([id, spot_id, "card fits"]))
+				if not b.disabled:
+					var hit := b.get_global_rect().size * Vector2(window) / area
+					check(minf(hit.x, hit.y) >= 44.0, str([id, spot_id, hit]))
+					playable += 1
+			check_eq(playable, MapLink.region_ids(id).size() + 1, id + " all normal regions plus the island run")
+			_done(made)
+
+
+func test_optional_wide_web_assets_reject_wrong_or_stale_responses() -> void:
+	var script := preload("res://ui/map.gd")
+	var headers := PackedStringArray(["Content-Type: image/webp"])
+	var html := PackedStringArray(["Content-Type: text/html"])
+	var ok := HTTPRequest.RESULT_SUCCESS
+	check_eq(script.wide_web_path("geometry", "v1.2.0"), "map-art/v1.2.0/geometry.webp")
+	check_eq(script.wide_web_path("../outside", "v1.2.0"), "")
+	var raw := FileAccess.get_file_as_bytes("res://assets/map/geometry/background-wide.webp")
+	var portrait := FileAccess.get_file_as_bytes("res://assets/map/geometry/background.webp")
+	var im: Image = script.read_wide_web_image(ok, 200, headers, raw)
+	check(im != null and im.get_size() == Vector2i(1920, 1080), "exact optional source")
+	check_eq(script.read_wide_web_image(ok, 200, html, raw), null, "do not accept HTML fallback")
+	check_eq(script.read_wide_web_image(ok, 404, headers, raw), null)
+	check_eq(script.read_wide_web_image(ok, 200, headers, portrait), null, "wrong asset dimensions")
+	var large := PackedByteArray()
+	large.resize(script.WIDE_ART_LIMIT + 1)
+	check_eq(script.read_wide_web_image(ok, 200, headers, large), null, "oversized reply rejected")
+
+
+func test_layout_completion_waits_until_a_touch_target_is_no_longer_armed() -> void:
+	var save := SaveData.blank()
+	save.settings.reduced_motion = true
+	var made: Array = await _map(MapLink.WORLD, save, _area(Vector2i(900, 650)))
+	var m: Control = made[1]
+	m.touch = true
+	var b := m.world_board.get_node("Island_geometry") as Button
+	m.press(b)
+	check(m.armed == b and m.card_for == b)
+	m._active_touch[7] = true
+	m._refresh_on_wide_load()
+	check(m._wide_update_waiting and m.armed == b and m.card_for == b)
+	m._active_touch.clear()
+	m._hide_card()
+	await tree.create_timer(0.30).timeout
+	check(not m._wide_update_waiting, "a late load resolved after the gesture")
+	check(m._wide_world and m.screen == "world")
+	_done(made)
+
+
+func test_landscape_rebuild_preserves_focused_destination_and_card() -> void:
+	var save := SaveData.blank()
+	save.settings.reduced_motion = true
+	var made: Array = await _map(MapLink.WORLD, save, _area(Vector2i(1440, 900)))
+	var m: Control = made[1]
+	var prior := m.world_board.get_node("Island_geometry") as Button
+	prior.grab_focus()
+	m.show_card(prior)
+	m._rebuild_framed_controls(m.world_board)
+	await tree.process_frame
+	var restored := m.world_board.get_node("Island_geometry") as Button
+	check(restored != prior and restored.has_focus(), "same destination remains focused")
+	check(m.card_for == restored and m.world_board.get_node("Card").visible)
 	_done(made)

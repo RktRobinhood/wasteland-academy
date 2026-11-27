@@ -230,15 +230,17 @@ func test_the_back_button_names_the_place() -> void:
 	_unmount(made)
 
 
-func test_a_place_shows_its_name_on_every_board() -> void:
+func test_first_tap_names_the_topic_without_a_persistent_banner() -> void:
 	var made: Array = await _mount(MAP, _chosen())
 	var m: Control = made[1]
 	m.show_route({"screen": "island", "island": "functions"})
 	var spot := m.island_board.get_node("Spot_quadratics") as Button
-	check(spot.get_node_or_null("Banner") != null, "a banner with the topic's name")
-	check_eq(((spot.get_node("Banner") as Control).get_node("Name") as Label).text, "QUADRATICS")
+	var card := m.island_board.get_node("Card") as Control
+	check(spot.get_node_or_null("Banner") == null and not card.visible, "no permanent topic name")
 	m.touch = true
 	m.press(spot)
+	check(card.visible, "first tap reveals the topic card")
+	check_eq((card.get_node("Box/Name") as Label).text.to_upper(), "QUADRATICS")
 	check_eq((m.island_board.get_node("Card/Box/Hint") as Label).text, "Tap again to go in")
 	check((m.island_board.get_node("Card/Box/Hint") as Label).visible, "the hint shows after the first tap")
 	_unmount(made)
@@ -289,3 +291,22 @@ func test_tab_stays_inside_the_course_question() -> void:
 	check(reached, "Tab reaches Continue once a course is picked")
 	frame.free()
 
+
+func test_course_continue_remains_on_screen_and_desktop_has_readable_width() -> void:
+	for area in [Vector2(1080, 1920), Vector2(3072, 1920)]:
+		var frame := Control.new()
+		frame.size = area
+		tree.root.add_child(frame)
+		var pick := FirstRun.course_pick()
+		frame.add_child(pick)
+		for i in 4:
+			await tree.process_frame
+		var button := pick.continue_button
+		var scroll := pick._body.get_parent() as ScrollContainer
+		check(not scroll.is_ancestor_of(button), "the next action stays out of the scrolling list")
+		check(Rect2(Vector2.ZERO, area).encloses(button.get_global_rect()), "Continue is visible even on a short phone")
+		check(button.size.x <= FirstRun.PANEL_WIDTH, "course choices and Continue share a readable desktop line length")
+		check(button.disabled, "no course is preselected")
+		pick._pick("ai-hl")
+		check(not button.disabled and pick.picked == "ai-hl")
+		frame.free()

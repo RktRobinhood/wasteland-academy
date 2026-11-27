@@ -508,8 +508,9 @@ A text drawing (a table lined up with spaces, a grid of │, a gauge described i
 | `axes` | `x` and `y`: `[min, max]`; optional `points` (`{ "x", "y", "label" }`) and `lines` (`{ "through": [[x, y], [x, y]], "label" }`). |
 | `number-line` | `from`, `to`; optional `marks` and `points`. |
 | `balance` | `left`, `right`: what is on each pan; optional `level`. |
+| `function-machine` | `id`, `title`, `input`, `rule`, and `phase`. Use the same ID on the given, substitute, and evaluate cues. Add `expression` at substitute and retain it at evaluate; add `output` only at evaluate. |
 
-Every figure has `alt`, the words a screen reader reads, which are also shown if the figure can't be drawn. Labels use the board's notation. The game doesn't draw figures yet: that is a player change for Coder, on the task that builds the explainer player. Until then, a script that needs one has `"waits_for": ["figure"]` and a note saying which drawing; the six scripts that draw in text are marked that way.
+Every figure has `alt`, the words a screen reader reads, which are also shown if the figure can't be drawn. Labels use the board's notation. The lesson player draws the function machine and replaces its earlier stage in place. The other kinds still show the text fallback; a script that needs one of those drawings has `"waits_for": ["figure"]` and a note saying which drawing; the six scripts that draw in text are marked that way.
 
 ### Repeats
 
@@ -556,6 +557,6 @@ The CEO settled the pilot questions on [FAL-953](/FAL/issues/FAL-953): the map f
 
 - **Recall in format 3.** The exemplar has no recall section, as the Writer's draft left it. Whether a format 3 lesson keeps the two callback versions, and where, is a Writer decision on the next rewrite.
 
-- **Drawing figures.** The `figure` item is designed above, but nothing draws it yet. The Godot player needs it before any script that waits for it can be approved.
+- **Drawing figures.** The Godot lesson player draws the function machine. Other `figure` kinds above still need a drawing implementation before scripts waiting for them can be approved.
 - **Turns in parts, and stories.** The engine serves one part and picks its own story, so exam turns are fallback turns for now. A turn could be served live once the engine can make a question in parts, or pin a context, on request from the explainer player's task.
 - **Word timings.** One clip per line needs none. A caption that highlights word by word, or a board item that appears mid-line, would; then check whether the voice's response includes timings, and use a forced aligner on the known `say` if not (#190).
