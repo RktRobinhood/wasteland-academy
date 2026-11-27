@@ -92,6 +92,8 @@ var flashes: Array[float] = []
 
 var _roster := {}
 var _ground := 160.0
+var _daylight := false
+var _wind_clock := 0.0
 var _layers: Array = []      # {tex, scroll, y, w, h}
 var _speed := 0.0            # ground speed, strip units per second
 var _queue: Array = []
@@ -156,6 +158,7 @@ func start_run(p_region: String, p_avatar: String, p_weapon: String = "rebar", p
 	_ahead = false
 	_opening = true
 	_roster = assets.roster(region)
+	_wind_clock = 0.0
 	_build_layers(local_hour)
 	if active:
 		var lsheet: Dictionary = assets.sheets[avatar]
@@ -365,6 +368,8 @@ func advance(dt: float) -> void:
 	if not _live():
 		return
 	clock += dt
+	if region == "dry-flats" and not question_open and not reduced_motion:
+		_wind_clock += dt
 	if dt > 0.0:
 		_opening = false
 	while true:
@@ -508,6 +513,7 @@ func _build_layers(local_hour: int) -> void:
 	_ground = 160.0
 	var r: Dictionary = assets.regions.get(region, {})
 	var daylight := is_daylight(local_hour if local_hour >= 0 else int(Time.get_datetime_dict_from_system().hour))
+	_daylight = daylight
 	for l in r.get("layers", []):
 		var day_image := String(l.get("day_image", ""))
 		var tex := assets.texture(day_image) if daylight and not day_image.is_empty() else null
@@ -613,7 +619,10 @@ func _compose() -> Dictionary:
 		L.scale = 1.0 + 0.01 * (1.0 + sin(t * TAU / BREATH))
 	var SP := _sprite(assets.spark, "idle", SX, "idle")
 	if walking:
-		SP.dy = -1.0 if int(u * rate * 6.0) % 2 == 1 else 0.0
+		if region == "dry-flats":
+			SP.dy = -0.85 * (1.0 - cos(u * rate * TAU * 3.0))
+		else:
+			SP.dy = -1.0 if int(u * rate * 6.0) % 2 == 1 else 0.0
 	var st := {"cam": cam, "learner": L, "spark": SP, "enemies": [], "props": [], "fx": [], "flash": false}
 	# monsters, front to back: as they were when this segment began, or now if resting.
 	# Past the end of the leg they stand further along the road.
@@ -1023,6 +1032,8 @@ func _draw() -> void:
 		if l.name == "near":
 			draw_rect(Rect2(0, 0, w, H), Color8(40, 30, 60, 70))   # depth haze (code)
 		_tile(l, cam, w)
+	if region == "dry-flats":
+		_draw_dry_wind(w)
 	var ax := _action_x()
 	for o in _state.props:
 		_draw_sprite(base, o, ax)
@@ -1041,8 +1052,29 @@ func _tile(l: Dictionary, cam: float, w: float) -> void:
 	var off := fmod(cam * float(l.scroll), float(l.w))
 	var x := -off
 	while x < w:
-		draw_texture_rect(l.tex, Rect2(floorf(x), l.y, l.w + 1.0, l.h), false)
+		# Snapping the slow layer to whole strip units showed up as jumps at large sizes.
+		draw_texture_rect(l.tex, Rect2(tile_start(x, region == "dry-flats"), l.y, l.w + 1.0, l.h), false)
 		x += l.w
+
+
+static func tile_start(x: float, continuous: bool) -> float:
+	return x if continuous else floorf(x)
+
+
+## Seven low-contrast ink strokes bring the ground plane to life. While a learner
+## reads a question the phase holds in place rather than restarting on each answer.
+func _draw_dry_wind(w: float) -> void:
+	if reduced_motion:
+		return
+	var ink := Color8(250, 211, 144) if _daylight else Color8(169, 180, 216)
+	for i in 7:
+		var phase := fposmod(_wind_clock * (0.083 + i * 0.009) + i * 0.173, 1.0)
+		var x := lerpf(-56.0, w + 18.0, phase)
+		var y := _ground + 8.0 + float(i % 4) * 7.0 + sin(phase * TAU) * 3.0
+		var end := Vector2(x + 16.0 + i * 3.0, y - 2.0)
+		var strength := sin(PI * phase)
+		draw_line(Vector2(x, y), end, Color(ink, 0.19 * strength), 1.15, true)
+		draw_line(end + Vector2(5.0, -0.6), end + Vector2(11.0, -1.4), Color(ink, 0.10 * strength), 0.8, true)
 
 
 func _draw_sprite(base: Transform2D, s: Dictionary, ax: float) -> void:
@@ -1055,6 +1087,13 @@ func _draw_sprite(base: Transform2D, s: Dictionary, ax: float) -> void:
 		return
 	var ks: float = _disp_h(s.sheet) / sheet.figure_height * s.scale
 	var feet := Vector2(ax + s.x, _ground + s.dy)
+	if region == "dry-flats":
+		var shadow_w := clampf(_disp_h(s.sheet) * 0.21, 6.0, 23.0)
+		var contact := 1.0 - clampf(absf(s.dy) / 85.0, 0.0, 0.8)
+		var underfoot := Vector2(feet.x + 2.0, _ground + 1.8)
+		draw_set_transform_matrix(base * Transform2D(0.0, Vector2(shadow_w, 3.0), 0.0, underfoot))
+		draw_circle(Vector2.ZERO, 1.0, Color(0.06, 0.04, 0.09, 0.50 * float(s.a) * contact), true, -1.0, true)
+		draw_set_transform_matrix(base)
 	var f: float = s.flash
 	var mod := Color(1.0 + 2.0 * f, 1.0 + 2.0 * f, 1.0 + 2.0 * f, s.a)
 	draw_texture_rect_region(tex, Rect2(feet + Vector2(fr.ox, fr.oy) * ks, Vector2(fr.w, fr.h) * ks),
