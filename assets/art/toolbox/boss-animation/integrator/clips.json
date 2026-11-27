@@ -1,0 +1,160 @@
+{
+  "schema": 1,
+  "id": "integrator",
+  "name": "The Integrator",
+  "canonical_region_key": "calculus",
+  "artwork_only": true,
+  "source_main": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canvas": [
+    512,
+    512
+  ],
+  "atlas": {
+    "path": "atlas.webp",
+    "width": 2048,
+    "height": 512,
+    "sha256": "53efadb2ba9547b98b30f49448fa39c7db3a0de0dd5117d21d6d9e69808a057b",
+    "bytes": 1023882
+  },
+  "frame_names": [
+    "neutral",
+    "blink",
+    "taunt",
+    "hit"
+  ],
+  "region_rects": [
+    [
+      0,
+      0,
+      512,
+      512
+    ],
+    [
+      512,
+      0,
+      512,
+      512
+    ],
+    [
+      1024,
+      0,
+      512,
+      512
+    ],
+    [
+      1536,
+      0,
+      512,
+      512
+    ]
+  ],
+  "timeline_unit": "seconds (set each SpriteFrames animation speed to 1.0)",
+  "clips": {
+    "idle": {
+      "loop": true,
+      "steps": [
+        [
+          0,
+          2.6
+        ],
+        [
+          1,
+          0.11
+        ],
+        [
+          0,
+          1.45
+        ]
+      ]
+    },
+    "taunt": {
+      "loop": false,
+      "steps": [
+        [
+          0,
+          0.1
+        ],
+        [
+          2,
+          0.74
+        ],
+        [
+          0,
+          0.22
+        ]
+      ]
+    },
+    "hit": {
+      "loop": false,
+      "steps": [
+        [
+          3,
+          0.18
+        ],
+        [
+          3,
+          0.16
+        ],
+        [
+          0,
+          0.25
+        ]
+      ]
+    }
+  },
+  "facing": "left",
+  "anchor": [
+    256,
+    501
+  ],
+  "anchor_kind": "bust baseline",
+  "visual_signature": "raises the nested copper shims",
+  "registration": {
+    "alpha_iou_to_neutral": {
+      "neutral": 1.0,
+      "blink": 0.993,
+      "taunt": 0.977,
+      "hit": 0.946
+    },
+    "source_poses": {
+      "neutral": {
+        "alpha_bbox": [
+          21,
+          22,
+          486,
+          493
+        ],
+        "distinct_source_sha256": "410a4ef09aa2641c0e3425db52e82ea82602993934152422ba516cf2155c1be4"
+      },
+      "blink": {
+        "alpha_bbox": [
+          21,
+          22,
+          486,
+          494
+        ],
+        "distinct_source_sha256": "259d83ed80ae85411f95e4877b9943331b5d319040f488e369eb050f33cfd844"
+      },
+      "taunt": {
+        "alpha_bbox": [
+          22,
+          18,
+          484,
+          491
+        ],
+        "distinct_source_sha256": "5bb813614576697f23586ec737624ce73c3f8ce3ca4007236d63513f264421f9"
+      },
+      "hit": {
+        "alpha_bbox": [
+          27,
+          21,
+          492,
+          492
+        ],
+        "distinct_source_sha256": "4187b0f3e745d64b1268b610737240d64d60319dbed99c386f58146ae609042b"
+      }
+    },
+    "notes": "Authored pose changes use intentional holds, not motion interpolation. Align portrait anchor and preview at game scale before replacing existing shots."
+  },
+  "accessibility": "Reduced motion can hold the neutral texture; preserve game text and controls. Audio is not included."
+}

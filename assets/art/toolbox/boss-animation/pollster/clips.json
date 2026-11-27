@@ -1,0 +1,160 @@
+{
+  "schema": 1,
+  "id": "pollster",
+  "name": "The Pollster",
+  "canonical_region_key": "stats",
+  "artwork_only": true,
+  "source_main": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canvas": [
+    512,
+    512
+  ],
+  "atlas": {
+    "path": "atlas.webp",
+    "width": 2048,
+    "height": 512,
+    "sha256": "4f756110fdece4b0a7c9a99feafb18d4a38cb99bfae9cc3f0de32b00a6c31128",
+    "bytes": 1079610
+  },
+  "frame_names": [
+    "neutral",
+    "blink",
+    "taunt",
+    "hit"
+  ],
+  "region_rects": [
+    [
+      0,
+      0,
+      512,
+      512
+    ],
+    [
+      512,
+      0,
+      512,
+      512
+    ],
+    [
+      1024,
+      0,
+      512,
+      512
+    ],
+    [
+      1536,
+      0,
+      512,
+      512
+    ]
+  ],
+  "timeline_unit": "seconds (set each SpriteFrames animation speed to 1.0)",
+  "clips": {
+    "idle": {
+      "loop": true,
+      "steps": [
+        [
+          0,
+          1.85
+        ],
+        [
+          1,
+          0.11
+        ],
+        [
+          0,
+          1.4
+        ]
+      ]
+    },
+    "taunt": {
+      "loop": false,
+      "steps": [
+        [
+          0,
+          0.1
+        ],
+        [
+          2,
+          0.74
+        ],
+        [
+          0,
+          0.22
+        ]
+      ]
+    },
+    "hit": {
+      "loop": false,
+      "steps": [
+        [
+          3,
+          0.18
+        ],
+        [
+          3,
+          0.16
+        ],
+        [
+          0,
+          0.25
+        ]
+      ]
+    }
+  },
+  "facing": "left",
+  "anchor": [
+    256,
+    501
+  ],
+  "anchor_kind": "bust baseline",
+  "visual_signature": "finger to the survey receiver",
+  "registration": {
+    "alpha_iou_to_neutral": {
+      "neutral": 1.0,
+      "blink": 0.991,
+      "taunt": 0.933,
+      "hit": 0.933
+    },
+    "source_poses": {
+      "neutral": {
+        "alpha_bbox": [
+          28,
+          21,
+          484,
+          496
+        ],
+        "distinct_source_sha256": "b06dd4e71faa871f3c3ff9be90a3ea8893a171e9c23c46da88769b88506f240d"
+      },
+      "blink": {
+        "alpha_bbox": [
+          28,
+          20,
+          484,
+          495
+        ],
+        "distinct_source_sha256": "9279eda2f331cf743657f072dbb4a318b4c4e1f37d31eff2c8cdacf04cd31c13"
+      },
+      "taunt": {
+        "alpha_bbox": [
+          26,
+          16,
+          492,
+          495
+        ],
+        "distinct_source_sha256": "aa3bb874d4d45624626bb864bad8d82ce51172050f398700bfd212c1a87a8b5e"
+      },
+      "hit": {
+        "alpha_bbox": [
+          38,
+          20,
+          471,
+          496
+        ],
+        "distinct_source_sha256": "a0c91e82d60349f9a1a4a2e8964f1bb3abf510d72b1ac8934b276188e2eb8a81"
+      }
+    },
+    "notes": "Authored pose changes use intentional holds, not motion interpolation. Align portrait anchor and preview at game scale before replacing existing shots."
+  },
+  "accessibility": "Reduced motion can hold the neutral texture; preserve game text and controls. Audio is not included."
+}
