@@ -29,6 +29,7 @@ signal waiting(what: Dictionary)
 ## A line started: the line, as the script has it (a callback or reaction resolved).
 signal line_started(line: Dictionary)
 
+const FUNCTION_MACHINE := preload("res://ui/lesson/function_machine_figure.gd")
 const VOICE_DIR := "res://assets/audio/voice/explainers/"
 const SPEEDS := [0.75, 1.0, 1.5]
 ## Seconds at 1×: per word of a line with no clip, and its least; per board item written
@@ -497,11 +498,25 @@ func _write(item: Dictionary, animate: bool) -> void:
 		_set_board(board)
 		return
 	var text := str(item.get("write", ""))
+	var figure: Dictionary = item.figure if item.get("figure") is Dictionary else {}
 	if item.has("figure"):
-		# Figures aren't drawn yet (README, "Figures"): the board shows the alt text.
 		text = str(item.get("alt", "A figure."))
 	var b := {"text": text, "kind": str(item.get("kind", "step")), "key": str(item.get("key", "")),
-		"struck": false, "figure": item.has("figure")}
+		"struck": false, "figure": figure}
+	if FUNCTION_MACHINE.supports(figure):
+		# Each authored stage updates one diagram, without re-adding the old stages
+		# or moving the viewport back up to it during the written evaluation.
+		for i in board.size():
+			var old: Dictionary = board[i].get("figure", {})
+			if old.get("kind") == figure.kind and old.get("id") == figure.id:
+				board[i] = b
+				var previous := lines.get_child(i)
+				lines.remove_child(previous)
+				previous.queue_free()
+				var updated := _row(b)
+				lines.add_child(updated)
+				lines.move_child(updated, i)
+				return
 	board.append(b)
 	var row := _row(b)
 	lines.add_child(row)
@@ -531,11 +546,16 @@ func _row(b: Dictionary) -> Control:
 	row.key = b.key
 	row.struck = b.struck
 	var colour: Color = KIND_COLOURS.get(b.kind, Explainer.CHALK)
-	var l := UiTheme.math(b.text, UiTheme.BODY if b.kind != "heading" else UiTheme.BIG, colour)
-	if b.figure:
-		l = UiTheme.label(b.text, UiTheme.SMALL, Color(Explainer.CHALK, 0.7))
-	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(l)
+	var fig: Dictionary = b.get("figure", {})
+	var content: Control
+	if FUNCTION_MACHINE.supports(fig):
+		content = FUNCTION_MACHINE.make(fig, b.text)
+	elif not fig.is_empty():
+		content = UiTheme.label(b.text, UiTheme.SMALL, Color(Explainer.CHALK, 0.7))
+	else:
+		content = UiTheme.math(b.text, UiTheme.BODY if b.kind != "heading" else UiTheme.BIG, colour)
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(content)
 	return row
 
 
