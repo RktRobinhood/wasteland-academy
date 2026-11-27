@@ -338,7 +338,16 @@
             },
             {
               "write": "g(x) = 6 − 2x",
-              "move": "read-givens"
+              "move": "read-givens",
+              "figure": {
+                "kind": "function-machine",
+                "id": "east-mast-relay",
+                "title": "East mast relay",
+                "input": "−4",
+                "rule": "g(x) = 6 − 2x",
+                "phase": "given"
+              },
+              "alt": "East mast relay: input −4, rule g(x) = 6 − 2x. Output not evaluated."
             }
           ]
         },
@@ -350,7 +359,17 @@
           "board": [
             {
               "write": "g(−4) = 6 − 2(−4)",
-              "move": "substitute"
+              "move": "substitute",
+              "figure": {
+                "kind": "function-machine",
+                "id": "east-mast-relay",
+                "title": "East mast relay",
+                "input": "−4",
+                "rule": "g(x) = 6 − 2x",
+                "phase": "substitute",
+                "expression": "g(−4) = 6 − 2(−4)"
+              },
+              "alt": "East mast relay: input −4, rule g(x) = 6 − 2x. Substitute: g(−4) = 6 − 2(−4). Output not evaluated."
             }
           ]
         },
@@ -398,7 +417,18 @@
             },
             {
               "write": "= 14",
-              "move": "evaluate"
+              "move": "evaluate",
+              "figure": {
+                "kind": "function-machine",
+                "id": "east-mast-relay",
+                "title": "East mast relay",
+                "input": "−4",
+                "rule": "g(x) = 6 − 2x",
+                "phase": "evaluate",
+                "expression": "g(−4) = 6 − 2(−4)",
+                "output": "14"
+              },
+              "alt": "East mast relay: input −4, rule g(x) = 6 − 2x. Substitute: g(−4) = 6 − 2(−4). Output 14."
             }
           ]
         },

@@ -29,6 +29,7 @@ signal waiting(what: Dictionary)
 ## A line started: the line, as the script has it (a callback or reaction resolved).
 signal line_started(line: Dictionary)
 
+const FUNCTION_MACHINE := preload("res://ui/lesson/function_machine_figure.gd")
 const VOICE_DIR := "res://assets/audio/voice/explainers/"
 const SPEEDS := [0.75, 1.0, 1.5]
 ## Seconds at 1×: per word of a line with no clip, and its least; per board item written
@@ -77,6 +78,12 @@ var _toy_task: Dictionary = {}
 var _toy_misses := 0
 var _rng := RandomNumberGenerator.new()
 var _input_item: Dictionary = {}
+## A format-3 Why retry keeps its mounted controls while the authored hint plays.
+var _why_buttons: Array = []
+var _why_status: Label
+var _why_help: Button
+var _why_feedback := false
+var _why_focus: Button
 
 var frame: Control
 var title: Label
@@ -402,6 +409,8 @@ func _play(b: Dictionary) -> void:
 		queue = lesson.back_to_lines(b.back_to, calls.get(str(b.back_to.get("predict", "")))) + queue
 	elif b.has("ask"):
 		_ask(b.ask, int(b.get("_misses", 0)))
+	elif b.has("_why_retry"):
+		_why_retry(b._why_retry)
 	elif b.has("toy"):
 		_start_toy(b)
 	elif b.has("_toy_next"):
@@ -497,11 +506,25 @@ func _write(item: Dictionary, animate: bool) -> void:
 		_set_board(board)
 		return
 	var text := str(item.get("write", ""))
+	var figure: Dictionary = item.figure if item.get("figure") is Dictionary else {}
 	if item.has("figure"):
-		# Figures aren't drawn yet (README, "Figures"): the board shows the alt text.
 		text = str(item.get("alt", "A figure."))
 	var b := {"text": text, "kind": str(item.get("kind", "step")), "key": str(item.get("key", "")),
-		"struck": false, "figure": item.has("figure")}
+		"struck": false, "figure": figure}
+	if FUNCTION_MACHINE.supports(figure):
+		# Each authored stage updates one diagram, without re-adding the old stages
+		# or moving the viewport back up to it during the written evaluation.
+		for i in board.size():
+			var old: Dictionary = board[i].get("figure", {})
+			if old.get("kind") == figure.kind and old.get("id") == figure.id:
+				board[i] = b
+				var previous := lines.get_child(i)
+				lines.remove_child(previous)
+				previous.queue_free()
+				var updated := _row(b)
+				lines.add_child(updated)
+				lines.move_child(updated, i)
+				return
 	board.append(b)
 	var row := _row(b)
 	lines.add_child(row)
@@ -531,11 +554,16 @@ func _row(b: Dictionary) -> Control:
 	row.key = b.key
 	row.struck = b.struck
 	var colour: Color = KIND_COLOURS.get(b.kind, Explainer.CHALK)
-	var l := UiTheme.math(b.text, UiTheme.BODY if b.kind != "heading" else UiTheme.BIG, colour)
-	if b.figure:
-		l = UiTheme.label(b.text, UiTheme.SMALL, Color(Explainer.CHALK, 0.7))
-	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(l)
+	var fig: Dictionary = b.get("figure", {})
+	var content: Control
+	if FUNCTION_MACHINE.supports(fig):
+		content = FUNCTION_MACHINE.make(fig, b.text)
+	elif not fig.is_empty():
+		content = UiTheme.label(b.text, UiTheme.SMALL, Color(Explainer.CHALK, 0.7))
+	else:
+		content = UiTheme.math(b.text, UiTheme.BODY if b.kind != "heading" else UiTheme.BIG, colour)
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(content)
 	return row
 
 
@@ -558,12 +586,21 @@ func _wait_for(kind: String, item: Dictionary, prompt_text: String) -> void:
 		prompt = UiTheme.math(prompt_text, UiTheme.BODY, Explainer.DUST)
 		prompt.name = "Prompt"
 		actions.add_child(prompt)
+	_announce_input(kind, item)
+
+
+func _announce_input(kind: String, item: Dictionary) -> void:
 	waiting.emit({"kind": kind, "item": item})
 	if driver != null:
 		driver.call_deferred("act", self, kind, item)
 
 
 func _end_input() -> void:
+	_why_buttons.clear()
+	_why_status = null
+	_why_help = null
+	_why_focus = null
+	_why_feedback = false
 	for c in actions.get_children():
 		actions.remove_child(c)
 		c.queue_free()
@@ -718,6 +755,9 @@ func _ask_predict(p: Dictionary) -> void:
 ## A tap question: choices, or a tap on a board line. A right tap plays its right lines;
 ## a slip plays the not-yet line, then asks again (format 2 lessons move on).
 func _ask(a: Dictionary, misses: int) -> void:
+	if a.get("kind") == "why" and int(lesson.data.get("format", 2)) >= 3:
+		_ask_stable_why(a)
+		return
 	var tap := str(a.get("kind", "")) == "tap-line"
 	_wait_for("tap-line" if tap else "ask", a, str(a.get("prompt", "")))
 	var pick := func(i: int) -> void:
@@ -741,6 +781,86 @@ func _ask(a: Dictionary, misses: int) -> void:
 			var help := _button("ExplainWhy", "Explain why")
 			help.pressed.connect(func(): _resume(a.get("right", [])))
 			actions.add_child(help)
+
+
+## Keep the same choices and hit areas while the authored not-yet lines play.
+## Status and the reserved help slot are above the choices, so their appearance
+## doesn't pull the choices upwards from the bottom of the player.
+func _ask_stable_why(a: Dictionary) -> void:
+	_wait_for("ask", a, str(a.get("prompt", "")))
+	var head := HBoxContainer.new()
+	head.name = "WhyHead"
+	head.add_theme_constant_override("separation", 16)
+	var words := VBoxContainer.new()
+	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	words.add_theme_constant_override("separation", 4)
+	if is_instance_valid(prompt) and prompt.get_parent() == actions:
+		actions.remove_child(prompt)
+		words.add_child(prompt)
+	head.add_child(words)
+	_why_status = UiTheme.label("", UiTheme.SMALL, Explainer.RUST)
+	_why_status.name = "WhyFeedback"
+	_why_status.custom_minimum_size.y = 48.0
+	words.add_child(_why_status)
+	if allow_why_help:
+		var reserve := MarginContainer.new()
+		reserve.name = "HelpSlot"
+		head.add_child(reserve)
+		_why_help = _button("ExplainWhy", "Explain why")
+		_why_help.pressed.connect(func():
+			if state == "input" and not _why_feedback:
+				_resume(a.get("right", [])))
+		reserve.add_child(_why_help)
+		_why_help.disabled = true
+	actions.add_child(head)
+	if _why_help != null:
+		_why_help.get_parent().custom_minimum_size = _why_help.get_combined_minimum_size()
+		_why_help.hide()
+	_why_buttons = _choice_buttons(a.get("choices", []), func(i: int): _why_pick(a, i))
+
+
+func _why_pick(a: Dictionary, i: int) -> void:
+	if state != "input" or _why_feedback or i < 0 or i >= _why_buttons.size():
+		return
+	if i == int(a.get("answer", 0)):
+		_resume(a.get("right", []))
+		return
+	_why_feedback = true
+	var picked: Button = _why_buttons[i]
+	_why_focus = picked if picked.has_focus() else null
+	for b in _why_buttons:
+		b.disabled = true
+	if _why_help != null:
+		_why_help.disabled = true
+	_why_wait_status()
+	# Preserve the existing audio/caption sequence; the continuation re-enables
+	# these exact controls rather than scheduling a new copy of the question.
+	var hint: Array = a.get("not_yet", [])
+	queue = hint + [{"_why_retry": a}] + queue
+	state = ""
+	_step_now()
+
+
+func _why_retry(a: Dictionary) -> void:
+	if not _why_feedback:
+		return
+	_why_feedback = false
+	state = "input"
+	_why_status.text = "Try again."
+	for b in _why_buttons:
+		b.disabled = false
+	if _why_help != null:
+		_why_help.disabled = false
+		_why_help.show()
+	if is_instance_valid(_why_focus):
+		_why_focus.grab_focus()
+	_why_focus = null
+	_announce_input("ask", a)
+
+
+func _why_wait_status() -> void:
+	if _why_feedback and _why_status != null:
+		_why_status.text = "Not quite. Press Play." if paused else "Not quite. Please wait."
 
 
 ## Answer a tap-line question by its key, as a tap on the line does.
@@ -1036,6 +1156,7 @@ func toggle_pause() -> void:
 	paused = not paused
 	pause_button.text = "Play" if paused else "Pause"
 	Audio.pause_voice(paused)
+	_why_wait_status()
 
 
 func next_speed() -> void:

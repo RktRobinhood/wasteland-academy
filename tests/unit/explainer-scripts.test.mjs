@@ -39,6 +39,30 @@ test('the scripts are format 2 or 3, and none is approved while it still has wor
   }
 });
 
+test('Rook’s relay shows the output only on its authored evaluate cue, after Why', () => {
+  const file = 'ex.functions.function-machine.json';
+  const rook = scripts.find(s => s.file === file).script;
+  const beats = section(rook, 'example-1').beats;
+  const phases = beats.flatMap((beat, i) => (beat.board || []).filter(b => b.figure?.kind === 'function-machine').map(b => [b, beat.line, i]));
+  assert.deepEqual(phases.map(([b, line]) => [b.figure.id, b.figure.phase, line]), [
+    ['east-mast-relay', 'given', '9mnd1e'], ['east-mast-relay', 'substitute', 'ae40hw'], ['east-mast-relay', 'evaluate', 'r8sxff'],
+  ]);
+  assert.ok(phases[1][2] < beats.findIndex(b => b.ask?.kind === 'why'));
+  assert.ok(beats.findIndex(b => b.ask?.kind === 'why') < phases[2][2]);
+  assert.ok(phases.slice(0, 2).every(([b]) => !('output' in b.figure) && !b.alt.includes('14')));
+  assert.equal(phases[2][0].figure.output, '14');
+  for (const [edit, error] of [
+    [b => { b.figure.output = '14'; }, /output belongs on the evaluate phase only/],
+    [b => { b.figure.expression = ''; }, /expression belongs on substitute and evaluate only/],
+    [b => { b.move = 'read-givens'; }, /phase substitute belongs to move substitute/],
+  ]) {
+    const changed = structuredClone(rook);
+    const b = section(changed, 'example-1').beats[phases[1][2]].board.find(o => o.figure);
+    edit(b);
+    assert.match(checkScript(changed, ctx, file).errors.join('\n'), error);
+  }
+});
+
 const RULES = [
   // Map
   ['an id that is not in the map', s => { s.id = 'ex.algebra.no-such-explainer'; }, /is not in curriculum\/explainers\.json/],
