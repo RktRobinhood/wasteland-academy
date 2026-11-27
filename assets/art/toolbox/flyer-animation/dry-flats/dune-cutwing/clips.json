@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "family": "dune-cutwing",
+  "biome": "dry-flats",
+  "atlas": {
+    "path": "atlas.webp",
+    "width": 1280,
+    "height": 840,
+    "sha256": "5b4c7016d5af3c7360998e73de6105cf853b90824a9b198cc5255f17305e9fcf"
+  },
+  "cell": [
+    640,
+    420
+  ],
+  "anchor_kind": "hover center",
+  "anchor": [
+    320,
+    210
+  ],
+  "facing": "left",
+  "frame_names": [
+    "neutral",
+    "wings up",
+    "wings down",
+    "evade bank"
+  ],
+  "region_rects": [
+    [
+      0,
+      0,
+      640,
+      420
+    ],
+    [
+      640,
+      0,
+      640,
+      420
+    ],
+    [
+      0,
+      420,
+      640,
+      420
+    ],
+    [
+      640,
+      420,
+      640,
+      420
+    ]
+  ],
+  "frame_alpha_bounds": [
+    [
+      97,
+      46,
+      555,
+      357
+    ],
+    [
+      96,
+      6,
+      539,
+      343
+    ],
+    [
+      94,
+      168,
+      544,
+      349
+    ],
+    [
+      97,
+      90,
+      535,
+      337
+    ]
+  ],
+  "mask_overlap_against_neutral": [
+    1.0,
+    0.435,
+    0.408,
+    0.496
+  ],
+  "clips": {
+    "hover": {
+      "loop": true,
+      "steps": [
+        [
+          0,
+          0.21
+        ],
+        [
+          1,
+          0.18
+        ],
+        [
+          0,
+          0.18
+        ],
+        [
+          2,
+          0.21
+        ],
+        [
+          0,
+          0.2
+        ]
+      ]
+    },
+    "dodge": {
+      "loop": false,
+      "steps": [
+        [
+          0,
+          0.12
+        ],
+        [
+          3,
+          0.2
+        ],
+        [
+          0,
+          0.18
+        ]
+      ]
+    }
+  },
+  "asset_note": "Subtle in-place wing cycle and pose-based dodge; must not add collision, positioning, timing, force or coursework effects."
+}

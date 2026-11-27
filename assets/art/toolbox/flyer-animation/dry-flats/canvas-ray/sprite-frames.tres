@@ -1,0 +1,60 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="atlas.webp" id="1_ehjqn"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vrfxo"]
+atlas = ExtResource("1_ehjqn")
+region = Rect2(0, 0, 640, 420)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2i6dd"]
+atlas = ExtResource("1_ehjqn")
+region = Rect2(640, 420, 640, 420)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hwe67"]
+atlas = ExtResource("1_ehjqn")
+region = Rect2(640, 0, 640, 420)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r60x4"]
+atlas = ExtResource("1_ehjqn")
+region = Rect2(0, 420, 640, 420)
+filter_clip = true
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 0.12,
+"texture": SubResource("AtlasTexture_vrfxo")
+}, {
+"duration": 0.2,
+"texture": SubResource("AtlasTexture_2i6dd")
+}, {
+"duration": 0.18,
+"texture": SubResource("AtlasTexture_vrfxo")
+}],
+"loop": 0,
+"name": &"dodge",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 0.21,
+"texture": SubResource("AtlasTexture_vrfxo")
+}, {
+"duration": 0.18,
+"texture": SubResource("AtlasTexture_hwe67")
+}, {
+"duration": 0.18,
+"texture": SubResource("AtlasTexture_vrfxo")
+}, {
+"duration": 0.21,
+"texture": SubResource("AtlasTexture_r60x4")
+}, {
+"duration": 0.2,
+"texture": SubResource("AtlasTexture_vrfxo")
+}],
+"loop": 1,
+"name": &"hover",
+"speed": 1.0
+}]

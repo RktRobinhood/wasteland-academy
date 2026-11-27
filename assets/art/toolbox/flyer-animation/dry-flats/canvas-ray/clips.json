@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "family": "canvas-ray",
+  "biome": "dry-flats",
+  "atlas": {
+    "path": "atlas.webp",
+    "width": 1280,
+    "height": 840,
+    "sha256": "918e099f2bd7253e6e2bebd0a5a5702f9ec2bcdcc2b4fcbe3fff7ce1d06a0d6a"
+  },
+  "cell": [
+    640,
+    420
+  ],
+  "anchor_kind": "hover center",
+  "anchor": [
+    320,
+    210
+  ],
+  "facing": "left",
+  "frame_names": [
+    "neutral",
+    "wings up",
+    "wings down",
+    "evade bank"
+  ],
+  "region_rects": [
+    [
+      0,
+      0,
+      640,
+      420
+    ],
+    [
+      640,
+      0,
+      640,
+      420
+    ],
+    [
+      0,
+      420,
+      640,
+      420
+    ],
+    [
+      640,
+      420,
+      640,
+      420
+    ]
+  ],
+  "frame_alpha_bounds": [
+    [
+      49,
+      94,
+      593,
+      324
+    ],
+    [
+      48,
+      81,
+      581,
+      320
+    ],
+    [
+      47,
+      104,
+      584,
+      319
+    ],
+    [
+      48,
+      63,
+      583,
+      321
+    ]
+  ],
+  "mask_overlap_against_neutral": [
+    1.0,
+    0.742,
+    0.743,
+    0.713
+  ],
+  "clips": {
+    "hover": {
+      "loop": true,
+      "steps": [
+        [
+          0,
+          0.21
+        ],
+        [
+          1,
+          0.18
+        ],
+        [
+          0,
+          0.18
+        ],
+        [
+          2,
+          0.21
+        ],
+        [
+          0,
+          0.2
+        ]
+      ]
+    },
+    "dodge": {
+      "loop": false,
+      "steps": [
+        [
+          0,
+          0.12
+        ],
+        [
+          3,
+          0.2
+        ],
+        [
+          0,
+          0.18
+        ]
+      ]
+    }
+  },
+  "asset_note": "Subtle in-place wing cycle and pose-based dodge; must not add collision, positioning, timing, force or coursework effects."
+}

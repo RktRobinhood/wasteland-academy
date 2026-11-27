@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "family": "pulley-wasp",
+  "biome": "scrap-fields",
+  "atlas": {
+    "path": "atlas.webp",
+    "width": 1280,
+    "height": 840,
+    "sha256": "7a9ef444ecab301b151facfe139fc08cee46e728993280ebc560897df8ea2f55"
+  },
+  "cell": [
+    640,
+    420
+  ],
+  "anchor_kind": "hover center",
+  "anchor": [
+    320,
+    210
+  ],
+  "facing": "left",
+  "frame_names": [
+    "neutral",
+    "wings up",
+    "wings down",
+    "evade bank"
+  ],
+  "region_rects": [
+    [
+      0,
+      0,
+      640,
+      420
+    ],
+    [
+      640,
+      0,
+      640,
+      420
+    ],
+    [
+      0,
+      420,
+      640,
+      420
+    ],
+    [
+      640,
+      420,
+      640,
+      420
+    ]
+  ],
+  "frame_alpha_bounds": [
+    [
+      63,
+      92,
+      592,
+      305
+    ],
+    [
+      60,
+      51,
+      566,
+      299
+    ],
+    [
+      65,
+      135,
+      577,
+      296
+    ],
+    [
+      61,
+      51,
+      563,
+      300
+    ]
+  ],
+  "mask_overlap_against_neutral": [
+    1.0,
+    0.554,
+    0.56,
+    0.542
+  ],
+  "clips": {
+    "hover": {
+      "loop": true,
+      "steps": [
+        [
+          0,
+          0.21
+        ],
+        [
+          1,
+          0.18
+        ],
+        [
+          0,
+          0.18
+        ],
+        [
+          2,
+          0.21
+        ],
+        [
+          0,
+          0.2
+        ]
+      ]
+    },
+    "dodge": {
+      "loop": false,
+      "steps": [
+        [
+          0,
+          0.12
+        ],
+        [
+          3,
+          0.2
+        ],
+        [
+          0,
+          0.18
+        ]
+      ]
+    }
+  },
+  "asset_note": "Subtle in-place wing cycle and pose-based dodge; must not add collision, positioning, timing, force or coursework effects."
+}
