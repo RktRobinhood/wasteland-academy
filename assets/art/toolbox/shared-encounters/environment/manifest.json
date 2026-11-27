@@ -1,0 +1,188 @@
+{
+  "pack": "wasteland-shared-environment-01",
+  "kind": "asset-intake-only",
+  "reviewed_cached_git": "1423ce0",
+  "scope": "Presentation only. No gameplay or encounter data registration.",
+  "entries": [
+    {
+      "id": "scrap-fields/jammed-salvage-roller",
+      "zone": "scrap-fields",
+      "game_zone_folder": "algebra",
+      "suggested_region": "sequences",
+      "suggested_presentation_role": "obstacle",
+      "states": {
+        "blocked": {
+          "texture_png": "scrap-fields/jammed-salvage-roller/blocked.png",
+          "look": "A knocked-over oxidized salvage beam, rust panels and lodged deep teal roller block the path.",
+          "reader_cue": "Broad heavy silhouette; idle/inert. Cue for a blocked phase, not a crusher to operate."
+        }
+      },
+      "canvas_size_px": [
+        512,
+        512
+      ],
+      "ground_anchor_px": [
+        256,
+        442
+      ],
+      "tested_display_extent_px": [
+        112,
+        112
+      ],
+      "export_sha256": "303dc0e70020c0220eec08ffe669a0e01cd24520387fa6c1a29b4de2b2aa5344",
+      "bytes": 118256,
+      "provenance": {
+        "generator": "OpenAI built-in ImageGen",
+        "source_master_sha256": "c9845973dee1de97ec4d3dc353fd52881724dad7d825b805ec58c6e7bfc44e73",
+        "source_archive": "Wasteland-Day-Night-01.zip",
+        "owned_board_style_reference": "scrap-fields/sequences/day.webp",
+        "proof_source_day_sha256": "cec6b627864e22265579452750538cbca76079c7778893132d714503870e0d56",
+        "proof_source_night_sha256": "0bb4f4d3afcd582a0336b8ff472afd3cee854845bab7f279abe0552234ca726f"
+      }
+    },
+    {
+      "id": "signal-tower/offline-relay-kiosk",
+      "zone": "signal-tower",
+      "game_zone_folder": "functions",
+      "suggested_region": "graphs-features",
+      "suggested_presentation_role": "breakdown",
+      "states": {
+        "offline": {
+          "texture_png": "signal-tower/offline-relay-kiosk/offline.png",
+          "look": "Narrow relay podium, opaque cracked lavender face and a tiny isolated locator.",
+          "reader_cue": "Quiet dark face with one tiny marker. No exposed wiring or repair instructions."
+        }
+      },
+      "canvas_size_px": [
+        512,
+        512
+      ],
+      "ground_anchor_px": [
+        256,
+        442
+      ],
+      "tested_display_extent_px": [
+        112,
+        112
+      ],
+      "export_sha256": "14cb61789378a372d28c1aded76970c56dd59804f4dd82f42db995532566208d",
+      "bytes": 116831,
+      "provenance": {
+        "generator": "OpenAI built-in ImageGen",
+        "source_master_sha256": "d89aaa6bae8daedf5b05fcb2992fe1a798bc030f8b3bfbb64c8fcb41ba4c3a4c",
+        "source_archive": "Wasteland-Day-Night-01.zip",
+        "owned_board_style_reference": "signal-tower/graphs-features/day.webp",
+        "proof_source_day_sha256": "f2add82a9ec90b264d4fb365ea0b811e4c364fbd71e7ca6ca58b70e71aeccd56",
+        "proof_source_night_sha256": "12f454a5661c67c77604b11eb6de22eeb63ef1749ac6c61e567656a7653c56a0"
+      }
+    },
+    {
+      "id": "dry-flats/collapsed-survey-arch",
+      "zone": "dry-flats",
+      "game_zone_folder": "geometry",
+      "suggested_region": "geometry-3d",
+      "suggested_presentation_role": "obstacle",
+      "states": {
+        "blocked": {
+          "texture_png": "dry-flats/collapsed-survey-arch/blocked.png",
+          "look": "Broken angular sandstone survey arch and inset pale survey marker.",
+          "reader_cue": "Obstruction reads from collapsed stone mass, without requiring yellow paint."
+        }
+      },
+      "canvas_size_px": [
+        512,
+        512
+      ],
+      "ground_anchor_px": [
+        256,
+        442
+      ],
+      "tested_display_extent_px": [
+        112,
+        112
+      ],
+      "export_sha256": "fa38e613fbcbab690b4f8b394c86bda9b15028b3f1a85262b4ab6d09074ebce6",
+      "bytes": 104298,
+      "provenance": {
+        "generator": "OpenAI built-in ImageGen",
+        "source_master_sha256": "7820629adbebb9a0778948a253cc717672b7e797ed5081fdc8c7745396ef083e",
+        "source_archive": "Wasteland-Day-Night-04-Final.zip",
+        "owned_board_style_reference": "dry-flats/geometry-3d/day.webp",
+        "proof_source_day_sha256": "58b34495bd5eea3e648d5e37a3a6827dd9dfe801a4a208fb49ae59f2a1dce965",
+        "proof_source_night_sha256": "87955f8c609f766c90b68116b5913e141bc224f3b81a0ed4c3ac469efad4f3af"
+      }
+    },
+    {
+      "id": "radio-spires/toppled-relay-dish",
+      "zone": "radio-spires",
+      "game_zone_folder": "stats",
+      "suggested_region": "sampling-data",
+      "suggested_presentation_role": "breakdown",
+      "states": {
+        "offline": {
+          "texture_png": "radio-spires/toppled-relay-dish/offline.png",
+          "look": "Parabolic dish leaning diagonally with its broken stub and dark magenta/indigo base.",
+          "reader_cue": "Grounded bent silhouette, not airborne creature or usable machinery."
+        }
+      },
+      "canvas_size_px": [
+        512,
+        512
+      ],
+      "ground_anchor_px": [
+        256,
+        442
+      ],
+      "tested_display_extent_px": [
+        112,
+        112
+      ],
+      "export_sha256": "36314751ed3cf24c1c8f3e2ce946b46c2bf866ff701cb6528d03c4816bf5ccb2",
+      "bytes": 182426,
+      "provenance": {
+        "generator": "OpenAI built-in ImageGen",
+        "source_master_sha256": "449eefff2c8aae87b0ca44dc4a726e398012baf44678c1c274b89e53ed11ab85",
+        "source_archive": "Wasteland-Day-Night-04-Final.zip",
+        "owned_board_style_reference": "radio-spires/sampling-data/day.webp",
+        "proof_source_day_sha256": "19de0be0f9f35680fd3734f0e133853d1d8a5795c648bc47693aad6c17a740c5",
+        "proof_source_night_sha256": "e49af33055af43aeb569b0e4cd0aec5674552ca21a2fa52e917ee0ade1095240"
+      }
+    },
+    {
+      "id": "engine-core/blocked-heat-sluice",
+      "zone": "engine-core",
+      "game_zone_folder": "calculus",
+      "suggested_region": "definite-integrals",
+      "suggested_presentation_role": "environmental_hazard",
+      "states": {
+        "hot": {
+          "texture_png": "engine-core/blocked-heat-sluice/hot.png",
+          "look": "Chunky refractory elbow with broad ceramic shoulders and a contained amber band.",
+          "reader_cue": "Opaque, stylized warning by shape/amber heat; fictional environmental hazard only."
+        }
+      },
+      "canvas_size_px": [
+        512,
+        512
+      ],
+      "ground_anchor_px": [
+        256,
+        442
+      ],
+      "tested_display_extent_px": [
+        112,
+        112
+      ],
+      "export_sha256": "1fad9fcd4e651546d5f3351f1729d9f40855cf0ba9f3dd9d94ad586a2eab1894",
+      "bytes": 202523,
+      "provenance": {
+        "generator": "OpenAI built-in ImageGen",
+        "source_master_sha256": "323dd130b50f9f512d416daaae1191f15ba26b72018863db2f8bc94cadc8d40a",
+        "source_archive": "Wasteland-Day-Night-04-Final.zip",
+        "owned_board_style_reference": "engine-core/definite-integrals/day.webp",
+        "proof_source_day_sha256": "b6bdf864ea3303b91e041ff09ecb19e3ade8d1263c29a05b47f69b00282155c9",
+        "proof_source_night_sha256": "8699bceae1b85d00bab831ac2bd9d31018d5a6975c72d08a37e6002882635028"
+      }
+    }
+  ]
+}
