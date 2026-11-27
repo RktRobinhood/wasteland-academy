@@ -17,6 +17,8 @@ An art-only shelf. The integration team can select, adapt, crop, animate or leav
 
 [Engine Core Boiler Crawler](engine-core/boiler-crawler-01/README.md) · [Actual backplate scale proof](engine-core/boiler-crawler-01/previews/engine-core-scale-proof.jpg)
 
+[Signal Tower Relay Moth hover study](signal-tower/relay-moth-01/README.md) · [54/108 px scene proof](signal-tower/relay-moth-01/previews/relay-moth-scale.jpg)
+
 [Machine-readable inventory](inventory.json) · [Priorities and gaps](coverage.md)
 
 **Ready to integrate** means the artwork and individual files passed visual/file review. It does not mean the interaction is wired, reviewed in Godot or live. **Art candidate** means do not import before the noted art check passes. A preview never becomes a runtime file.

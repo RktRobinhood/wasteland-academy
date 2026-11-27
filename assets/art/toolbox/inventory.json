@@ -139,6 +139,18 @@
         "portrait neutral",
         "static Journey idle candidate"
       ]
+    },
+    {
+      "id": "signal-tower/relay-moth-01",
+      "zone": "functions",
+      "category": "monster",
+      "manifest": "signal-tower/relay-moth-01/manifest.json",
+      "ready_for_trial": 0,
+      "art_candidates": 1,
+      "integrated": 0,
+      "new_states": [
+        "static hover"
+      ]
     }
   ],
   "unknown_or_incomplete": [

@@ -1,0 +1,16 @@
+{
+  "id":"signal-tower/relay-moth-01",
+  "title":"Relay Moth",
+  "category":"monster",
+  "region":"functions",
+  "state":"static-hover-candidate",
+  "integrated":false,
+  "main_reference":"c4bc45208d23f66b43ce428fe28995c3af383833",
+  "provenance":"Original built-in ImageGen; original Antenna Kite used only as linework reference; transparent source master retained",
+  "description":"Bio-mechanical creature with independently readable wing silhouettes, drawn left-facing. Static hover image; no animation or encounter mechanics.",
+  "export":"exports/relay-moth.webp",
+  "dimensions":[423,315],
+  "export_bytes":40068,
+  "proof":"previews/relay-moth-scale.jpg",
+  "files":["exports/relay-moth.webp","exports/relay-moth.json","masters/relay-moth-original.png","previews/relay-moth-scale.jpg"]
+}

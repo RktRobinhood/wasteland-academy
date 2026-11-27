@@ -15,3 +15,5 @@ Journey files must follow [the current parallax contract](https://github.com/Rkt
 No changes are proposed here to curriculum definitions, encounters, prices, rewards, unlocks, saves, input, or the build.
 
 Engine Core: the Boiler Crawler is ready for an isolated ambient art trial, not a live encounter. Godot loaded its transparent static WebP. No movement, combat or integration.
+
+Signal Tower: Relay Moth is a single left-facing static hover candidate, not combat or animation. Review the art at intended scene scale before selecting it. No map or route integration.

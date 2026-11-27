@@ -1,0 +1,9 @@
+{
+  "name": "relay-moth",
+  "image": "relay-moth.webp",
+  "facing": "left",
+  "figure_height": 303,
+  "display_height": 54,
+  "frames": [{"id": "idle", "x": 2, "y": 2, "w": 419, "h": 311, "ox": -156, "oy": -188}],
+  "anims": {"idle": {"frames": [0], "fps": 1, "loop": false}}
+}
