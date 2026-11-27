@@ -367,3 +367,53 @@ func test_every_script_plays_to_its_end() -> void:
 		var p: LessonPlayer = made[1]
 		check(await _run(p), "%s: stuck in %s (%s); last actions %s" % [id, p.section().get("id"), p.state, run.done.slice(-4)])
 		_done(made)
+
+
+func test_opt_in_preview_reuses_two_separate_parts_and_verified_recordings() -> void:
+	var frame := _phone()
+	var scene := load("res://scenes/lesson.tscn") as PackedScene
+	var screen := scene.instantiate()
+	var script: GDScript = screen.get_script()
+	script.open_preview = true
+	frame.add_child(screen)
+	await _settle()
+	var snapshot := SaveData.load_from().duplicate(true)
+	check(screen.watch_button.visible and screen.try_button.visible, "explicit preview offers both choices")
+	check_eq(tree.root.gui_get_focus_owner(), screen.watch_button, "watch starts with keyboard focus")
+	await _tap(screen.watch_button)
+	var p: LessonPlayer = screen.player
+	p.paused = true
+	check_eq(p.section().get("id"), "example-1")
+	check_eq(p.lesson.sections().size(), 1)
+	check(not p.skip_button.visible)
+	check(p.clip_for(p.section().beats[0]) != null, "real recorded audio resolves")
+	var stale: Dictionary = p.section().beats[0].duplicate()
+	stale.say = "Not the approved line."
+	check(p.clip_for(stale) == null, "reject unchanged id with different speech")
+	var caption_edit: Dictionary = p.section().beats[0].duplicate()
+	caption_edit.caption = "Notation updated"
+	check(p.clip_for(caption_edit) != null, "accept a caption-only edit")
+	check_eq(p.save_path, "", "preview does not write the classroom save")
+	await _run(p, func(pl): return pl.state == "input")
+	check_eq(p.state, "input", "watch stops to ask why the brackets matter")
+	await _tap(p.actions.get_node("Choices/Choice0"))
+	check(await _run(p), "watch finishes after a correct response")
+	check(p.board.any(func(row): return str(row.text).contains("g(−4) = 14")), "shows and checks the result")
+	p.replay_section()
+	check_eq(p.section().get("id"), "example-1")
+	p.close()
+	await _settle()
+	check_eq(tree.root.gui_get_focus_owner(), screen.watch_button, "focus restored to Watch")
+	await _tap(screen.try_button)
+	p = screen.player
+	p.paused = true
+	check_eq(p.section().get("id"), "turn-1")
+	await _run(p, func(pl): return pl.state == "input")
+	check_eq(p.state, "input", "Try asks for a fresh response")
+	check(not p.board.any(func(row): return str(row.text).contains("g(−4) = 14")), "Watch does not leak into Try")
+	p.close()
+	await _settle()
+	check_eq(tree.root.gui_get_focus_owner(), screen.try_button, "focus restored to Try")
+	check_eq(SaveData.load_from(), snapshot, "native preview leaves the save unchanged")
+	frame.free()
+	Input.emulate_touch_from_mouse = false

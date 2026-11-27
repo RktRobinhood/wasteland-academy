@@ -26,6 +26,7 @@ const JOURNEY_DEMO := "res://scenes/journey_demo.tscn"
 const EXPLAIN := "res://scenes/explain.tscn"
 const TOY := "res://scenes/toy.tscn"
 const LESSON := "res://scenes/lesson.tscn"
+const LESSON_SCREEN := preload("res://ui/lesson_screen.gd")
 
 static var _routed := false
 
@@ -61,19 +62,30 @@ func _ready() -> void:
 		# The question explorer is a teacher's tool: a student never sees it (#186).
 		# A teacher's link adds ?teacher.
 		engine.visible = preload("res://ui/practice.gd").url_args().has("teacher")
+	var practice := preload("res://ui/practice.gd")
+	var args := practice.url_args()
+	if args.has("teacher"):
+		var preview := Button.new()
+		preview.name = "LessonPreview"
+		preview.text = "Lesson preview"
+		preview.custom_minimum_size = Vector2(560, 120)
+		preview.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		preview.pressed.connect(_open_lesson_preview)
+		$Center/Column.add_child(preview)
 	add_credits_link()
 	add_build_label()
 	MapLink.listen(get_tree())
 	if _routed:
 		return
 	_routed = true
-	var practice := preload("res://ui/practice.gd")
 	if practice.url_args().get("journey", "") == "demo":
 		get_tree().change_scene_to_file.call_deferred(JOURNEY_DEMO)
 	elif practice.url_args().has("explain"):
 		get_tree().change_scene_to_file.call_deferred(EXPLAIN)
 	elif practice.url_args().has("toy"):
 		get_tree().change_scene_to_file.call_deferred(TOY)
+	elif args.has("lesson-preview"):
+		_open_lesson_preview()
 	elif practice.url_args().has("lesson"):
 		get_tree().change_scene_to_file.call_deferred(LESSON)
 	elif practice.url_args().has("study"):
@@ -98,6 +110,11 @@ func fit_art() -> void:
 	$Center/Column/Spark.visible = tex == null
 	_gap.visible = tex != null
 	column.custom_minimum_size.y = size.y * 0.9 if tex != null else 0.0
+
+
+func _open_lesson_preview() -> void:
+	LESSON_SCREEN.open_preview = true
+	get_tree().change_scene_to_file.call_deferred(LESSON)
 
 
 func open_practice() -> void:

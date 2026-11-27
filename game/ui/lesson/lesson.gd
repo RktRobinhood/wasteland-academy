@@ -51,7 +51,18 @@ static func ids() -> Array:
 	return out
 
 
-## The stock lines the scripts share: callbacks.json and reactions.json.
+## A self-contained part of an existing lesson. Do not rename the source id:
+## line recordings are owned by that lesson. Preview callers opt out of saving.
+func excerpt(section_id: String) -> Lesson:
+	for section in sections():
+		if section.get("id") == section_id:
+			var copy := data.duplicate(true)
+			copy["sections"] = [section.duplicate(true)]
+			return from_data(copy)
+	return null
+
+
+## The stock lines the scripts share: callbacks, reactions and the verified voice index.
 static func shared(name: String) -> Dictionary:
 	var path := DIR + name + ".json"
 	if not FileAccess.file_exists(path):

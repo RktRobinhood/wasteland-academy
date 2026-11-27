@@ -238,9 +238,17 @@ func play_voice(stream: AudioStream, speed := 1.0, from := 0.0) -> bool:
 		return false
 	_voice.stream = stream
 	set_voice_speed(speed)
+	_voice.stream_paused = false
 	_voice.play(from)
 	_set_ducked(true)
 	return true
+
+
+## Pause or resume the same line without losing the position in the recording.
+func pause_voice(paused: bool) -> void:
+	if _voice.playing:
+		_voice.stream_paused = paused
+		_set_ducked(not paused)
 
 
 ## Stop Spark's line and bring the music back up.

@@ -16,7 +16,11 @@ Plays a tutor lesson from its script (#218). The scripts and their format are in
 
 ## Opening a lesson
 
-The lessons aren't approved, so nothing on the student map links to one.
+The draft lesson archive is not linked from the normal student map. The test build
+offers one worked-example pilot as a **Lesson preview** at `/?teacher`, or directly
+at `/?lesson-preview` (desktop: `-- --lesson-preview`). It uses Rook's original
+Signal Tower worked example and a separate, optional engine-generated Try question.
+Closing either returns to the choice. It never writes a watched record or run result.
 
 - Test site: `/?lesson` plays the exemplar, One In, One Out. `/?lesson=<script id>` plays
   another. `&recall=watched` or `&recall=not_watched` forces a recall version.
@@ -56,6 +60,13 @@ version next time.
 
 ## Audio
 
-Captions only for now. A recorded take drops in by line id, with no code change:
-`res://assets/audio/voice/explainers/<script id>/<line id>.ogg`, or `callbacks/` and
-`reactions/` in place of the script id. A line with a clip holds for the clip's length.
+Rook's **One In, One Out** has existing takes; all 11 other draft scripts can play on
+captions alone. Stock callbacks and reactions have their own takes. A line with a valid
+clip holds for its length. The web build fetches its separate audio pack after sound is
+enabled; captions continue to work before that or if the pack is unavailable.
+
+`node tools/game-explainers.mjs --write` generates `data/explainers/voice-index.json`
+from the source script, its accepted manifest and the SHA-256 of the OGG on disk. A
+changed spoken line or missing or mismatched take never plays from its old filename.
+Caption-only edits do not invalidate the recording. No new voice generation or spend
+is part of this pilot.

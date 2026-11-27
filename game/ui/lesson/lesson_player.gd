@@ -54,6 +54,7 @@ var paused := false
 var reduced_motion := false
 var callbacks: Dictionary = {}
 var reactions: Lesson.Reactions
+var verified_voice: Dictionary = {}
 
 ## Where the lesson is: the section playing, and the beats still to play in it.
 var seg := -1
@@ -114,6 +115,7 @@ func _init() -> void:
 func _ready() -> void:
 	theme = UiTheme.make()
 	callbacks = Lesson.shared("callbacks")
+	verified_voice = Lesson.shared("voice-index")
 	reactions = Lesson.Reactions.new(lesson.tutor(), Lesson.shared("reactions"), 220)
 	reduced_motion = LessonToy.reduce_motion(save)
 	title.text = str(lesson.data.get("title", "Lesson"))
@@ -457,9 +459,11 @@ func _say(l: Dictionary) -> void:
 ## A line's recorded take, or null: by script id (or callbacks, reactions) and line id.
 func clip_for(l: Dictionary) -> AudioStream:
 	var id := str(l.get("line", ""))
-	if id == "":
+	var from := str(l.get("_from", lesson.id()))
+	var cue := [l.get("speaker"), l.get("say", l.get("caption")), l.get("cue"), l.get("cue_at")]
+	if id == "" or verified_voice.get(from, {}).get(id) != cue:
 		return null
-	var path := "%s%s/%s.ogg" % [VOICE_DIR, str(l.get("_from", lesson.id())), id]
+	var path := "%s%s/%s.ogg" % [VOICE_DIR, from, id]
 	return load(path) as AudioStream if ResourceLoader.exists(path) else null
 
 
@@ -1026,8 +1030,7 @@ func _show_banner(text: String, good: bool) -> void:
 func toggle_pause() -> void:
 	paused = not paused
 	pause_button.text = "Play" if paused else "Pause"
-	if paused:
-		Audio.stop_voice()
+	Audio.pause_voice(paused)
 
 
 func next_speed() -> void:
