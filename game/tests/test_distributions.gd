@@ -241,3 +241,38 @@ func test_every_misconception_appears_on_paper_2() -> void:
 				if found:
 					break
 			check(found, "%s: %s never shows up as an option on Paper 2" % [id, ref])
+
+
+func test_expected_count_whole_number_slip_keeps_its_form_without_changing_marking() -> void:
+	var slip_ref := "SL4.5.expected-occurrences#0"
+	var coverage := {1: 0, 2: 0}
+	var saw_thirty_three := false
+	for c in QuestionEngine.cells(false, ["t4-expected-occurrences"]):
+		if c.unknown != "expected-count":
+			continue
+		for paper in [1, 2]:
+			for seed in range(1, 121):
+				var q := _make(c.type, c.unknown, c.rep, c.angle, seed, "mcq", paper)
+				if q.has("error"):
+					fail("%s paper %d seed %d: %s" % [c.key, paper, seed, q.error])
+					return
+				var seen_text: Dictionary = {}
+				for i in q.choices.size():
+					var opt: Dictionary = q.choices[i]
+					check(not seen_text.has(opt.text), "duplicate wording: " + opt.text)
+					seen_text[opt.text] = true
+					if opt.correct:
+						check_eq(opt.text, Answer.text(q.answer))
+						check(QuestionEngine.mark(q, {"choice": i}).correct, "the expected-value key still marks right")
+					elif opt.ref == slip_ref:
+						var whole: Q = Q.of(opt.values.v)
+						check(whole.is_int(), opt.text)
+						check_eq(opt.text, q.answer.label + Fmt.num(whole) + q.answer.unit, "%s paper %d seed %d" % [c.key, paper, seed])
+						var mark := QuestionEngine.mark(q, {"choice": i})
+						check(not mark.correct and mark.misconception == slip_ref, "whole-number slip stays wrong and points to its misconception")
+						coverage[paper] += 1
+						saw_thirty_three = saw_thirty_three or (paper == 2 and whole.eq(33))
+					else:
+						check_eq(opt.text, Answer.trap_text(q.answer, opt.values) if opt.get("trap", false) else Answer.text(q.answer, opt.values), "unrelated option formatting stays unchanged")
+	check(coverage[1] > 0 and coverage[2] > 0, "whole-number slip must be exercised on both papers")
+	check(saw_thirty_three, "must exercise the reported Paper 2 value 33")
