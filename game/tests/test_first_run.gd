@@ -230,15 +230,17 @@ func test_the_back_button_names_the_place() -> void:
 	_unmount(made)
 
 
-func test_a_place_shows_its_name_on_every_board() -> void:
+func test_first_tap_names_the_topic_without_a_persistent_banner() -> void:
 	var made: Array = await _mount(MAP, _chosen())
 	var m: Control = made[1]
 	m.show_route({"screen": "island", "island": "functions"})
 	var spot := m.island_board.get_node("Spot_quadratics") as Button
-	check(spot.get_node_or_null("Banner") != null, "a banner with the topic's name")
-	check_eq(((spot.get_node("Banner") as Control).get_node("Name") as Label).text, "QUADRATICS")
+	var card := m.island_board.get_node("Card") as Control
+	check(spot.get_node_or_null("Banner") == null and not card.visible, "no permanent topic name")
 	m.touch = true
 	m.press(spot)
+	check(card.visible, "first tap reveals the topic card")
+	check_eq((card.get_node("Box/Name") as Label).text.to_upper(), "QUADRATICS")
 	check_eq((m.island_board.get_node("Card/Box/Hint") as Label).text, "Tap again to go in")
 	check((m.island_board.get_node("Card/Box/Hint") as Label).visible, "the hint shows after the first tap")
 	_unmount(made)

@@ -691,7 +691,7 @@ static func wide_web_path(key: String, build: String) -> String:
 func _request_wide(key: String) -> void:
 	var path := wide_web_path(key, Build.id())
 	var url = JavaScriptBridge.eval(
-		"(() => { const u = new URL(%s, document.baseURI); return u.origin === location.origin ? u.href : ''; })()" %
+		"(() => { const u = new URL(%s, document.baseURI); return u.origin === new URL(document.URL).origin ? u.href : ''; })()" %
 		JSON.stringify(path), true)
 	if not url is String or url.is_empty():
 		_wide_failed[key] = true
