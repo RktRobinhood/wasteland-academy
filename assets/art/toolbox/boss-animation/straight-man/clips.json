@@ -1,0 +1,160 @@
+{
+  "schema": 1,
+  "id": "straight-man",
+  "name": "The Straight Man",
+  "canonical_region_key": "lines",
+  "artwork_only": true,
+  "source_main": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canvas": [
+    512,
+    512
+  ],
+  "atlas": {
+    "path": "atlas.webp",
+    "width": 2048,
+    "height": 512,
+    "sha256": "2c0ee77bb8d2c654e478935eecc6ba5076007ea5c28b1bb7b216f80588d3de44",
+    "bytes": 1064236
+  },
+  "frame_names": [
+    "neutral",
+    "blink",
+    "taunt",
+    "hit"
+  ],
+  "region_rects": [
+    [
+      0,
+      0,
+      512,
+      512
+    ],
+    [
+      512,
+      0,
+      512,
+      512
+    ],
+    [
+      1024,
+      0,
+      512,
+      512
+    ],
+    [
+      1536,
+      0,
+      512,
+      512
+    ]
+  ],
+  "timeline_unit": "seconds (set each SpriteFrames animation speed to 1.0)",
+  "clips": {
+    "idle": {
+      "loop": true,
+      "steps": [
+        [
+          0,
+          2.25
+        ],
+        [
+          1,
+          0.11
+        ],
+        [
+          0,
+          1.4
+        ]
+      ]
+    },
+    "taunt": {
+      "loop": false,
+      "steps": [
+        [
+          0,
+          0.1
+        ],
+        [
+          2,
+          0.74
+        ],
+        [
+          0,
+          0.22
+        ]
+      ]
+    },
+    "hit": {
+      "loop": false,
+      "steps": [
+        [
+          3,
+          0.18
+        ],
+        [
+          3,
+          0.16
+        ],
+        [
+          0,
+          0.25
+        ]
+      ]
+    }
+  },
+  "facing": "left",
+  "anchor": [
+    256,
+    501
+  ],
+  "anchor_kind": "bust baseline",
+  "visual_signature": "checks the line of his ruler",
+  "registration": {
+    "alpha_iou_to_neutral": {
+      "neutral": 1.0,
+      "blink": 0.992,
+      "taunt": 0.98,
+      "hit": 0.889
+    },
+    "source_poses": {
+      "neutral": {
+        "alpha_bbox": [
+          38,
+          5,
+          471,
+          504
+        ],
+        "distinct_source_sha256": "56c010afa6a394f12bf41378da3ab87edd13b0c2d39db49db95e14abe07ea021"
+      },
+      "blink": {
+        "alpha_bbox": [
+          38,
+          5,
+          472,
+          504
+        ],
+        "distinct_source_sha256": "76f8b448e042b6f4ddc7c1132efaf7a6a0bf0c674c09ef3d9f8625f1c3eab548"
+      },
+      "taunt": {
+        "alpha_bbox": [
+          37,
+          3,
+          473,
+          505
+        ],
+        "distinct_source_sha256": "d43736590b7b07cdd03720458e646b2363b14a7c702f0a69f25b0bc2f1517f81"
+      },
+      "hit": {
+        "alpha_bbox": [
+          34,
+          6,
+          467,
+          504
+        ],
+        "distinct_source_sha256": "496f2b4d1e00955844486019f934547e46bdb6a7fe99730f5a48132e91e7f72b"
+      }
+    },
+    "notes": "Authored pose changes use intentional holds, not motion interpolation. Align portrait anchor and preview at game scale before replacing existing shots."
+  },
+  "accessibility": "Reduced motion can hold the neutral texture; preserve game text and controls. Audio is not included."
+}

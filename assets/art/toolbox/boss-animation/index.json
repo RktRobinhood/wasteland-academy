@@ -1,8 +1,27 @@
 {
   "schema": 1,
-  "released_kit_count": 7,
+  "released_kit_count": 10,
+  "canonical_primary_boss_count": 13,
+  "missing_primary_boss_keys": [
+    "composite-inverse",
+    "function-basics",
+    "transformations"
+  ],
   "encounter_wiring": false,
   "available": [
+    {
+      "id": "baron-exponent",
+      "name": "Baron Exponent",
+      "story_key": "exp-log",
+      "kit": "baron-exponent/clips.json",
+      "native_resource": "baron-exponent/sprite-frames.tres",
+      "rendered_webp_preview": "baron-exponent/preview.webp",
+      "animations": [
+        "idle",
+        "taunt",
+        "hit"
+      ]
+    },
     {
       "id": "cartographer",
       "name": "The Cartographer",
@@ -69,6 +88,19 @@
       ]
     },
     {
+      "id": "straight-man",
+      "name": "The Straight Man",
+      "story_key": "lines",
+      "kit": "straight-man/clips.json",
+      "native_resource": "straight-man/sprite-frames.tres",
+      "rendered_webp_preview": "straight-man/preview.webp",
+      "animations": [
+        "idle",
+        "taunt",
+        "hit"
+      ]
+    },
+    {
       "id": "sundial",
       "name": "The Sundial",
       "story_key": "geometry",
@@ -88,6 +120,19 @@
       "kit": "warden-apex/clips.json",
       "native_resource": "warden-apex/sprite-frames.tres",
       "rendered_webp_preview": "warden-apex/preview.webp",
+      "animations": [
+        "idle",
+        "taunt",
+        "hit"
+      ]
+    },
+    {
+      "id": "warden-zero",
+      "name": "Warden Zero",
+      "story_key": "rational",
+      "kit": "warden-zero/clips.json",
+      "native_resource": "warden-zero/sprite-frames.tres",
+      "rendered_webp_preview": "warden-zero/preview.webp",
       "animations": [
         "idle",
         "taunt",

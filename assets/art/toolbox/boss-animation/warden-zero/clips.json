@@ -1,0 +1,160 @@
+{
+  "schema": 1,
+  "id": "warden-zero",
+  "name": "Warden Zero",
+  "canonical_region_key": "rational",
+  "artwork_only": true,
+  "source_main": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canvas": [
+    512,
+    512
+  ],
+  "atlas": {
+    "path": "atlas.webp",
+    "width": 2048,
+    "height": 512,
+    "sha256": "06f875fff29580881f3cd5b0a4323d13b91ab4062420dd260f3ad331447bb5bc",
+    "bytes": 1193852
+  },
+  "frame_names": [
+    "neutral",
+    "blink",
+    "taunt",
+    "hit"
+  ],
+  "region_rects": [
+    [
+      0,
+      0,
+      512,
+      512
+    ],
+    [
+      512,
+      0,
+      512,
+      512
+    ],
+    [
+      1024,
+      0,
+      512,
+      512
+    ],
+    [
+      1536,
+      0,
+      512,
+      512
+    ]
+  ],
+  "timeline_unit": "seconds (set each SpriteFrames animation speed to 1.0)",
+  "clips": {
+    "idle": {
+      "loop": true,
+      "steps": [
+        [
+          0,
+          2.4
+        ],
+        [
+          1,
+          0.11
+        ],
+        [
+          0,
+          1.6
+        ]
+      ]
+    },
+    "taunt": {
+      "loop": false,
+      "steps": [
+        [
+          0,
+          0.1
+        ],
+        [
+          2,
+          0.74
+        ],
+        [
+          0,
+          0.22
+        ]
+      ]
+    },
+    "hit": {
+      "loop": false,
+      "steps": [
+        [
+          3,
+          0.18
+        ],
+        [
+          3,
+          0.16
+        ],
+        [
+          0,
+          0.25
+        ]
+      ]
+    }
+  },
+  "facing": "left",
+  "anchor": [
+    256,
+    501
+  ],
+  "anchor_kind": "bust baseline",
+  "visual_signature": "signals the gap in the gauge",
+  "registration": {
+    "alpha_iou_to_neutral": {
+      "neutral": 1.0,
+      "blink": 0.991,
+      "taunt": 0.873,
+      "hit": 0.892
+    },
+    "source_poses": {
+      "neutral": {
+        "alpha_bbox": [
+          12,
+          6,
+          496,
+          503
+        ],
+        "distinct_source_sha256": "9eebf5fe4ae1ec32e4bbc9dba94d6c15ed544e86cb25d71301ba5782ad1de2a4"
+      },
+      "blink": {
+        "alpha_bbox": [
+          11,
+          5,
+          496,
+          503
+        ],
+        "distinct_source_sha256": "81289e761c98b7d68cefa89457e8801540f70c331c7f04cdfdf539073ada6717"
+      },
+      "taunt": {
+        "alpha_bbox": [
+          12,
+          4,
+          503,
+          503
+        ],
+        "distinct_source_sha256": "442d36dcd477fca7918f0adfd83de4281efea9eefc56be840abf058c40c65c01"
+      },
+      "hit": {
+        "alpha_bbox": [
+          26,
+          10,
+          479,
+          502
+        ],
+        "distinct_source_sha256": "37dcdf535ef3a994965065b672871f585c9761740d80de3b026ba68a2c08bfad"
+      }
+    },
+    "notes": "Authored pose changes use intentional holds, not motion interpolation. Align portrait anchor and preview at game scale before replacing existing shots."
+  },
+  "accessibility": "Reduced motion can hold the neutral texture; preserve game text and controls. Audio is not included."
+}

@@ -1,0 +1,160 @@
+{
+  "schema": 1,
+  "id": "baron-exponent",
+  "name": "Baron Exponent",
+  "canonical_region_key": "exp-log",
+  "artwork_only": true,
+  "source_main": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canvas": [
+    512,
+    512
+  ],
+  "atlas": {
+    "path": "atlas.webp",
+    "width": 2048,
+    "height": 512,
+    "sha256": "be52630f731911ceef1928dccb85ebbdfb715328d0713af8863fed3e96511bb1",
+    "bytes": 1203088
+  },
+  "frame_names": [
+    "neutral",
+    "blink",
+    "taunt",
+    "hit"
+  ],
+  "region_rects": [
+    [
+      0,
+      0,
+      512,
+      512
+    ],
+    [
+      512,
+      0,
+      512,
+      512
+    ],
+    [
+      1024,
+      0,
+      512,
+      512
+    ],
+    [
+      1536,
+      0,
+      512,
+      512
+    ]
+  ],
+  "timeline_unit": "seconds (set each SpriteFrames animation speed to 1.0)",
+  "clips": {
+    "idle": {
+      "loop": true,
+      "steps": [
+        [
+          0,
+          2.0
+        ],
+        [
+          1,
+          0.11
+        ],
+        [
+          0,
+          1.5
+        ]
+      ]
+    },
+    "taunt": {
+      "loop": false,
+      "steps": [
+        [
+          0,
+          0.1
+        ],
+        [
+          2,
+          0.74
+        ],
+        [
+          0,
+          0.22
+        ]
+      ]
+    },
+    "hit": {
+      "loop": false,
+      "steps": [
+        [
+          3,
+          0.18
+        ],
+        [
+          3,
+          0.16
+        ],
+        [
+          0,
+          0.25
+        ]
+      ]
+    }
+  },
+  "facing": "left",
+  "anchor": [
+    256,
+    501
+  ],
+  "anchor_kind": "bust baseline",
+  "visual_signature": "flashes two fingers over the valve rings",
+  "registration": {
+    "alpha_iou_to_neutral": {
+      "neutral": 1.0,
+      "blink": 0.997,
+      "taunt": 0.995,
+      "hit": 0.914
+    },
+    "source_poses": {
+      "neutral": {
+        "alpha_bbox": [
+          3,
+          14,
+          509,
+          505
+        ],
+        "distinct_source_sha256": "78cd3199179aff14a1531ea0f462c4d274983bff2ad0107e49952ac6a7d7715d"
+      },
+      "blink": {
+        "alpha_bbox": [
+          3,
+          13,
+          509,
+          505
+        ],
+        "distinct_source_sha256": "bad7a6111a2328acf5cf2da7e6e02fe6eda24016b4ed878036cb03dc6b346ccb"
+      },
+      "taunt": {
+        "alpha_bbox": [
+          3,
+          13,
+          509,
+          505
+        ],
+        "distinct_source_sha256": "cad18d954af6b8bb176c538834e0609dc937f16e65db2ba25d627edc532c992f"
+      },
+      "hit": {
+        "alpha_bbox": [
+          8,
+          4,
+          506,
+          506
+        ],
+        "distinct_source_sha256": "660b5388968a6109547be16ca454c29874bb16162c1d057144d879d7de39a630"
+      }
+    },
+    "notes": "Authored pose changes use intentional holds, not motion interpolation. Align portrait anchor and preview at game scale before replacing existing shots."
+  },
+  "accessibility": "Reduced motion can hold the neutral texture; preserve game text and controls. Audio is not included."
+}
