@@ -12,7 +12,7 @@ extends "res://tests/test_case.gd"
 ## own island, island_of() for every region, each island's spots laid out with no overlap,
 ## the Thunderdome's screen and the Relic Library's card.
 ## The world map as a fast-travel map (FAL-988): zones from the painting with none
-## overlapping, a pin and an always-shown name banner per place, the pin states and the
+## overlapping, a pin and a revealable name per place, the pin states and the
 ## "you are here" marker.
 
 const MAP := "res://scenes/map.tscn"
@@ -382,7 +382,7 @@ func test_the_world_map_opens_the_bazaar_and_leaving_it_goes_back() -> void:
 	var m: Control = made[1]
 	var shop := m.world_board.get_node("Bazaar") as Button
 	check_eq(_card_of(m, shop), "Bazaar · 1240 Scrap to spend", "the Scrap to spend")
-	check_eq(shop.tooltip_text, "Bazaar · 1240 Scrap to spend")
+	check_eq(shop.accessibility_name, "Bazaar: 1240 Scrap to spend · You are here")
 	check_eq((m.world.get_node("Header").get_child(0).get_node("Scrap") as Label).text, "Scrap: 1240")
 	# The Bazaar's zone, the caravan on the FAL-986 painting, trimmed clear of the Engine Core.
 	var zone: Rect2 = preload("res://ui/map.gd").BAZAAR_ZONE
@@ -432,16 +432,6 @@ func _rect(zone: Rect2) -> Rect2:
 	return Rect2(zone.position - zone.size / 2.0, zone.size)
 
 
-## WCAG contrast of two opaque colours.
-func _contrast(a: Color, b: Color) -> float:
-	var lum := func(c: Color) -> float:
-		var ch := [c.r, c.g, c.b].map(func(v): return v / 12.92 if v <= 0.04045 else pow((v + 0.055) / 1.055, 2.4))
-		return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2]
-	var la: float = lum.call(a)
-	var lb: float = lum.call(b)
-	return (maxf(la, lb) + 0.05) / (minf(la, lb) + 0.05)
-
-
 func test_the_world_zones_come_from_the_painting_with_no_two_overlapping() -> void:
 	var places := _world_places()
 	check_eq(places.size(), 8)
@@ -462,60 +452,36 @@ func test_the_world_zones_come_from_the_painting_with_no_two_overlapping() -> vo
 	_done(made)
 
 
-func test_the_world_map_names_every_place_on_a_banner() -> void:
+func test_the_world_map_uses_visible_pins_without_names_at_rest() -> void:
 	var made: Array = await _map({"screen": "world"})
 	var m: Control = made[1]
 	var board: Control = m.world_board
-	var shown := _board_text(board, true)
-	var banners: Array = []
 	for p in _world_places():
 		var b := board.get_node(p[0]) as Button
-		var banner := b.get_node("Banner") as PanelContainer
 		var name := (b.get_meta("card") as Array)[0] as String
-		check(banner.is_visible_in_tree(), "%s: its banner shows with nothing hovered" % p[0])
-		check_eq((banner.get_node("Name") as Label).text, name.to_upper())
-		check(name.to_upper() in shown, "%s: its name on the board" % p[0])
-		var label := banner.get_node("Name") as Label
-		check(label.get_theme_font("font") == UiTheme.TITLE_FONT, "%s: in the title font" % p[0])
-		check(label.get_theme_font_size("font_size") >= 40, "%s: readable on a phone" % p[0])
-		var plate := banner.get_theme_stylebox("panel") as StyleBoxFlat
-		check_eq(plate.border_color, UiTheme.SAND, "%s: a sand edge" % p[0])
-		var ratio := _contrast(label.get_theme_color("font_color"), Color(plate.bg_color, 1.0))
-		check(ratio >= 4.5, "%s: text on its plate at %.1f:1" % [p[0], ratio])
-		var r := Rect2(b.position + banner.position, banner.size)
-		check(Rect2(Vector2.ZERO, m.BOARD).encloses(r), "%s: its banner %s on the board" % [p[0], r])
-		var pin := b.get_node("Pin") as Control
-		check(r.position.y >= b.position.y + pin.position.y + pin.size.y - 1.0, "%s: the banner under its pin" % p[0])
-		for other in banners:
-			check(not r.intersects(other[1]), "%s's banner covers %s's" % [p[0], other[0]])
-		banners.append([p[0], r])
-	# Hover still brings the card with the second line.
+		var pin := b.get_node_or_null("Pin") as Control
+		check(pin != null and pin.is_visible_in_tree(), "%s: visible pin" % name)
+		check(b.get_node_or_null("Banner") == null, "%s: no permanent name plate" % name)
+		check(b.accessibility_name.begins_with(name + ": "), "%s: accessible identity" % name)
+		check_eq(b.tooltip_text, "", "%s: the game card is the only hover label" % name)
+	check(_board_text(board).is_empty(), "the world board has no resting name text")
 	var dome := board.get_node("Thunderdome") as Button
 	check_eq(_card_of(m, dome), "Thunderdome · Questions from all over the Wasteland")
 	check(not (board.get_node("Card") as Control).visible, "no card until a place is looked at")
 	_done(made)
 
 
-## A click on a place's banner goes into that place, even where the banner hangs past its
-## zone (the Engine Core's over the Relic Library's).
-func test_a_click_on_a_banner_goes_into_its_place() -> void:
+func test_the_world_map_pin_uses_its_button_for_a_single_desktop_click() -> void:
 	var save := SaveData.blank()
 	save.settings.reduced_motion = true
 	var made: Array = await _map({"screen": "world"}, save)
 	var m: Control = made[1]
-	var banner := m.world_board.get_node("Island_calculus/Banner") as Control
-	check_eq(banner.mouse_filter, Control.MOUSE_FILTER_STOP, "a banner takes its own clicks")
-	m._hide_card()
-	(m.world_board.get_node("Island_calculus/Banner") as Control).gui_input.emit(_release())
+	var b := m.world_board.get_node("Island_calculus") as Button
+	var pin := b.get_node("Pin") as Control
+	check_eq(pin.mouse_filter, Control.MOUSE_FILTER_IGNORE, "marker art must not intercept input")
+	b.pressed.emit()
 	check_eq(MapLink.current, {"screen": "island", "island": "calculus"}, "the Engine Core opens")
 	_done(made)
-
-
-func _release() -> InputEventMouseButton:
-	var e := InputEventMouseButton.new()
-	e.button_index = MOUSE_BUTTON_LEFT
-	e.pressed = false
-	return e
 
 
 func test_each_world_pin_shows_its_state() -> void:
@@ -629,10 +595,9 @@ func _card_of(m: Control, b: Button) -> String:
 
 
 ## The board's labels a player can see, other than the card's.
-func _board_text(board: Control, with_banners := false) -> Array:
-	# The names on their banners (#186) are the one text a board shows.
+func _board_text(board: Control) -> Array:
 	return board.find_children("*", "Label", true, false).filter(func(l): return l.is_visible_in_tree() \
-		and not board.get_node("Card").is_ancestor_of(l) and (with_banners or l.get_parent().name != "Banner")).map(func(l): return (l as Label).text)
+		and not board.get_node("Card").is_ancestor_of(l)).map(func(l): return (l as Label).text)
 
 
 func test_the_island_is_a_hub_laid_out_as_the_plan() -> void:
@@ -708,12 +673,11 @@ func test_no_roads_on_the_island() -> void:
 	_done(made)
 
 
-## On an island; the world map names its places on banners (FAL-988), and its card works
-## the same way (test_the_world_map_names_every_place_on_a_banner).
+## Both boards reveal a single card using the same hover and focus behavior.
 func test_names_hide_until_a_place_is_hovered_focused_or_tapped() -> void:
 	var save := SaveData.blank()
 	save.scrap = 75
-	for r in [{"screen": "island", "island": "functions"}]:
+	for r in [{"screen": "world"}, {"screen": "island", "island": "functions"}]:
 		var made: Array = await _map(r, save)
 		var m: Control = made[1]
 		var board: Control = m.world_board if r.screen == "world" else m.island_board
@@ -723,11 +687,11 @@ func test_names_hide_until_a_place_is_hovered_focused_or_tapped() -> void:
 		check(not card.visible, "%s: no card at first" % r.screen)
 		check(m.get_viewport().gui_get_focus_owner() in places, "%s: first focus on a place" % r.screen)
 		for t in _board_text(board):
-			check(not t in names, "%s: '%s' shows on the board" % [r.screen, t])
+			check(not t in names and not t.to_lower() in names.map(func(n): return String(n).to_lower()), "%s: '%s' shows on the board" % [r.screen, t])
 			check(not t.contains("Coming") and not t.contains("Locked") and not t.contains("Scrap"), "%s: '%s' on the board" % [r.screen, t])
 		for b in places:
 			check(b.accessibility_name.begins_with((b.get_meta("card") as Array)[0] + ": "), "%s: %s's name for screen readers" % [r.screen, b.name])
-			check(b.tooltip_text != "", "%s: %s's tooltip" % [r.screen, b.name])
+			check_eq(b.tooltip_text, "", "%s: no second tooltip for %s" % [r.screen, b.name])
 		# The mouse: hovering shows the card by the place, and leaving puts it away.
 		m._input(_mouse_motion())
 		var b: Button = places[1]
@@ -873,7 +837,12 @@ func test_painted_places_on_a_background() -> void:
 		check_eq(b.get_node_or_null("Padlock") != null, state == "locked", id + ": a padlock when locked")
 		check_eq(b.get_node_or_null("Wash") != null, state == "locked", id + ": a dark wash when locked")
 		check_eq(b.get_node_or_null("Flag") != null, state == "cleared", id + ": a flag when cleared")
-		check(b.flat and b.text == "", id + ": an invisible hit area")
+		var pin := b.get_node_or_null("Pin") as Control
+		check_eq(pin != null, state == "open", id + ": a pin when the painting needs an open marker")
+		if pin != null:
+			check(pin.is_visible_in_tree() and pin.size.x >= 72.0, id + ": visible pin")
+			check_eq(pin.mouse_filter, Control.MOUSE_FILTER_IGNORE, id + ": pin cannot swallow a tap")
+		check(b.flat and b.text == "", id + ": an unlabelled hit area")
 	check_eq(m.spot_state(open[0]), "cleared", "a cleared region to flag")
 	check(buttons[open[0]].size.is_equal_approx(Vector2(300, 300)), "a region's square")
 	check(buttons.relic.size.is_equal_approx(Vector2(160, 160)), "the relic's square")
