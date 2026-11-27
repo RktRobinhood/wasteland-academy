@@ -8,3 +8,5 @@ Boss animation handoff, art shelf only. In each named kit use `atlas.webp` and `
 - `preview.webp` is just a compact external animated review, not the import format. Do not use it at runtime, copy the preview or preload all bosses. Use the lossless atlas resource for the visible boss only; existing neutral portraits stay where they were.
 
 The current library links the available sets in [index.json](index.json). Warden Apex uses a full-figure anchor; the others are bust portraits. Warden's crouch and the Compounder's second take were selected specifically to improve hit readability and preserve original costume scale. These pose revisions are not replacements for existing shelf portraits.
+
+**Coverage: all 13 named primary boss entries from current canon.** This represents 52 distinct illustrated pose frames and 39 native animation clips. The 13 separate miniboss characters are not included. Not all reactions are intended as gameplay telegraphs: for the Tailor in particular, the hit is a subtle portrait flinch. Keep HUD status cues independent and assess actual scenes before changing any shipped character.

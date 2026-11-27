@@ -1,12 +1,8 @@
 {
   "schema": 1,
-  "released_kit_count": 10,
+  "released_kit_count": 13,
   "canonical_primary_boss_count": 13,
-  "missing_primary_boss_keys": [
-    "composite-inverse",
-    "function-basics",
-    "transformations"
-  ],
+  "missing_primary_boss_keys": [],
   "encounter_wiring": false,
   "available": [
     {
@@ -49,12 +45,38 @@
       ]
     },
     {
+      "id": "dispatcher-mapp",
+      "name": "Dispatcher Mapp",
+      "story_key": "function-basics",
+      "kit": "dispatcher-mapp/clips.json",
+      "native_resource": "dispatcher-mapp/sprite-frames.tres",
+      "rendered_webp_preview": "dispatcher-mapp/preview.webp",
+      "animations": [
+        "idle",
+        "taunt",
+        "hit"
+      ]
+    },
+    {
       "id": "integrator",
       "name": "The Integrator",
       "story_key": "calculus",
       "kit": "integrator/clips.json",
       "native_resource": "integrator/sprite-frames.tres",
       "rendered_webp_preview": "integrator/preview.webp",
+      "animations": [
+        "idle",
+        "taunt",
+        "hit"
+      ]
+    },
+    {
+      "id": "mirror-foreman",
+      "name": "The Mirror Foreman",
+      "story_key": "composite-inverse",
+      "kit": "mirror-foreman/clips.json",
+      "native_resource": "mirror-foreman/sprite-frames.tres",
+      "rendered_webp_preview": "mirror-foreman/preview.webp",
       "animations": [
         "idle",
         "taunt",
@@ -107,6 +129,19 @@
       "kit": "sundial/clips.json",
       "native_resource": "sundial/sprite-frames.tres",
       "rendered_webp_preview": "sundial/preview.webp",
+      "animations": [
+        "idle",
+        "taunt",
+        "hit"
+      ]
+    },
+    {
+      "id": "tailor",
+      "name": "The Tailor",
+      "story_key": "transformations",
+      "kit": "tailor/clips.json",
+      "native_resource": "tailor/sprite-frames.tres",
+      "rendered_webp_preview": "tailor/preview.webp",
       "animations": [
         "idle",
         "taunt",

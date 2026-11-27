@@ -1,0 +1,160 @@
+{
+  "schema": 1,
+  "id": "mirror-foreman",
+  "name": "The Mirror Foreman",
+  "canonical_region_key": "composite-inverse",
+  "artwork_only": true,
+  "source_main": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canvas": [
+    512,
+    512
+  ],
+  "atlas": {
+    "path": "atlas.webp",
+    "width": 2048,
+    "height": 512,
+    "sha256": "8c7e51efda01711e14b5c0bb2603c81b61886404cc9130cc88fb3f22f3207e4a",
+    "bytes": 1019612
+  },
+  "frame_names": [
+    "neutral",
+    "blink",
+    "taunt",
+    "hit"
+  ],
+  "region_rects": [
+    [
+      0,
+      0,
+      512,
+      512
+    ],
+    [
+      512,
+      0,
+      512,
+      512
+    ],
+    [
+      1024,
+      0,
+      512,
+      512
+    ],
+    [
+      1536,
+      0,
+      512,
+      512
+    ]
+  ],
+  "timeline_unit": "seconds (set each SpriteFrames animation speed to 1.0)",
+  "clips": {
+    "idle": {
+      "loop": true,
+      "steps": [
+        [
+          0,
+          1.75
+        ],
+        [
+          1,
+          0.11
+        ],
+        [
+          0,
+          1.55
+        ]
+      ]
+    },
+    "taunt": {
+      "loop": false,
+      "steps": [
+        [
+          0,
+          0.1
+        ],
+        [
+          2,
+          0.74
+        ],
+        [
+          0,
+          0.22
+        ]
+      ]
+    },
+    "hit": {
+      "loop": false,
+      "steps": [
+        [
+          3,
+          0.18
+        ],
+        [
+          3,
+          0.16
+        ],
+        [
+          0,
+          0.25
+        ]
+      ]
+    }
+  },
+  "facing": "left",
+  "anchor": [
+    256,
+    501
+  ],
+  "anchor_kind": "bust baseline",
+  "visual_signature": "changes the order of two opposed panels",
+  "registration": {
+    "alpha_iou_to_neutral": {
+      "neutral": 1.0,
+      "blink": 0.989,
+      "taunt": 0.957,
+      "hit": 0.937
+    },
+    "source_poses": {
+      "neutral": {
+        "alpha_bbox": [
+          16,
+          18,
+          496,
+          498
+        ],
+        "distinct_source_sha256": "e76c345b6018d7b9862b06c01ace21807924e89ee574d12d4b1423c294897a14"
+      },
+      "blink": {
+        "alpha_bbox": [
+          15,
+          17,
+          498,
+          499
+        ],
+        "distinct_source_sha256": "a41b824e07ff398342fe1df87431aedfe6635ce92383263415cc8ac3b308e5a2"
+      },
+      "taunt": {
+        "alpha_bbox": [
+          16,
+          17,
+          508,
+          500
+        ],
+        "distinct_source_sha256": "774e160b3d0849103d94f8a5cc4b5ae191ece75cefcf2e6afc7fd54aaabd7c84"
+      },
+      "hit": {
+        "alpha_bbox": [
+          25,
+          18,
+          491,
+          500
+        ],
+        "distinct_source_sha256": "c728da2b6014ce658a79a2b3d4a56aee95413d48201168a9739520a22e7aea59"
+      }
+    },
+    "notes": "Authored pose changes use intentional holds, not motion interpolation. Align portrait anchor and preview at game scale before replacing existing shots."
+  },
+  "accessibility": "Reduced motion can hold the neutral texture; preserve game text and controls. Audio is not included."
+}

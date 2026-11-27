@@ -1,0 +1,160 @@
+{
+  "schema": 1,
+  "id": "tailor",
+  "name": "The Tailor",
+  "canonical_region_key": "transformations",
+  "artwork_only": true,
+  "source_main": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canvas": [
+    512,
+    512
+  ],
+  "atlas": {
+    "path": "atlas.webp",
+    "width": 2048,
+    "height": 512,
+    "sha256": "249b3b82b401288c0fb49b8538ca1e1698fc529fbe1fbeb0a4ecfdb0d53b90e4",
+    "bytes": 1233652
+  },
+  "frame_names": [
+    "neutral",
+    "blink",
+    "taunt",
+    "hit"
+  ],
+  "region_rects": [
+    [
+      0,
+      0,
+      512,
+      512
+    ],
+    [
+      512,
+      0,
+      512,
+      512
+    ],
+    [
+      1024,
+      0,
+      512,
+      512
+    ],
+    [
+      1536,
+      0,
+      512,
+      512
+    ]
+  ],
+  "timeline_unit": "seconds (set each SpriteFrames animation speed to 1.0)",
+  "clips": {
+    "idle": {
+      "loop": true,
+      "steps": [
+        [
+          0,
+          2.1
+        ],
+        [
+          1,
+          0.11
+        ],
+        [
+          0,
+          1.35
+        ]
+      ]
+    },
+    "taunt": {
+      "loop": false,
+      "steps": [
+        [
+          0,
+          0.1
+        ],
+        [
+          2,
+          0.74
+        ],
+        [
+          0,
+          0.22
+        ]
+      ]
+    },
+    "hit": {
+      "loop": false,
+      "steps": [
+        [
+          3,
+          0.18
+        ],
+        [
+          3,
+          0.16
+        ],
+        [
+          0,
+          0.25
+        ]
+      ]
+    }
+  },
+  "facing": "left",
+  "anchor": [
+    256,
+    501
+  ],
+  "anchor_kind": "bust baseline",
+  "visual_signature": "reverses the stitched edge of her material",
+  "registration": {
+    "alpha_iou_to_neutral": {
+      "neutral": 1.0,
+      "blink": 0.995,
+      "taunt": 0.995,
+      "hit": 0.979
+    },
+    "source_poses": {
+      "neutral": {
+        "alpha_bbox": [
+          6,
+          5,
+          506,
+          506
+        ],
+        "distinct_source_sha256": "5bba6892af40417dfa7421ea9bd1b22895b20b08eba816aa5cd8f1257dddedd8"
+      },
+      "blink": {
+        "alpha_bbox": [
+          6,
+          4,
+          506,
+          506
+        ],
+        "distinct_source_sha256": "d04a88ec978ddca360710ab43289cca426299354619d8812bd56be18f3affaf4"
+      },
+      "taunt": {
+        "alpha_bbox": [
+          6,
+          4,
+          506,
+          506
+        ],
+        "distinct_source_sha256": "39e4ea23682ebe61d2d273ae219455fba314a5e220584180e6bc405e39f9398d"
+      },
+      "hit": {
+        "alpha_bbox": [
+          6,
+          4,
+          506,
+          506
+        ],
+        "distinct_source_sha256": "ec6521c590378f86579fcbb1ab30deec374bbff912992ec3d76796571b41b450"
+      }
+    },
+    "notes": "Authored pose changes use intentional holds, not motion interpolation. Align portrait anchor and preview at game scale before replacing existing shots."
+  },
+  "accessibility": "Reduced motion can hold the neutral texture; preserve game text and controls. Audio is not included."
+}
