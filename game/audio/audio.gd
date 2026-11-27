@@ -232,13 +232,13 @@ func play_sfx(cue: String) -> void:
 ## the line, in seconds. Does nothing, and returns false, when sound or the voice is off.
 func play_voice(stream: AudioStream, speed := 1.0, from := 0.0) -> bool:
 	_voice.stop()
+	_voice.stream_paused = false
 	last_voice = stream.resource_path if stream != null else ""
 	if stream == null or not sound_enabled or voice_muted or voice_volume <= 0.0:
 		_set_ducked(false)
 		return false
 	_voice.stream = stream
 	set_voice_speed(speed)
-	_voice.stream_paused = false
 	_voice.play(from)
 	_set_ducked(true)
 	return true
@@ -246,14 +246,18 @@ func play_voice(stream: AudioStream, speed := 1.0, from := 0.0) -> bool:
 
 ## Pause or resume the same line without losing the position in the recording.
 func pause_voice(paused: bool) -> void:
-	if _voice.playing:
-		_voice.stream_paused = paused
-		_set_ducked(not paused)
+	if paused and _voice.playing:
+		_voice.stream_paused = true
+		_set_ducked(false)
+	elif not paused and _voice.stream_paused:
+		_voice.stream_paused = false
+		_set_ducked(true)
 
 
 ## Stop Spark's line and bring the music back up.
 func stop_voice() -> void:
 	_voice.stop()
+	_voice.stream_paused = false
 	_set_ducked(false)
 
 

@@ -502,3 +502,26 @@ func test_the_settings_screen_has_the_access_settings() -> void:
 	for p in [path, path + ".bak", path + ".tmp"]:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(p))
 	await tree.process_frame
+
+
+func test_a_real_voice_take_resumes_from_pause_and_clears_on_stop() -> void:
+	var audio := _audio()
+	var take := load("res://assets/audio/voice/explainers/ex.functions.function-machine/9mnd1e.ogg") as AudioStream
+	check(take != null, "use the actual Signal Tower opening take")
+	audio.sound_enabled = true
+	check(audio.play_voice(take), "voice starts")
+	var player: AudioStreamPlayer = audio._voice
+	await tree.create_timer(0.2).timeout
+	audio.pause_voice(true)
+	var at := player.get_playback_position()
+	await tree.create_timer(0.2).timeout
+	check(player.stream_paused, "pause reaches the player")
+	check(absf(player.get_playback_position() - at) < 0.12, "pause keeps the position")
+	audio.pause_voice(false)
+	check(not player.stream_paused, "resume works even if the paused player is not playing")
+	await tree.create_timer(0.2).timeout
+	check(player.get_playback_position() >= at, "resume does not restart the take")
+	audio.pause_voice(true)
+	audio.stop_voice()
+	check(not player.stream_paused and not audio.voice_playing(), "stop clears a paused voice")
+	_restore(audio)
