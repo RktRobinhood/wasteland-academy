@@ -1,0 +1,249 @@
+{
+  "format": 1,
+  "new_static": 30,
+  "from_previous_shelf": 5,
+  "family_count": 35,
+  "integrated_by_this_pack": 0,
+  "families": [
+    {
+      "biome": "dry-flats",
+      "id": "canvas-ray",
+      "manifest": "dry-flats/canvas-ray/manifest.json",
+      "coverage": "static",
+      "category": "flyer"
+    },
+    {
+      "biome": "dry-flats",
+      "id": "dune-cutwing",
+      "manifest": "dry-flats/dune-cutwing/manifest.json",
+      "coverage": "static",
+      "category": "flyer"
+    },
+    {
+      "biome": "dry-flats",
+      "id": "dust-hare",
+      "manifest": "dry-flats/dust-hare/manifest.json",
+      "coverage": "static",
+      "category": "wild"
+    },
+    {
+      "biome": "dry-flats",
+      "id": "glassback-lizard",
+      "manifest": "../dry-flats/glassback-lizard-01/manifest.json",
+      "coverage": "static ambient"
+    },
+    {
+      "biome": "dry-flats",
+      "id": "salt-sifter",
+      "manifest": "dry-flats/salt-sifter/manifest.json",
+      "coverage": "static",
+      "category": "mechanical"
+    },
+    {
+      "biome": "dry-flats",
+      "id": "sunplate-beetle",
+      "manifest": "dry-flats/sunplate-beetle/manifest.json",
+      "coverage": "static",
+      "category": "mechanical"
+    },
+    {
+      "biome": "dry-flats",
+      "id": "windvane-skitter",
+      "manifest": "dry-flats/windvane-skitter/manifest.json",
+      "coverage": "static",
+      "category": "biomechanical"
+    },
+    {
+      "biome": "engine-core",
+      "id": "boiler-crawler",
+      "manifest": "../engine-core/boiler-crawler-01/manifest.json",
+      "coverage": "static ambient"
+    },
+    {
+      "biome": "engine-core",
+      "id": "cinderback-salamander",
+      "manifest": "engine-core/cinderback-salamander/manifest.json",
+      "coverage": "static",
+      "category": "biomechanical"
+    },
+    {
+      "biome": "engine-core",
+      "id": "flywheel-tick",
+      "manifest": "engine-core/flywheel-tick/manifest.json",
+      "coverage": "static",
+      "category": "mechanical"
+    },
+    {
+      "biome": "engine-core",
+      "id": "heatshield-pillbug",
+      "manifest": "engine-core/heatshield-pillbug/manifest.json",
+      "coverage": "static",
+      "category": "wild"
+    },
+    {
+      "biome": "engine-core",
+      "id": "soot-finch",
+      "manifest": "engine-core/soot-finch/manifest.json",
+      "coverage": "static",
+      "category": "flyer"
+    },
+    {
+      "biome": "engine-core",
+      "id": "steam-hermit",
+      "manifest": "engine-core/steam-hermit/manifest.json",
+      "coverage": "static",
+      "category": "biomechanical"
+    },
+    {
+      "biome": "engine-core",
+      "id": "vent-hoverer",
+      "manifest": "engine-core/vent-hoverer/manifest.json",
+      "coverage": "static",
+      "category": "flyer"
+    },
+    {
+      "biome": "radio-spires",
+      "id": "antenna-kite",
+      "manifest": "../radio-spires/antenna-kite-01/manifest.json",
+      "coverage": "native idle/dodge art prototype"
+    },
+    {
+      "biome": "radio-spires",
+      "id": "cable-slung-slug",
+      "manifest": "radio-spires/cable-slung-slug/manifest.json",
+      "coverage": "static",
+      "category": "biomechanical"
+    },
+    {
+      "biome": "radio-spires",
+      "id": "coil-viper",
+      "manifest": "radio-spires/coil-viper/manifest.json",
+      "coverage": "static",
+      "category": "biomechanical"
+    },
+    {
+      "biome": "radio-spires",
+      "id": "ferrite-bat",
+      "manifest": "radio-spires/ferrite-bat/manifest.json",
+      "coverage": "static",
+      "category": "flyer"
+    },
+    {
+      "biome": "radio-spires",
+      "id": "fork-relay",
+      "manifest": "radio-spires/fork-relay/manifest.json",
+      "coverage": "static",
+      "category": "mechanical"
+    },
+    {
+      "biome": "radio-spires",
+      "id": "linewalker",
+      "manifest": "radio-spires/linewalker/manifest.json",
+      "coverage": "static",
+      "category": "mechanical"
+    },
+    {
+      "biome": "radio-spires",
+      "id": "static-tern",
+      "manifest": "radio-spires/static-tern/manifest.json",
+      "coverage": "static",
+      "category": "flyer"
+    },
+    {
+      "biome": "scrap-fields",
+      "id": "axle-hound",
+      "manifest": "scrap-fields/axle-hound/manifest.json",
+      "coverage": "static",
+      "category": "biomechanical"
+    },
+    {
+      "biome": "scrap-fields",
+      "id": "cable-rat",
+      "manifest": "scrap-fields/cable-rat/manifest.json",
+      "coverage": "static",
+      "category": "wild"
+    },
+    {
+      "biome": "scrap-fields",
+      "id": "copper-mite",
+      "manifest": "../scrap-fields/copper-mite-01/manifest.json",
+      "coverage": "held poses, no walk"
+    },
+    {
+      "biome": "scrap-fields",
+      "id": "jackstand-crab",
+      "manifest": "scrap-fields/jackstand-crab/manifest.json",
+      "coverage": "static",
+      "category": "mechanical"
+    },
+    {
+      "biome": "scrap-fields",
+      "id": "kettleback-toad",
+      "manifest": "scrap-fields/kettleback-toad/manifest.json",
+      "coverage": "static",
+      "category": "biomechanical"
+    },
+    {
+      "biome": "scrap-fields",
+      "id": "pulley-wasp",
+      "manifest": "scrap-fields/pulley-wasp/manifest.json",
+      "coverage": "static",
+      "category": "flyer"
+    },
+    {
+      "biome": "scrap-fields",
+      "id": "treadback",
+      "manifest": "scrap-fields/treadback/manifest.json",
+      "coverage": "static",
+      "category": "mechanical"
+    },
+    {
+      "biome": "signal-tower",
+      "id": "bellwire-lynx",
+      "manifest": "signal-tower/bellwire-lynx/manifest.json",
+      "coverage": "static",
+      "category": "biomechanical"
+    },
+    {
+      "biome": "signal-tower",
+      "id": "insulator-gecko",
+      "manifest": "signal-tower/insulator-gecko/manifest.json",
+      "coverage": "static",
+      "category": "wild"
+    },
+    {
+      "biome": "signal-tower",
+      "id": "ladder-centipede",
+      "manifest": "signal-tower/ladder-centipede/manifest.json",
+      "coverage": "static",
+      "category": "mechanical"
+    },
+    {
+      "biome": "signal-tower",
+      "id": "perch-receiver",
+      "manifest": "signal-tower/perch-receiver/manifest.json",
+      "coverage": "static",
+      "category": "flyer"
+    },
+    {
+      "biome": "signal-tower",
+      "id": "relay-moth",
+      "manifest": "../signal-tower/relay-moth-01/manifest.json",
+      "coverage": "static hover"
+    },
+    {
+      "biome": "signal-tower",
+      "id": "shard-crow",
+      "manifest": "signal-tower/shard-crow/manifest.json",
+      "coverage": "static",
+      "category": "flyer"
+    },
+    {
+      "biome": "signal-tower",
+      "id": "switchboard-spider",
+      "manifest": "signal-tower/switchboard-spider/manifest.json",
+      "coverage": "static",
+      "category": "mechanical"
+    }
+  ]
+}

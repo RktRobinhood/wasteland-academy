@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "radio-spires",
+  "creature_family": "fork-relay",
+  "category": "mechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    159,
+    41,
+    476,
+    367
+  ],
+  "anchor": [
+    317,
+    366
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 38160,
+      "sha256": "12f9ec7c5d3860a77cda0e17410a3f7590d5afac13a45f29b735ebf473af06d8"
+    },
+    {
+      "path": "masters/fork-relay.png",
+      "bytes": 1007291,
+      "sha256": "bc5366c644971056707bcd6f86429cf10d854c55c35bcebb640e8ce666f3783e"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 5027,
+      "sha256": "4a6ddabd9713f1a1e8502bc40ca0bcfb16bf3a8e631ce1be01f99a0a1f4ae372"
+    }
+  ]
+}

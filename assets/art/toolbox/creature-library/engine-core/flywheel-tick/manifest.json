@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "engine-core",
+  "creature_family": "flywheel-tick",
+  "category": "mechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    119,
+    76,
+    522,
+    323
+  ],
+  "anchor": [
+    320,
+    322
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 39368,
+      "sha256": "bc247822ddb8b3808c5064d4d9deeb5766425a8874d92b98072ceb341ac6af2a"
+    },
+    {
+      "path": "masters/flywheel-tick.png",
+      "bytes": 2005109,
+      "sha256": "a46ca08adbf674bf6fc7a7fe538746536016a52be15a4388cb147623659f3aaa"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 5490,
+      "sha256": "6eb6c6baa4c71a24efe2cae0dab0011eb4a5ef88e29d6065847ab76f24b4d5bd"
+    }
+  ]
+}

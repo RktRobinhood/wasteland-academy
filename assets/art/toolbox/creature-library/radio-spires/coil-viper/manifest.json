@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "radio-spires",
+  "creature_family": "coil-viper",
+  "category": "biomechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    86,
+    88,
+    525,
+    334
+  ],
+  "anchor": [
+    305,
+    333
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 35802,
+      "sha256": "dfbda1387eec550c77e31ad36ade1da56bd633966a1c2a641dfb017f8079e748"
+    },
+    {
+      "path": "masters/coil-viper.png",
+      "bytes": 1334580,
+      "sha256": "dc21a54bb09e275b5b4763b2951f23d5e52ad22e1195dd0f2d0fe9aa5ce713e0"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 4671,
+      "sha256": "7056307eedbdc56f7056c4794d70fabc2d7f43548fe78de43083349c4dbadd44"
+    }
+  ]
+}

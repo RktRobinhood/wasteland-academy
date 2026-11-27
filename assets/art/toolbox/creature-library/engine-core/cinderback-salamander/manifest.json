@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "engine-core",
+  "creature_family": "cinderback-salamander",
+  "category": "biomechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    52,
+    140,
+    591,
+    298
+  ],
+  "anchor": [
+    321,
+    297
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 35188,
+      "sha256": "ef1eb2f02a7b9501454632bb73a2f364318fd0ee2cef36364c7b8bca3c93e9d0"
+    },
+    {
+      "path": "masters/cinderback-salamander.png",
+      "bytes": 1239154,
+      "sha256": "d5e3c2c1bb1b2625341a973d70d1674d08e296d57ef7484dce3dac2f6e63d437"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 4553,
+      "sha256": "4f2a3aa8414b93a07bfe0c88f8f1ce36f461bfe65c4d36f540798efbad36d748"
+    }
+  ]
+}

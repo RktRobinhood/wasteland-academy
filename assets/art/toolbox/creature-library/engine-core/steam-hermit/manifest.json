@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "engine-core",
+  "creature_family": "steam-hermit",
+  "category": "biomechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    111,
+    57,
+    524,
+    337
+  ],
+  "anchor": [
+    317,
+    336
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 49960,
+      "sha256": "c5f1fe4ba13242807fef44e5033f1cd1f66e2fab13c109a687dfc5fa5f1b9db7"
+    },
+    {
+      "path": "masters/steam-hermit.png",
+      "bytes": 1612284,
+      "sha256": "fa1f73843f7415eaf9052e0c9268da036abd5559974e964daf3302f74c24644c"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 5828,
+      "sha256": "9773ddce51643445f52a5e4861d1e12eb57fe84e953518b37632206fef3df599"
+    }
+  ]
+}

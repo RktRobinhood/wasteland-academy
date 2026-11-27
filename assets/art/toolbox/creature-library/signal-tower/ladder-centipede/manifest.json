@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "signal-tower",
+  "creature_family": "ladder-centipede",
+  "category": "mechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    39,
+    162,
+    602,
+    255
+  ],
+  "anchor": [
+    320,
+    254
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 24380,
+      "sha256": "8d584d0e0364bea8724a7678160b2d7a950f2a4dc7b7380e9b6e7cf2353a14df"
+    },
+    {
+      "path": "masters/ladder-centipede.png",
+      "bytes": 1103013,
+      "sha256": "77451d90ba7fce9aeedc57505613ad12a1e5a8ddcd0b0096445c5bd7a5932117"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 3755,
+      "sha256": "947d5b5aba54b30ac2dd85a162a5540baf3fe4669f94c26b8d425051b4955bcd"
+    }
+  ]
+}

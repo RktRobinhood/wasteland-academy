@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "engine-core",
+  "creature_family": "vent-hoverer",
+  "category": "flyer",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    123,
+    92,
+    506,
+    318
+  ],
+  "anchor": [
+    314,
+    205
+  ],
+  "anchor_type": "hover center",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 31286,
+      "sha256": "0a6eaebe69da08c069f5a9006abdc2e2a7faea282ed3d34abab10854cd981bcc"
+    },
+    {
+      "path": "masters/vent-hoverer.png",
+      "bytes": 1743644,
+      "sha256": "77bf96a1cc5fd6db1438a8468e705512c0bb0fc6797e96103e09f761245156e9"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 4559,
+      "sha256": "31eff740ea6a63a59840644bde7238ed9e7e24c5038b0885c32bd86653615cb7"
+    }
+  ]
+}

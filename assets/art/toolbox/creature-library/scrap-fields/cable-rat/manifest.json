@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "scrap-fields",
+  "creature_family": "cable-rat",
+  "category": "wild",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    157,
+    164,
+    494,
+    266
+  ],
+  "anchor": [
+    325,
+    265
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 0.996,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 14816,
+      "sha256": "07a2bbb0cf2a83a1b8be4f779c6b0d42c7c7b91b5940f0f5523048d4a8eda89d"
+    },
+    {
+      "path": "masters/cable-rat.png",
+      "bytes": 612543,
+      "sha256": "130fc7847256d022b7ff783cf03a12bb21546941a8984d07670e431eceb64db6"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 2307,
+      "sha256": "6536ae1041fa1f1c9c743bccbf586cdd6a6e6519d4224b8f996f10896265f0df"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "engine-core",
+  "creature_family": "heatshield-pillbug",
+  "category": "wild",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    117,
+    96,
+    526,
+    305
+  ],
+  "anchor": [
+    321,
+    304
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 34328,
+      "sha256": "b68484e38e4d84120c3658312a6ed4188bf68a1679a23361ba53149a7987f5ff"
+    },
+    {
+      "path": "masters/heatshield-pillbug.png",
+      "bytes": 2005999,
+      "sha256": "19b64693c23e9f682687c39f122c7d41eb6687b0e65e5506424d25a2621662b6"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 4932,
+      "sha256": "76eb5824b99f3dc80d4eca003dd8027507ef50e3e0a4a5b572d039dd9463eb11"
+    }
+  ]
+}
