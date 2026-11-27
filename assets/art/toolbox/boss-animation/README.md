@@ -6,3 +6,5 @@ Boss animation handoff, art shelf only. In each named kit use `atlas.webp` and `
 - Reduced-motion option: show the stable neutral frame and any status text; do not repeatedly flash the hit pose or attach audio. Keep the learner's input and focus unaffected.
 - Native checks: Godot 4 imported the WebP texture as real `AtlasTexture` frames; an actual `AnimatedSprite2D` advanced into gesture, reaction, recovery and blink. A second import from a moved directory confirmed the relative path. Art still needs a per-scene scale/placement trial.
 - `preview.webp` is just a compact external animated review, not the import format. Do not use it at runtime, copy the preview or preload all bosses. Use the lossless atlas resource for the visible boss only; existing neutral portraits stay where they were.
+
+The current library links the available sets in [index.json](index.json). Warden Apex uses a full-figure anchor; the others are bust portraits. Warden's crouch and the Compounder's second take were selected specifically to improve hit readability and preserve original costume scale. These pose revisions are not replacements for existing shelf portraits.

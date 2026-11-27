@@ -1,0 +1,160 @@
+{
+  "schema": 1,
+  "id": "cartographer",
+  "name": "The Cartographer",
+  "canonical_region_key": "graphs-features",
+  "artwork_only": true,
+  "source_main": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canvas": [
+    512,
+    512
+  ],
+  "atlas": {
+    "path": "atlas.webp",
+    "width": 2048,
+    "height": 512,
+    "sha256": "ab411b4424eaa96cb40377dec761fa00176b18b70d259ed7ad66e96073efa2c0",
+    "bytes": 1057074
+  },
+  "frame_names": [
+    "neutral",
+    "blink",
+    "taunt",
+    "hit"
+  ],
+  "region_rects": [
+    [
+      0,
+      0,
+      512,
+      512
+    ],
+    [
+      512,
+      0,
+      512,
+      512
+    ],
+    [
+      1024,
+      0,
+      512,
+      512
+    ],
+    [
+      1536,
+      0,
+      512,
+      512
+    ]
+  ],
+  "timeline_unit": "seconds (set each SpriteFrames animation speed to 1.0)",
+  "clips": {
+    "idle": {
+      "loop": true,
+      "steps": [
+        [
+          0,
+          2.2
+        ],
+        [
+          1,
+          0.11
+        ],
+        [
+          0,
+          1.55
+        ]
+      ]
+    },
+    "taunt": {
+      "loop": false,
+      "steps": [
+        [
+          0,
+          0.1
+        ],
+        [
+          2,
+          0.74
+        ],
+        [
+          0,
+          0.22
+        ]
+      ]
+    },
+    "hit": {
+      "loop": false,
+      "steps": [
+        [
+          3,
+          0.18
+        ],
+        [
+          3,
+          0.16
+        ],
+        [
+          0,
+          0.25
+        ]
+      ]
+    }
+  },
+  "facing": "left",
+  "anchor": [
+    256,
+    501
+  ],
+  "anchor_kind": "bust baseline",
+  "visual_signature": "taps the strapped map",
+  "registration": {
+    "alpha_iou_to_neutral": {
+      "neutral": 1.0,
+      "blink": 0.996,
+      "taunt": 0.968,
+      "hit": 0.889
+    },
+    "source_poses": {
+      "neutral": {
+        "alpha_bbox": [
+          15,
+          17,
+          496,
+          500
+        ],
+        "distinct_source_sha256": "2785539c67f81c30c73ed8dee2bde93205b23e1ce9c21af10144f28aa3c24232"
+      },
+      "blink": {
+        "alpha_bbox": [
+          15,
+          17,
+          496,
+          500
+        ],
+        "distinct_source_sha256": "5996e44318956376e6d8fc6851691b2f5bcacad0b62ed878c88e166d21a98faa"
+      },
+      "taunt": {
+        "alpha_bbox": [
+          5,
+          18,
+          499,
+          502
+        ],
+        "distinct_source_sha256": "8e4ee8331b7bb9d1be1c2e7c20756313cd67ee6284743fe1fc622ba090b78766"
+      },
+      "hit": {
+        "alpha_bbox": [
+          27,
+          18,
+          487,
+          496
+        ],
+        "distinct_source_sha256": "3180dbd0f77e711cf986ae0ab66462237524e2af809860abb1bd3637b48abaa4"
+      }
+    },
+    "notes": "Authored pose changes use intentional holds, not motion interpolation. Align portrait anchor and preview at game scale before replacing existing shots."
+  },
+  "accessibility": "Reduced motion can hold the neutral texture; preserve game text and controls. Audio is not included."
+}

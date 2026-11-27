@@ -1,0 +1,160 @@
+{
+  "schema": 1,
+  "id": "warden-apex",
+  "name": "Warden Apex",
+  "canonical_region_key": "quadratics",
+  "artwork_only": true,
+  "source_main": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canvas": [
+    512,
+    512
+  ],
+  "atlas": {
+    "path": "atlas.webp",
+    "width": 2048,
+    "height": 512,
+    "sha256": "3bf5f2a11a60b570443a2a7558f551f339d82a690e5f62afeb8ea8c8185790e2",
+    "bytes": 523328
+  },
+  "frame_names": [
+    "neutral",
+    "blink",
+    "taunt",
+    "hit"
+  ],
+  "region_rects": [
+    [
+      0,
+      0,
+      512,
+      512
+    ],
+    [
+      512,
+      0,
+      512,
+      512
+    ],
+    [
+      1024,
+      0,
+      512,
+      512
+    ],
+    [
+      1536,
+      0,
+      512,
+      512
+    ]
+  ],
+  "timeline_unit": "seconds (set each SpriteFrames animation speed to 1.0)",
+  "clips": {
+    "idle": {
+      "loop": true,
+      "steps": [
+        [
+          0,
+          2.3
+        ],
+        [
+          1,
+          0.11
+        ],
+        [
+          0,
+          1.65
+        ]
+      ]
+    },
+    "taunt": {
+      "loop": false,
+      "steps": [
+        [
+          0,
+          0.1
+        ],
+        [
+          2,
+          0.74
+        ],
+        [
+          0,
+          0.22
+        ]
+      ]
+    },
+    "hit": {
+      "loop": false,
+      "steps": [
+        [
+          3,
+          0.18
+        ],
+        [
+          3,
+          0.16
+        ],
+        [
+          0,
+          0.25
+        ]
+      ]
+    }
+  },
+  "facing": "left",
+  "anchor": [
+    256,
+    501
+  ],
+  "anchor_kind": "feet",
+  "visual_signature": "plants the staff and squares up",
+  "registration": {
+    "alpha_iou_to_neutral": {
+      "neutral": 1.0,
+      "blink": 0.987,
+      "taunt": 0.922,
+      "hit": 0.662
+    },
+    "source_poses": {
+      "neutral": {
+        "alpha_bbox": [
+          133,
+          1,
+          376,
+          508
+        ],
+        "distinct_source_sha256": "43be4b99e4cf0e2263a70d8588886edab2636f192b8715bdf6a423614e3feca4"
+      },
+      "blink": {
+        "alpha_bbox": [
+          132,
+          0,
+          376,
+          508
+        ],
+        "distinct_source_sha256": "8d12f0a8c26107c9217d0ed6168b79b637113057a7cab2be6760202daa4af610"
+      },
+      "taunt": {
+        "alpha_bbox": [
+          132,
+          1,
+          371,
+          508
+        ],
+        "distinct_source_sha256": "9295e9af34909a7f7cde2469f8f744c9369cdf05d4a427f63e99260be9478011"
+      },
+      "hit": {
+        "alpha_bbox": [
+          111,
+          6,
+          411,
+          507
+        ],
+        "distinct_source_sha256": "6bac2271edda55e3e1e2a58ded240f57c6bf44f8670325c723a6f1c23cbe3ebe"
+      }
+    },
+    "notes": "Authored pose changes use intentional holds, not motion interpolation. Align portrait anchor and preview at game scale before replacing existing shots."
+  },
+  "accessibility": "Reduced motion can hold the neutral texture; preserve game text and controls. Audio is not included."
+}

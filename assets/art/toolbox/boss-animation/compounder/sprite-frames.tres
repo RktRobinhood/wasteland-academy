@@ -1,0 +1,68 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="atlas.webp" id="1_c72ay"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kxjsn"]
+atlas = ExtResource("1_c72ay")
+region = Rect2(1536, 0, 512, 512)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pgy3a"]
+atlas = ExtResource("1_c72ay")
+region = Rect2(0, 0, 512, 512)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l01ms"]
+atlas = ExtResource("1_c72ay")
+region = Rect2(512, 0, 512, 512)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yqmvm"]
+atlas = ExtResource("1_c72ay")
+region = Rect2(1024, 0, 512, 512)
+filter_clip = true
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 0.18,
+"texture": SubResource("AtlasTexture_kxjsn")
+}, {
+"duration": 0.16,
+"texture": SubResource("AtlasTexture_kxjsn")
+}, {
+"duration": 0.25,
+"texture": SubResource("AtlasTexture_pgy3a")
+}],
+"loop": 0,
+"name": &"hit",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.95,
+"texture": SubResource("AtlasTexture_pgy3a")
+}, {
+"duration": 0.11,
+"texture": SubResource("AtlasTexture_l01ms")
+}, {
+"duration": 1.6,
+"texture": SubResource("AtlasTexture_pgy3a")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 0.1,
+"texture": SubResource("AtlasTexture_pgy3a")
+}, {
+"duration": 0.64,
+"texture": SubResource("AtlasTexture_yqmvm")
+}, {
+"duration": 0.22,
+"texture": SubResource("AtlasTexture_pgy3a")
+}],
+"loop": 0,
+"name": &"taunt",
+"speed": 1.0
+}]

@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "released_kit_count": 7,
+  "encounter_wiring": false,
+  "available": [
+    {
+      "id": "cartographer",
+      "name": "The Cartographer",
+      "story_key": "graphs-features",
+      "kit": "cartographer/clips.json",
+      "native_resource": "cartographer/sprite-frames.tres",
+      "rendered_webp_preview": "cartographer/preview.webp",
+      "animations": [
+        "idle",
+        "taunt",
+        "hit"
+      ]
+    },
+    {
+      "id": "compounder",
+      "name": "The Compounder",
+      "story_key": "algebra",
+      "kit": "compounder/clips.json",
+      "native_resource": "compounder/sprite-frames.tres",
+      "rendered_webp_preview": "compounder/preview.webp",
+      "animations": [
+        "idle",
+        "taunt",
+        "hit"
+      ]
+    },
+    {
+      "id": "integrator",
+      "name": "The Integrator",
+      "story_key": "calculus",
+      "kit": "integrator/clips.json",
+      "native_resource": "integrator/sprite-frames.tres",
+      "rendered_webp_preview": "integrator/preview.webp",
+      "animations": [
+        "idle",
+        "taunt",
+        "hit"
+      ]
+    },
+    {
+      "id": "pollster",
+      "name": "The Pollster",
+      "story_key": "stats",
+      "kit": "pollster/clips.json",
+      "native_resource": "pollster/sprite-frames.tres",
+      "rendered_webp_preview": "pollster/preview.webp",
+      "animations": [
+        "idle",
+        "taunt",
+        "hit"
+      ]
+    },
+    {
+      "id": "promoter",
+      "name": "The Promoter",
+      "story_key": "thunderdome",
+      "kit": "promoter/clips.json",
+      "native_resource": "promoter/sprite-frames.tres",
+      "rendered_webp_preview": "promoter/preview.webp",
+      "animations": [
+        "idle",
+        "taunt",
+        "hit"
+      ]
+    },
+    {
+      "id": "sundial",
+      "name": "The Sundial",
+      "story_key": "geometry",
+      "kit": "sundial/clips.json",
+      "native_resource": "sundial/sprite-frames.tres",
+      "rendered_webp_preview": "sundial/preview.webp",
+      "animations": [
+        "idle",
+        "taunt",
+        "hit"
+      ]
+    },
+    {
+      "id": "warden-apex",
+      "name": "Warden Apex",
+      "story_key": "quadratics",
+      "kit": "warden-apex/clips.json",
+      "native_resource": "warden-apex/sprite-frames.tres",
+      "rendered_webp_preview": "warden-apex/preview.webp",
+      "animations": [
+        "idle",
+        "taunt",
+        "hit"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "schema": 1,
+  "id": "promoter",
+  "name": "The Promoter",
+  "canonical_region_key": "thunderdome",
+  "artwork_only": true,
+  "source_main": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canvas": [
+    512,
+    512
+  ],
+  "atlas": {
+    "path": "atlas.webp",
+    "width": 2048,
+    "height": 512,
+    "sha256": "855a9ffca7800b73f3ead536ef060a024b91965af504fb2f22ff8106acaeecc2",
+    "bytes": 1274192
+  },
+  "frame_names": [
+    "neutral",
+    "blink",
+    "taunt",
+    "hit"
+  ],
+  "region_rects": [
+    [
+      0,
+      0,
+      512,
+      512
+    ],
+    [
+      512,
+      0,
+      512,
+      512
+    ],
+    [
+      1024,
+      0,
+      512,
+      512
+    ],
+    [
+      1536,
+      0,
+      512,
+      512
+    ]
+  ],
+  "timeline_unit": "seconds (set each SpriteFrames animation speed to 1.0)",
+  "clips": {
+    "idle": {
+      "loop": true,
+      "steps": [
+        [
+          0,
+          1.4
+        ],
+        [
+          1,
+          0.11
+        ],
+        [
+          0,
+          1.05
+        ]
+      ]
+    },
+    "taunt": {
+      "loop": false,
+      "steps": [
+        [
+          0,
+          0.1
+        ],
+        [
+          2,
+          0.64
+        ],
+        [
+          0,
+          0.22
+        ]
+      ]
+    },
+    "hit": {
+      "loop": false,
+      "steps": [
+        [
+          3,
+          0.18
+        ],
+        [
+          3,
+          0.16
+        ],
+        [
+          0,
+          0.25
+        ]
+      ]
+    }
+  },
+  "facing": "left",
+  "anchor": [
+    256,
+    501
+  ],
+  "anchor_kind": "bust baseline",
+  "visual_signature": "lifts the horn and beckons",
+  "registration": {
+    "alpha_iou_to_neutral": {
+      "neutral": 1.0,
+      "blink": 0.986,
+      "taunt": 0.885,
+      "hit": 0.897
+    },
+    "source_poses": {
+      "neutral": {
+        "alpha_bbox": [
+          7,
+          11,
+          503,
+          502
+        ],
+        "distinct_source_sha256": "bb196bd0b4292c5f13e64d2c97fe619e193d10f1d1582199477fbb23d05c85cb"
+      },
+      "blink": {
+        "alpha_bbox": [
+          7,
+          10,
+          504,
+          502
+        ],
+        "distinct_source_sha256": "b1079288451a78cb93d7520ef0835cc709e053a26ff78ac6b7372d0d683fe1ef"
+      },
+      "taunt": {
+        "alpha_bbox": [
+          6,
+          10,
+          503,
+          503
+        ],
+        "distinct_source_sha256": "2e9b5d25da0f82a508fa11cedb561a57d38062ce7f0750e0c5a80e55b3735fe6"
+      },
+      "hit": {
+        "alpha_bbox": [
+          19,
+          15,
+          495,
+          503
+        ],
+        "distinct_source_sha256": "48c6942e3f35bdeb3346f05a1628d4c086b6c7c68742db175726c40df0450711"
+      }
+    },
+    "notes": "Authored pose changes use intentional holds, not motion interpolation. Align portrait anchor and preview at game scale before replacing existing shots."
+  },
+  "accessibility": "Reduced motion can hold the neutral texture; preserve game text and controls. Audio is not included."
+}
