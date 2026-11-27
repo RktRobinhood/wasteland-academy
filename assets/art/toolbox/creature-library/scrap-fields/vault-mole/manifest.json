@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "scrap-fields",
+  "creature_family": "vault-mole",
+  "category": "wild",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    66,
+    99,
+    599,
+    320
+  ],
+  "anchor": [
+    332,
+    319
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 39656,
+      "sha256": "f272b6ac08508a640995729b25ae29a72737ec47988ea9db551ef8dca77f03ec"
+    },
+    {
+      "path": "masters/vault-mole.png",
+      "bytes": 1851787,
+      "sha256": "3d5d65206aaf4503360d5198a341432bf20463057a6eb725ed82bdcfa802fe7b"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 5109,
+      "sha256": "162095d396bc2c350319ade57c50ca1491a6fe59f409fd52157e5087db33bcf5"
+    }
+  ]
+}

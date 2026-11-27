@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "signal-tower",
+  "creature_family": "porcelain-pangolin",
+  "category": "wild",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    50,
+    117,
+    592,
+    296
+  ],
+  "anchor": [
+    321,
+    295
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 30076,
+      "sha256": "f46ca6799986387b547ad98283357f2e389b0e8acb585fb874f310ea5c353d27"
+    },
+    {
+      "path": "masters/porcelain-pangolin.png",
+      "bytes": 1410601,
+      "sha256": "c8a2ca6f69da241bccf9e58caf8b43c114f09dff35ea973617464d75e145e0c9"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 4626,
+      "sha256": "cc947e1594a40238c1e7bbeb3770f9faa4a03b40dde85e5947cafe3155e3f0dc"
+    }
+  ]
+}

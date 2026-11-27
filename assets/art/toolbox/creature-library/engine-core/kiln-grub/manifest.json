@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "engine-core",
+  "creature_family": "kiln-grub",
+  "category": "wild",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    42,
+    140,
+    607,
+    284
+  ],
+  "anchor": [
+    324,
+    283
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 32296,
+      "sha256": "72fa15d0dddb8d2f6431d720ebf7bfe6d309dd285e525b9343fad6e25f6b34af"
+    },
+    {
+      "path": "masters/kiln-grub.png",
+      "bytes": 1872671,
+      "sha256": "63494527ccf19a007939881d55b3cefc6662afca1921344264a44d0833d5e1b5"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 4610,
+      "sha256": "030cb14e0e3ba05c024ed72d99f8a509debb69cc91c204f769ee202df0c072a9"
+    }
+  ]
+}

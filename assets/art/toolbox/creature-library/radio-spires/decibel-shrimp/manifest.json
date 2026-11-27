@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "radio-spires",
+  "creature_family": "decibel-shrimp",
+  "category": "biomechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    72,
+    44,
+    571,
+    372
+  ],
+  "anchor": [
+    321,
+    371
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 76678,
+      "sha256": "6757c54176e2b2b1c44ef3a66eaef42bb29cdaa17db83c2e3a07188caa7fca55"
+    },
+    {
+      "path": "masters/decibel-shrimp.png",
+      "bytes": 1832497,
+      "sha256": "6da8e9f15f3b244617ab72447893b48e78a77cd03d4b198cacdb79ec8716f62f"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 6731,
+      "sha256": "d6f7feb8abd513729d673566217483068680dc1e602dc61218bddebe6559b86d"
+    }
+  ]
+}

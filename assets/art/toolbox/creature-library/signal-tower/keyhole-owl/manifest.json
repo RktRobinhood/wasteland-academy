@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "signal-tower",
+  "creature_family": "keyhole-owl",
+  "category": "flyer",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    70,
+    44,
+    564,
+    327
+  ],
+  "anchor": [
+    317,
+    185
+  ],
+  "anchor_type": "hover center",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 39716,
+      "sha256": "f41c0db31220d8110d32c7b7c7c553c37bd506b3eeaa368331b7c18469b8b8b6"
+    },
+    {
+      "path": "masters/keyhole-owl.png",
+      "bytes": 2274506,
+      "sha256": "0a69fe3ba1b60c8003f1f24af0cf0a9911c8cc1977dc9f878b060dc67903b692"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 5502,
+      "sha256": "39e50b85c9bd3445cec6dd3ad546e9e3eab9a4951625cf9e9a8ef340ab29b2bb"
+    }
+  ]
+}

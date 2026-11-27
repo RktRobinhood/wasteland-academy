@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "engine-core",
+  "creature_family": "foundry-ape",
+  "category": "mechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    85,
+    39,
+    554,
+    371
+  ],
+  "anchor": [
+    319,
+    370
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 52474,
+      "sha256": "8a5316fa3a7d9de2ce1fb31cda9fb615cb93e0ed55cc78f4052c7fd04f00222c"
+    },
+    {
+      "path": "masters/foundry-ape.png",
+      "bytes": 2594565,
+      "sha256": "f766b195684b75e868e7d450e54092d949843864f903bbdf08ae23ad17ce2f84"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 6945,
+      "sha256": "df29d119ef3b5f993da48806ba7f34b081d0266bb55297f92c236737716ca01a"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "dry-flats",
+  "creature_family": "flint-porcupine",
+  "category": "wild",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    77,
+    54,
+    571,
+    355
+  ],
+  "anchor": [
+    324,
+    354
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 64374,
+      "sha256": "e42ee5271e215a537fea312cd229f09c6670e9a4c8caa8559e7fcbf78cedb546"
+    },
+    {
+      "path": "masters/flint-porcupine.png",
+      "bytes": 2253533,
+      "sha256": "df518ac7dd72f00617f02d3cd0f8329e1810ad2895f32f56b7ac3e1fa1be34cd"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 6605,
+      "sha256": "254c14e3bc34fa734d961361d6305bf3c51b890824bfca7177de1e73ad97ff9f"
+    }
+  ]
+}

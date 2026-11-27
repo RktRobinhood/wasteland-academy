@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "scrap-fields",
+  "creature_family": "dockrunner-ostrich",
+  "category": "biomechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    82,
+    62,
+    538,
+    348
+  ],
+  "anchor": [
+    310,
+    347
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 40190,
+      "sha256": "ec1ee83ea676ca8687147f2cb80ffd3f15ca6e2d1d6076be7e6067b6508a3dd5"
+    },
+    {
+      "path": "masters/dockrunner-ostrich.png",
+      "bytes": 1242333,
+      "sha256": "fb51ac369667b57d268d04427e3c87edcbd7eed311bc8780993dac5ce5b32067"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 4941,
+      "sha256": "a4ced415b8fc0d0587247e6556f030357e1f682abf4981edc27476b15ad78edb"
+    }
+  ]
+}

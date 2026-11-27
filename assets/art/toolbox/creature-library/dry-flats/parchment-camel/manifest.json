@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "dry-flats",
+  "creature_family": "parchment-camel",
+  "category": "biomechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    74,
+    46,
+    542,
+    364
+  ],
+  "anchor": [
+    308,
+    363
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 45918,
+      "sha256": "66c82bffd8f0651b12524933e4cfefad86eaa9a5a6a2ca8f8f2547bf8754be67"
+    },
+    {
+      "path": "masters/parchment-camel.png",
+      "bytes": 2204465,
+      "sha256": "e8dce4b55f2ca690f2f17d5365c5deb09b78896e4db7b3468eb85ec527107fcb"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 5717,
+      "sha256": "fa43d7c2543a09119e0723ffcc468ccbb28da745a986e42f0794a4d0217dea86"
+    }
+  ]
+}

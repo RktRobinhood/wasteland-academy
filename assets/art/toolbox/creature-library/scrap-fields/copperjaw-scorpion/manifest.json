@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "scrap-fields",
+  "creature_family": "copperjaw-scorpion",
+  "category": "biomechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    78,
+    45,
+    560,
+    362
+  ],
+  "anchor": [
+    319,
+    361
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 49570,
+      "sha256": "a7167f6b27578c4809ed3bca62a4117380ebc25940ede8a0ca25660a86980085"
+    },
+    {
+      "path": "masters/copperjaw-scorpion.png",
+      "bytes": 2116013,
+      "sha256": "29cbed76194d1b83760247a13225dfcf3c32be91a6dff8e51253adc8f83f6896"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 5942,
+      "sha256": "14298df3b58f0674300ad1b48fa9065b9e683b91d07a563fbc98b4ccbd1a9172"
+    }
+  ]
+}

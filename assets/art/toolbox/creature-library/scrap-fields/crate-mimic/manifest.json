@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "scrap-fields",
+  "creature_family": "crate-mimic",
+  "category": "mechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    128,
+    110,
+    494,
+    337
+  ],
+  "anchor": [
+    311,
+    336
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 37792,
+      "sha256": "94e4c80a8dedfeafbf2ddb3d4dc297c8513e184c0edb2805e212b99325987d01"
+    },
+    {
+      "path": "masters/crate-mimic.png",
+      "bytes": 2130590,
+      "sha256": "2dd90de500018585a96219cfb7224bde40e4176c47fc48f3672858cf5bb7a2f4"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 4985,
+      "sha256": "e739586c59ffcdb3e7fa4c05567311e7556f1e713ae1fb3f023e664cd33ccf46"
+    }
+  ]
+}
