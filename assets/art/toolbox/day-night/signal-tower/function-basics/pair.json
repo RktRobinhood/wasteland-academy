@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "region": "function-basics",
+  "biome": "signal-tower",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/function-basics/backdrop.webp",
+  "canonical_night_git_blob": "64ba0179876474ac40ae5ef37cff6071240e4788",
+  "day": {
+    "path": "day.webp",
+    "bytes": 130872,
+    "sha256": "d384e0ad24c5cf9eead22b01d44b40ed6b965b7f3813e63226eb8ae4a468eeea",
+    "webp_quality": 88,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 73086,
+    "sha256": "dc931d0c5bd45dd1ab23cb3599ad0f48e686d61eddd0c223014d8af934e5f6d3",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.1319,
+  "wash_min_recommended": 0.55,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 6.105,
+      "day": {
+        "desktop": 6.105,
+        "phone": 6.723
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}

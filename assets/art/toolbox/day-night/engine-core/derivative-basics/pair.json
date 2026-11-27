@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "region": "derivative-basics",
+  "biome": "engine-core",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/derivative-basics/backdrop.webp",
+  "canonical_night_git_blob": "b6f332f29e1b1f045adbf941cfb6524f99b9c3c1",
+  "day": {
+    "path": "day.webp",
+    "bytes": 105560,
+    "sha256": "f9635303df63fe0c8b4a57c4b29442361424534cbc82e05caa83df66bdb85252",
+    "webp_quality": 90,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 90468,
+    "sha256": "5a0bad4d29530de524fb0b3353052bc97d4a51e2045c4d6a5038c85116fb427e",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.2,
+  "wash_min_recommended": 0.55,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 4.851,
+      "day": {
+        "desktop": 4.865,
+        "phone": 5.087
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}

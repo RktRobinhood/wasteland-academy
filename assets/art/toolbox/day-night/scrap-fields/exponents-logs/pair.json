@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "region": "exponents-logs",
+  "biome": "scrap-fields",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/exponents-logs/backdrop.webp",
+  "canonical_night_git_blob": "e6776e0833bf498a38cad85b307959ec7e7b3f3e",
+  "day": {
+    "path": "day.webp",
+    "bytes": 133814,
+    "sha256": "177c7769597a8c95d615e757ffc6552d5f140813d9f3acd9ccab42ec18b8c06e",
+    "webp_quality": 90,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 72908,
+    "sha256": "d0d8ba3f4116c00e2ed1d67496318e52b377c5200d4e88194a702a31e104c680",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.2511,
+  "wash_min_recommended": 0.55,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 5.227,
+      "day": {
+        "desktop": 5.747,
+        "phone": 5.227
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}

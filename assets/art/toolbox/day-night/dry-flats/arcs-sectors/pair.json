@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "region": "arcs-sectors",
+  "biome": "dry-flats",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/arcs-sectors/backdrop.webp",
+  "canonical_night_git_blob": "6263fc59f81415dacbe8549f7c40f4776ed2e7c8",
+  "day": {
+    "path": "day.webp",
+    "bytes": 142868,
+    "sha256": "896e06da9cd2ddb6d568e78ab81fa86aacb6befa5d33fd6c6c709baec360bf56",
+    "webp_quality": 90,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 116796,
+    "sha256": "65a0c92a627a1019a02ac3505cd6ff451aae30446cb6a0c46ee3923bb5e2555c",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.25,
+  "wash_min_recommended": 0.6,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 4.292,
+      "day": {
+        "desktop": 4.423,
+        "phone": 4.292
+      }
+    },
+    "0.6": {
+      "worst": 4.837,
+      "day": {
+        "desktop": 4.971,
+        "phone": 4.837
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}

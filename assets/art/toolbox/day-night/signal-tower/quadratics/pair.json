@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "region": "quadratics",
+  "biome": "signal-tower",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/quadratics/backdrop.webp",
+  "canonical_night_git_blob": "4e62637f2ac4a066597ff7b3553f37142b553363",
+  "day": {
+    "path": "day.webp",
+    "bytes": 146830,
+    "sha256": "ec88f000f37113a6b50f6dd68f9713e7240114deadd813850bd0fecce4f1d358",
+    "webp_quality": 86,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 135682,
+    "sha256": "5134691a44c4464ecc67a3044be1633fa31888df309a3d91718f1a1b89c63a06",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.23,
+  "wash_min_recommended": 0.55,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 5.279,
+      "day": {
+        "desktop": 5.279,
+        "phone": 5.456
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}

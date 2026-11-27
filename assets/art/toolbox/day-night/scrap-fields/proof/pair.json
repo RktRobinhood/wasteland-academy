@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "region": "proof",
+  "biome": "scrap-fields",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/proof/backdrop.webp",
+  "canonical_night_git_blob": "5c01a815e3c92c3d82bddf453768ac1b73b037bf",
+  "day": {
+    "path": "day.webp",
+    "bytes": 115216,
+    "sha256": "5b19736bd88024b70f7f2abffaeac71b395942e5840f08f59e039deff4e9896e",
+    "webp_quality": 90,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 57996,
+    "sha256": "09695278e8b974dafb2150346abe9700117b00394f6c44e58e5a8eedb4e6da42",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.3639,
+  "wash_min_recommended": 0.6,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 4.295,
+      "day": {
+        "desktop": 4.353,
+        "phone": 4.295
+      }
+    },
+    "0.6": {
+      "worst": 4.836,
+      "day": {
+        "desktop": 4.897,
+        "phone": 4.836
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}

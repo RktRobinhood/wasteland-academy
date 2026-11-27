@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "region": "composite-inverse",
+  "biome": "signal-tower",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/composite-inverse/backdrop.webp",
+  "canonical_night_git_blob": "44873a246b4e6c16b0415fddf78dd9c53af2a99f",
+  "day": {
+    "path": "day.webp",
+    "bytes": 153312,
+    "sha256": "79b31129bb2abb9146201e6ad6923f1a13d64375e3eaedd90231148f35e36857",
+    "webp_quality": 88,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 107250,
+    "sha256": "1532c4a5c42fb85db99960aee14682133cf747e3fc0c3d19513c55da5d326f7d",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.2103,
+  "wash_min_recommended": 0.55,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 5.453,
+      "day": {
+        "desktop": 5.478,
+        "phone": 5.453
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}

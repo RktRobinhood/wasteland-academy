@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "region": "stationary-points",
+  "biome": "engine-core",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/stationary-points/backdrop.webp",
+  "canonical_night_git_blob": "bfa640806d0c049285025f1fab6f50cde8be9668",
+  "day": {
+    "path": "day.webp",
+    "bytes": 143078,
+    "sha256": "25b7bf4e4a9575c54c14412a6bc3861f5affcc0a4b20c5fb275b5cbf328aea64",
+    "webp_quality": 88,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 110206,
+    "sha256": "d121296ec70a3f74672a46c2311a08ad49e974662937b5345ae781e41dec8acd",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.2425,
+  "wash_min_recommended": 0.6,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 4.195,
+      "day": {
+        "desktop": 4.229,
+        "phone": 4.195
+      }
+    },
+    "0.6": {
+      "worst": 4.74,
+      "day": {
+        "desktop": 4.77,
+        "phone": 4.74
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}

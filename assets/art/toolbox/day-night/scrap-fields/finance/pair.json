@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "region": "finance",
+  "biome": "scrap-fields",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/finance/backdrop.webp",
+  "canonical_night_git_blob": "dba003bd8038326a063f0b5e9d8002640822edd6",
+  "day": {
+    "path": "day.webp",
+    "bytes": 144958,
+    "sha256": "9250035c3b9ae2c28c869df76989631061f77c8b70e02f9bc0d414dffa18e3c7",
+    "webp_quality": 90,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 116702,
+    "sha256": "18d35404b609d653f95a2ed55cbe749e4a14013e323f46d519b17ccd91874a2e",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.1348,
+  "wash_min_recommended": 0.55,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 5.316,
+      "day": {
+        "desktop": 5.486,
+        "phone": 5.316
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}
