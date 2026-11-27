@@ -970,7 +970,20 @@ func test_the_region_screen_sits_over_its_backdrop() -> void:
 	check(art.visible and art.texture.resource_path == "res://tests/fixtures/art/regions/quadratics/backdrop.png", "the region's backdrop")
 	check_eq(art.stretch_mode, TextureRect.STRETCH_KEEP_ASPECT_COVERED, "cover-fitted")
 	check(art.get_index() < m.region_margin.get_index(), "behind the screen")
-	check((art.get_node("Wash") as ColorRect).color.a >= 0.69, "washed so the text keeps 4.5:1")
+	check(m.region_shade.get_index() > art.get_index() and m.region_shade.get_index() < m.region_margin.get_index(), "scrim lies between the art and controls")
+	var base_tint := (art.get_node("Wash") as ColorRect).color
+	var portrait := m._region_scrim(false) as GradientTexture2D
+	var landscape := m._region_scrim(true) as GradientTexture2D
+	# Pure white is the brightest possible backdrop. Check the real composited
+	# result across the entire text region, including a fully scrolled phone.
+	for i in 101:
+		var x := float(i) / 100.0
+		for pair in [[portrait, x], [landscape, x * 0.61]]:
+			var gradient := (pair[0] as GradientTexture2D).gradient
+			var back := Color.WHITE.blend(base_tint).blend(gradient.sample(pair[1]))
+			var ratio := (UiTheme.DIM.srgb_to_linear().get_luminance() + 0.05) / (back.srgb_to_linear().get_luminance() + 0.05)
+			check(ratio >= 4.5, "muted copy maintains AA contrast even on white art")
+	check(landscape.gradient.sample(0.99).a < 0.2, "let the scenery breathe outside the reading column")
 	_done(made)
 	ArtSlots.root = "res://assets/"
 	made = await _map(MapLink.region_route("quadratics"))
