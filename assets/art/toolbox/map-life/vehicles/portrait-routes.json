@@ -1,0 +1,11 @@
+{
+  "_about": "OPTIONAL recipe only. Merge chosen entries into game/data/ambient.json map, never replace it. Verified against the pinned portrait board and the cached zone layout; if latest main or day/night route composition differs, remeasure. Do not apply these coords to any wide layout.",
+  "board": [1080, 1920],
+  "boardSourceMain": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "cachedZoneSourceMain": "1423ce06030f61fa9ae7563c9d8cd1946b134d32",
+  "map": [
+    {"id":"wa-map-scrap-buggy","sheet":"wa-map-scrap-buggy","position":[495,633],"anchor":[80,99],"scale":0.49,"fps":7,"frames":"cycle","motion":"path","path":[[570,616],[657,604]],"seconds":17,"loop":false,"face":"flip","bob":0.45,"bob_period":1.1,"phase":0.23},
+    {"id":"wa-map-caravan-runner","sheet":"wa-map-caravan-runner","position":[510,1510],"anchor":[80,99],"scale":0.58,"fps":6,"frames":"cycle","motion":"path","path":[[562,1538],[659,1541]],"seconds":25,"loop":false,"face":"flip","bob":0.35,"bob_period":1.6,"phase":0.41},
+    {"id":"wa-map-flats-survey","sheet":"wa-map-flats-survey","position":[76,1054],"anchor":[80,99],"scale":0.48,"fps":7,"frames":"cycle","motion":"path","path":[[109,1061],[172,1075]],"seconds":13,"loop":false,"face":"flip","bob":0.55,"bob_period":1.3,"phase":0.17}
+  ]
+}

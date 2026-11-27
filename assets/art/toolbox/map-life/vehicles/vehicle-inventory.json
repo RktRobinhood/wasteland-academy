@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "status": "branch candidate only; not integrated",
+  "engine": "Godot AmbientLayer",
+  "timeOfDay": "Same body and contact shadow. Route coordinates shared only on the verified matching portrait pair; no lighting code.",
+  "vehicles": [
+    {
+      "id": "wa-map-scrap-buggy",
+      "label": "Scrap buggy",
+      "look": "Petrol-teal nose, orange cage, shorter low-slung footprint",
+      "suggestedUse": "Scrap Fields crossing",
+      "inputSha256": "037b1900bed7f6b117e224d6d91124cdb61962f99416bb0c35b3ea7d541e6174",
+      "atlasSha256": "0091f86e9bfaf7762397d9ec534a5570f9e23680435af9a913a25d47efd01393",
+      "frameSize": [
+        160,
+        112
+      ],
+      "atlasSize": [
+        640,
+        112
+      ],
+      "anchorPx": [
+        80,
+        99
+      ],
+      "wheelHubs": [
+        {
+          "wheel": "rear",
+          "centerCellPx": [
+            29.32,
+            77.27
+          ],
+          "radiusCellPx": [
+            4.81,
+            4.91
+          ]
+        },
+        {
+          "wheel": "front",
+          "centerCellPx": [
+            101.52,
+            86.89
+          ],
+          "radiusCellPx": [
+            4.7,
+            4.81
+          ]
+        }
+      ],
+      "rightFacing": true,
+      "notes": "Body + separate contact shadow are editable; near side hubs move only within original rim. One texture atlas used at runtime."
+    },
+    {
+      "id": "wa-map-caravan-runner",
+      "label": "Caravan runner",
+      "look": "Utility van with a folded red roof roll and indigo shutters",
+      "suggestedUse": "Bazaar foreground",
+      "inputSha256": "2317fb3e4f43ce28651c23ab6b825f03c5d9b2533ba79723bb0c457ed2a08ced",
+      "atlasSha256": "576f96b330838338914c0c3be85d78a009a45f8300787e0c2ac194e43b6d97f1",
+      "frameSize": [
+        160,
+        112
+      ],
+      "atlasSize": [
+        640,
+        112
+      ],
+      "anchorPx": [
+        80,
+        99
+      ],
+      "wheelHubs": [
+        {
+          "wheel": "rear",
+          "centerCellPx": [
+            39.56,
+            87.65
+          ],
+          "radiusCellPx": [
+            3.61,
+            3.61
+          ]
+        },
+        {
+          "wheel": "front",
+          "centerCellPx": [
+            104.22,
+            90.81
+          ],
+          "radiusCellPx": [
+            3.52,
+            3.97
+          ]
+        }
+      ],
+      "rightFacing": true,
+      "notes": "Body + separate contact shadow are editable; near side hubs move only within original rim. One texture atlas used at runtime."
+    },
+    {
+      "id": "wa-map-flats-survey",
+      "label": "Flats survey truck",
+      "look": "Blue utility pickup, folded cream dish, tiny amber lamp",
+      "suggestedUse": "Dry Flats outer ridge",
+      "inputSha256": "1ba12524c477fa80f372a76521bcfe847844be69cb1edf785ed0eac00b3dfe12",
+      "atlasSha256": "7491388cc77d266f70d8c5faf6055ee5bf609b303f9ac5c261443a0918602922",
+      "frameSize": [
+        160,
+        112
+      ],
+      "atlasSize": [
+        640,
+        112
+      ],
+      "anchorPx": [
+        80,
+        99
+      ],
+      "wheelHubs": [
+        {
+          "wheel": "rear",
+          "centerCellPx": [
+            39.61,
+            82.72
+          ],
+          "radiusCellPx": [
+            4.7,
+            4.92
+          ]
+        },
+        {
+          "wheel": "front",
+          "centerCellPx": [
+            114.96,
+            87.96
+          ],
+          "radiusCellPx": [
+            4.7,
+            4.92
+          ]
+        }
+      ],
+      "rightFacing": true,
+      "notes": "Body + separate contact shadow are editable; near side hubs move only within original rim. One texture atlas used at runtime."
+    }
+  ]
+}

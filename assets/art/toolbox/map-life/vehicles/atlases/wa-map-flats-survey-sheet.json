@@ -1,0 +1,73 @@
+{
+  "frames": {
+    "00": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "sourceSize": {
+        "w": 160,
+        "h": 112
+      },
+      "duration": 150
+    },
+    "01": {
+      "frame": {
+        "x": 160,
+        "y": 0,
+        "w": 160,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "sourceSize": {
+        "w": 160,
+        "h": 112
+      },
+      "duration": 150
+    },
+    "02": {
+      "frame": {
+        "x": 320,
+        "y": 0,
+        "w": 160,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "sourceSize": {
+        "w": 160,
+        "h": 112
+      },
+      "duration": 150
+    },
+    "03": {
+      "frame": {
+        "x": 480,
+        "y": 0,
+        "w": 160,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "sourceSize": {
+        "w": 160,
+        "h": 112
+      },
+      "duration": 150
+    }
+  },
+  "meta": {
+    "image": "wa-map-flats-survey-sheet.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 640,
+      "h": 112
+    },
+    "scale": "1"
+  }
+}
