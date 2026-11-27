@@ -41,6 +41,7 @@ const EXTRA_SHARE := 0.3
 ## quadratic-inequality) gets its own entry: a recipe that calls the base recipe's
 ## generate() and adds its quantities, and views for its unknowns.
 static var SITUATIONS := {
+	"ai-midranks": [preload("res://engine/situations/ai_midranks.gd"), preload("res://engine/situations/ai_midranks_views.gd")],
 	"quadratic": [QuadraticSituation, QuadraticViews],
 	"triangle": [TriangleSituation, TriangleViews],
 	"arc-sector": [ArcSectorSituation, ArcSectorViews],

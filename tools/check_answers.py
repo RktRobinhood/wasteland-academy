@@ -53929,6 +53929,71 @@ SITUATION_CHECKS["ai-composite-inverse"] = r9ac_check
 # (end of the R9 markers)
 
 
+def check_ai_midranks(q):
+    """Rebuild the two ranks from the six displayed scores, not the generator's rank field."""
+    need(q["view"]["unknown"] == "ranks-with-a-tie" and q["view"]["rep"] == "table", "expected one tied rank from a table")
+    need(q["format"] in {"value", "mcq"} and q["paper"] == 2, "expected the typed/MCQ training question on Paper 2")
+    rows = q["table"]["rows"]
+    labels = list("ABCDEF")
+    need(len(rows) == 2 and rows[0] == ["Aerial", labels] and rows[1][0] == "Signal score", "aerial score labels are missing")
+    shown = rows[1][1]
+    need(len(shown) == len(labels) and all(re.fullmatch(r"[0-9]+", n) for n in shown), "expected six displayed whole scores")
+    scores = [int(n) for n in shown]
+    need(sorted(scores.count(x) for x in set(scores)) == [1, 1, 1, 1, 2], "expected exactly one tied pair")
+    asked = re.fullmatch(r"Write down the rank of aerial ([A-F])\.", q["asked"])
+    need(asked is not None, "the question must identify exactly one aerial")
+    col = labels.index(asked[1])
+    need(q["given"]["scores"] == scores and q["given"]["asked_index"] == col, "displayed scores/target conflict with marking givens")
+    need(any("Radio Spires" in line for line in q["lines"]), "missing signal-score context")
+    need(sum("highest signal score gets rank 1" in line for line in q["lines"]) == 1, "descending rank convention is missing")
+    ordered = sorted(scores, reverse=True)
+    positions = [n for n, score in enumerate(ordered, 1) if score == scores[col]]
+    need(len(positions) == 2 and positions[1] == positions[0] + 1, "asked aerial is not tied")
+    lower, higher = positions
+    want = sp.Rational(lower + higher, 2)
+
+    def shown_rank(text):
+        m = re.fullmatch(r"rank\s*([0-9]+(?:\.[0-9]+)?)", text)
+        need(m is not None, f"not just a displayed rank: {text!r}")
+        return R(m[1])
+
+    ans = q["answer"]
+    need(ans["kind"] == "number" and ans.get("exact") is True and ans["template"] == ["rank", {"slot": "v"}],
+         "typed input is not one exact numeric rank")
+    need(R(ans["values"]["v"]) == shown_rank(q["answer_text"]) == want, "wrong half-rank answer")
+    expect_refs = {"AI-SL4.10.rank-with-ties#0": sp.Integer(higher),
+                   "AI-SL4.10.rank-with-ties#1": sp.Integer(lower)}
+    values, refs = set(), {}
+    choices = q["choices"]
+    need(len(choices) == 4 and sum(o["correct"] for o in choices) == 1, "need four choices and exactly one marked correct")
+    for o in choices:
+        v = R(o["values"]["v"])
+        need(v not in values and 1 <= v <= 6 and shown_rank(o["text"]) == v, "invalid, duplicated, or mistyped rank choice")
+        values.add(v)
+        need(o["correct"] == (v == want), f"rank choice {v} falsely marked")
+        if o.get("ref"):
+            need(o["ref"] not in refs and not o["correct"], "bad misconception attribution")
+            refs[o["ref"]] = v
+    need(refs == expect_refs, "the occupied ranks must be the two separately tagged mistakes")
+
+    need(len(q["solutions"]) == 1, "expected one worked method")
+    solution = q["solutions"][0]
+    steps = solution["steps"]
+    need(solution["angle"] == "order-and-average" and len(steps) == 3, "expected ordered data, tied positions, and average in the working")
+    need(steps[0] == f"Order the scores from highest to lowest: {', '.join(map(str, ordered))}.", "incorrect ordered scores in working")
+    need(steps[1] == f"The score {scores[col]} occupies positions {lower} and {higher}.", "incorrect tied positions in working")
+    final = re.fullmatch(r"The tied aerials share the mean rank: \(([0-9]+) \+ ([0-9]+)\) ÷ 2 = ([0-9.]+)\.", steps[2])
+    need(final is not None and [int(final[1]), int(final[2])] == positions
+         and R(final[3]) == R(solution["result"]["v"]) == want, "incorrect midrank arithmetic in working")
+    public = " ".join(q["lines"] + [q["asked"]] + steps)
+    need(not re.search(r"correlation|coefficient|significance|hypothesis|p[- ]value", public, re.I),
+         "this question must not assert significance or evaluate correlation")
+    return None, None
+
+
+SITUATION_CHECKS["ai-midranks"] = check_ai_midranks
+
+
 def check_questions(data):
     """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]

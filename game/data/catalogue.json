@@ -315,6 +315,19 @@
 		}
 	],
 	"situations": {
+		"ai-midranks": {
+			"name": "Rank signal scores that include a tie",
+			"summary": "Six scores with one exact pair tied. Ask the rank of one member of the pair.",
+			"quantities": [
+				"scores",
+				"aerial",
+				"rank"
+			],
+			"clean": [
+				"exactly one equal pair",
+				"highest score ranks first"
+			]
+		},
 		"quadratic": {
 			"name": "One parabola in all its forms",
 			"summary": "Pick a and the two roots (or the vertex), then derive every linked quantity, so any of them can be hidden and any shown.",
@@ -7326,6 +7339,7 @@
 		}
 	},
 	"skills": {
+		"AI-SL4.10.rank-with-ties": "Rank a data set, averaging the ranks of tied values",
 		"SL2.1.gradient": "Find and interpret the gradient of a line",
 		"SL2.1.parallel-perpendicular": "Use the gradients of parallel and perpendicular lines",
 		"SL2.1.equation-of-line": "Find the equation of a line from a point and gradient or from two points",
@@ -7685,6 +7699,88 @@
 		"AI-AHL1.13.add-sinusoids": "Add sinusoids of the same frequency using complex numbers"
 	},
 	"types": [
+		{
+			"id": "t4-ai-spearman-midranks",
+			"topic": 4,
+			"source": "extension",
+			"kind": "skill",
+			"region": "regression",
+			"name": "Rank tied signal scores",
+			"summary": "Sort scores and give tied values their average rank.",
+			"situation": "ai-midranks",
+			"level": [
+				1,
+				2
+			],
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "table",
+					"exam": false,
+					"how": "a table of aerials and signal scores"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "ranks-with-a-tie",
+					"given": [
+						"six scores, exactly two tied"
+					],
+					"asked": "the average rank of a specified tied score",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"AI-SL4.10.rank-with-ties"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AI-SL4.10.rank-with-ties",
+					"method": "order-and-average",
+					"suits": [
+						"ranks-with-a-tie"
+					],
+					"name": "Order, number, then average ties",
+					"about": "Sort the values, number the positions 1, 2, 3, …, and give every value in a tie the mean of the positions it occupies, so 12, 15, 15, 20 get ranks 1, 2.5, 2.5, 4."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "Two equal signal scores occupy positions 2 and 3. A technician gives them ranks 2 and 3. True or false: this treats the readings as tied?",
+					"answer": "False. Equal scores share the mean of the positions: (2 + 3) ÷ 2 = 2.5.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AI-SL4.10.rank-with-ties#0",
+					"text": "Giving tied values consecutive ranks, such as 2 and 3 for 15, 15 instead of 2.5 and 2.5",
+					"as": "distractor",
+					"in": [
+						"ranks-with-a-tie"
+					],
+					"wrong": "Gives the scores in positions 2 and 3 ranks 2 and 3."
+				},
+				{
+					"ref": "AI-SL4.10.rank-with-ties#1",
+					"text": "Giving tied values the same lower rank and then carrying on from the next number (2, 2, 3 instead of 2.5, 2.5, 4)",
+					"as": "distractor",
+					"in": [
+						"ranks-with-a-tie"
+					],
+					"wrong": "Gives the scores in positions 2 and 3 both rank 2."
+				}
+			],
+			"frequency": 0
+		},
 		{
 			"id": "fn-line-from-conditions",
 			"topic": 2,
