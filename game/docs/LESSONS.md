@@ -16,11 +16,15 @@ Plays a tutor lesson from its script (#218). The scripts and their format are in
 
 ## Opening a lesson
 
-The draft lesson archive is not linked from the normal student map. The test build
-offers one worked-example pilot as a **Lesson preview** at `/?teacher`, or directly
-at `/?lesson-preview` (desktop: `-- --lesson-preview`). It uses Rook's original
-Signal Tower worked example and a separate, optional engine-generated Try question.
-Closing either returns to the choice. It never writes a watched record or run result.
+The world map's **Relic Library** opens the optional worked-example archive. The first
+curated entry, Function notation, uses Rook's Signal Tower example and a separate
+negative-input linear twin. It is available from a new save and never changes a run,
+the watched record, mastery or Scrap. The underlying Relic devices and other draft
+lessons have not been opened on the map.
+
+- `/#relic-library` opens the library directly. **Back to map** returns to the world.
+- `/?teacher` also has a **Lesson preview** entry. Direct teacher test access is
+  `/?lesson-preview` (desktop: `-- --lesson-preview`).
 
 - Test site: `/?lesson` plays the exemplar, One In, One Out. `/?lesson=<script id>` plays
   another. `&recall=watched` or `&recall=not_watched` forces a recall version.
@@ -29,6 +33,17 @@ Closing either returns to the choice. It never writes a watched record or run re
 - Command line: `godot --path game res://scenes/lesson.tscn -- --lesson --auto`. Add
   `--quit` to quit at the end without touching the save, as the capture does:
   `godot --path game --write-movie run.avi --fixed-fps 30 --resolution 540x960 res://scenes/lesson.tscn -- --lesson --auto --quit`.
+
+## Adding a reviewed archive entry
+
+Keep the common player in `LessonPlayer`. Author lessons, board cues, interactions,
+and independent practice in the existing script format. Only after the excerpt passes
+math, touch/keyboard, pause/CC/restart, wrong-answer recovery and narration review,
+add it to `writing/explainers/archive.json`; run `node tools/game-explainers.mjs --write`.
+The list names exact lesson/section IDs and courses; it does not promote a whole draft.
+For now the explicitly authored twin keeps the same demand instead of drawing a
+different topic or missing a question's givens. Existing lesson action kinds remain
+available as small teaching interactions, without adding rewards or gates.
 
 ## What it plays
 

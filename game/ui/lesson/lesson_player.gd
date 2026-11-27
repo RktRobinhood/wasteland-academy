@@ -55,6 +55,7 @@ var reduced_motion := false
 var callbacks: Dictionary = {}
 var reactions: Lesson.Reactions
 var verified_voice: Dictionary = {}
+var allow_why_help := false
 
 ## Where the lesson is: the section playing, and the beats still to play in it.
 var seg := -1
@@ -251,7 +252,7 @@ func _button(id: String, text: String) -> Button:
 	b.name = id
 	b.text = text
 	b.add_theme_font_size_override("font_size", UiTheme.SMALL)
-	b.custom_minimum_size.y = TOUCH * 0.8
+	b.custom_minimum_size.y = TOUCH
 	return b
 
 
@@ -470,7 +471,7 @@ func clip_for(l: Dictionary) -> AudioStream:
 func _show_caption(text: String) -> void:
 	caption.remove_theme_color_override("font_color")
 	caption.text = text
-	caption_box.visible = captions
+	caption_box.modulate.a = 1.0 if captions else 0.0
 
 
 ## A stock reaction, over whatever is on screen: the toy keeps taking input.
@@ -614,7 +615,7 @@ func _entry(on_send: Callable) -> MathEntry:
 	var send := Button.new()
 	send.name = "Send"
 	send.text = "Send"
-	send.custom_minimum_size = Vector2(220, TOUCH * 0.8)
+	send.custom_minimum_size = Vector2(220, TOUCH)
 	send.pressed.connect(func(): on_send.call(e.text))
 	row.add_child(send)
 	actions.add_child(row)
@@ -736,6 +737,10 @@ func _ask(a: Dictionary, misses: int) -> void:
 				r.tapped.connect(pick.bind(i))
 	else:
 		_choice_buttons(a.get("choices", []), pick)
+		if allow_why_help and str(a.get("kind", "")) == "why" and misses > 0:
+			var help := _button("ExplainWhy", "Explain why")
+			help.pressed.connect(func(): _resume(a.get("right", [])))
+			actions.add_child(help)
 
 
 ## Answer a tap-line question by its key, as a tap on the line does.
@@ -1042,7 +1047,7 @@ func next_speed() -> void:
 func set_captions(on: bool) -> void:
 	captions = on
 	cc_button.set_pressed_no_signal(on)
-	caption_box.visible = on
+	caption_box.modulate.a = 1.0 if on else 0.0
 
 
 func close() -> void:

@@ -8,7 +8,7 @@ extends Control
 ## - The world map is the overworld painting (FAL-981, FAL-986) with an invisible button
 ##   over each place: the five islands, all open since FAL-925, the Thunderdome (every
 ##   island mixed, a region screen of its own at #thunderdome), the Relic Library (FAL-325,
-##   locked until after the maths engine) and the Bazaar (G6, ui/bazaar.gd). It reads as a
+##   optional worked examples) and the Bazaar (G6, ui/bazaar.gd). It reads as a
 ##   fast-travel map (FAL-988): every place has a pin in its state's colour (a padlock when
 ##   locked) and its name on a banner under the pin, always shown, and a "you are here"
 ##   marker stands at the place the player last went into (the save's "here"). No roads.
@@ -90,8 +90,8 @@ const THUNDERDOME_ZONE := Rect2(50.5, 40.5, 31, 12)
 const THUNDERDOME_PIN := Vector2(51, 46)
 const RELIC_LIBRARY_ZONE := Rect2(77, 71, 38, 11)
 const RELIC_LIBRARY_PIN := Vector2(80, 76)
-## The Relic Library's card: its lessons come once the maths engine is done (FAL-325).
-const RELIC_LIBRARY_LINE := "Closed for now: lessons coming"
+## Optional worked lessons, independent from the locked playable Relic devices.
+const RELIC_LIBRARY_LINE := "Watch a worked example or try a question"
 ## The Bazaar's place on the overworld, the caravan at the bottom left (FAL-986).
 const BAZAAR_ZONE := Rect2(22, 70.75, 40, 10.5)
 const BAZAAR_PIN := Vector2(25, 74)
@@ -833,9 +833,9 @@ func _fill_world() -> void:
 		"Thunderdome: opens once two places are open" if td.disabled else "")
 	_landmark_pin(td, Dungeon.THUNDERDOME, "Thunderdome", THUNDERDOME_PIN, world_state(Dungeon.THUNDERDOME))
 	var lib := _zone_button(world_board, "RelicLibrary", RELIC_LIBRARY_ZONE)
-	lib.disabled = true
-	_place(lib, "Relic Library", RELIC_LIBRARY_LINE, UiTheme.DIM, Callable())
-	_landmark_pin(lib, "relic_library", "Relic Library", RELIC_LIBRARY_PIN, "locked")
+	_place(lib, "Relic Library", RELIC_LIBRARY_LINE, UiTheme.TEAL, func():
+		MapLink.go(get_tree(), MapLink.RELIC_LIBRARY_ROUTE))
+	_landmark_pin(lib, "relic_library", "Relic Library", RELIC_LIBRARY_PIN, world_state("relic_library"))
 	var shop := _zone_button(world_board, "Bazaar", BAZAAR_ZONE)
 	if not BAZAAR_PAINTED:
 		var marker := Stall.new()
@@ -852,12 +852,12 @@ func _fill_world() -> void:
 
 ## A place's state on the world map, for its pin: "locked", "open" or "cleared". An island
 ## is cleared once its all-regions dungeon is (Progress.is_cleared(), as on the island's
-## board); the Thunderdome waits for a second island; the Relic Library is locked and the
-## Bazaar always open.
+## board); the Thunderdome waits for a second island. The optional Relic Library and
+## Bazaar are always open.
 func world_state(id: String) -> String:
 	if id == Dungeon.THUNDERDOME:
 		return "open" if thunderdome_open() else "locked"
-	if id == HOME:
+	if id == HOME or id == "relic_library":
 		return "open"
 	if not island_open(id):
 		return "locked"

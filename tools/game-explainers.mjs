@@ -20,7 +20,7 @@ import { lines, sayOf, sayHash } from './explainer-scripts.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = path.join(ROOT, 'writing/explainers');
 export const OUT = path.join(ROOT, 'game/data/explainers');
-const SHARED = ['callbacks.json', 'reactions.json'];
+const SHARED = ['archive.json', 'callbacks.json', 'reactions.json'];
 
 // The files to copy, by name: { name: text }.
 export function build() {
@@ -30,9 +30,32 @@ export function build() {
       out[f] = fs.readFileSync(path.join(SRC, f), 'utf8');
     }
   }
+  checkArchive(out);
   const manifest = JSON.parse(fs.readFileSync(path.join(SRC, 'manifest.json'), 'utf8'));
   out['voice-index.json'] = voiceJson(voiceIndex(out, manifest, readAudio));
   return out;
+}
+
+// A file in the build doesn't make a draft visible. Each published excerpt must
+// explicitly name a checked worked part and its matching practice part.
+export function checkArchive(sources) {
+  const { format, entries } = JSON.parse(sources['archive.json']);
+  if (format !== 1 || !Array.isArray(entries)) throw Error('Invalid archive catalog format');
+  const seen = new Set();
+  for (const e of entries) {
+    const fail = msg => { throw Error(`Archive ${e.lesson}: ${msg}`); };
+    if (seen.has(e.lesson)) fail('duplicate entry');
+    seen.add(e.lesson);
+    const script = JSON.parse(sources[e.lesson + '.json'] ?? 'null');
+    const watch = script?.sections?.find(x => x.id === e.worked);
+    const practice = script?.sections?.find(x => x.id === e.practice);
+    if (watch?.kind !== 'example' || watch.level !== 'full' || !watch.problem?.setup ||
+        practice?.kind !== 'your-turn' || practice.turn?.like !== e.worked) fail('expected a worked example and its own twin');
+    if (e.practice_mode !== 'authored-twin' || !(practice.turn.fallback?.parts?.length > 0)) fail('the authored twin needs a complete stem');
+    if (!e.title?.trim() || !e.zone?.trim() || !e.prompt?.trim()) fail('missing student-facing entry text');
+    if (!Array.isArray(e.courses) || !e.courses.length || !e.courses.every(c => script.courses.includes(c)) ||
+        new Set(e.courses).size !== e.courses.length) fail('course mapping does not match the source lesson');
+  }
 }
 
 function voiceJson(index) {

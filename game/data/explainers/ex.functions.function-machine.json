@@ -389,6 +389,10 @@
           "say": "Evaluate. Two lots of minus four is minus eight. Six take away minus eight is fourteen.",
           "board": [
             {
+              "write": "= 6 − (−8)",
+              "move": "evaluate"
+            },
+            {
               "write": "= 6 + 8",
               "move": "evaluate"
             },

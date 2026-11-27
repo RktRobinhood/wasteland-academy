@@ -363,8 +363,8 @@ func test_the_world_map() -> void:
 	check(not td.disabled, "the Thunderdome is open with every island")
 	check_eq(_card_of(m, td), "Thunderdome · Questions from all over the Wasteland")
 	var lib := board.get_node("RelicLibrary") as Button
-	check(lib.disabled, "the Relic Library spot is locked")
-	check_eq(_card_of(m, lib), "Relic Library · Closed for now: lessons coming")
+	check(not lib.disabled, "the optional library opens before any play")
+	check_eq(_card_of(m, lib), "Relic Library · Watch a worked example or try a question")
 	var shop := board.get_node("Bazaar") as Button
 	check(not shop.disabled, "the Bazaar is open")
 	check_eq(_card_of(m, shop), "Bazaar · 0 Scrap to spend")
@@ -503,11 +503,8 @@ func test_a_click_on_a_banner_goes_into_its_place() -> void:
 	save.settings.reduced_motion = true
 	var made: Array = await _map({"screen": "world"}, save)
 	var m: Control = made[1]
-	var lib := m.world_board.get_node("RelicLibrary/Banner") as Control
-	check_eq(lib.mouse_filter, Control.MOUSE_FILTER_STOP, "a banner takes its own clicks")
-	lib.gui_input.emit(_release())
-	check(m.card_for == m.world_board.get_node("RelicLibrary"), "a closed place's banner shows its card")
-	check_eq(MapLink.current, {"screen": "world"}, "and goes nowhere")
+	var banner := m.world_board.get_node("Island_calculus/Banner") as Control
+	check_eq(banner.mouse_filter, Control.MOUSE_FILTER_STOP, "a banner takes its own clicks")
 	m._hide_card()
 	(m.world_board.get_node("Island_calculus/Banner") as Control).gui_input.emit(_release())
 	check_eq(MapLink.current, {"screen": "island", "island": "calculus"}, "the Engine Core opens")
@@ -528,12 +525,12 @@ func test_each_world_pin_shows_its_state() -> void:
 	var made: Array = await _map({"screen": "world"}, save)
 	var m: Control = made[1]
 	var want := {"Island_algebra": "open", "Island_functions": "open", "Island_geometry": "open", "Island_stats": "open",
-		"Island_calculus": "cleared", "Thunderdome": "open", "RelicLibrary": "locked", "Bazaar": "open"}
+		"Island_calculus": "cleared", "Thunderdome": "open", "RelicLibrary": "open", "Bazaar": "open"}
 	for n in want:
 		var pin := m.world_board.get_node(n + "/Pin") as Control
 		check_eq(pin.kind, want[n], n)
 		check(map_script.STATE_COLOR.has(pin.kind), n)
-	check(m.world_board.get_node("RelicLibrary").disabled, "the Relic Library stays locked")
+	check(not m.world_board.get_node("RelicLibrary").disabled, "optional worked examples stay available")
 	check(map_script.thunderdome_open() == (MapLink.OPEN_ISLANDS.size() >= 2), "the Thunderdome waits for a second island")
 	_done(made)
 
@@ -1382,4 +1379,18 @@ func test_taps_reach_the_zone_buttons_through_the_ambient_layer() -> void:
 		Input.flush_buffered_events()
 		await tree.process_frame
 	check_eq(hit.size(), 2, "the button gets the press and the release")
+	_done(made)
+
+
+func test_relic_library_uses_one_address_and_does_not_gate_a_new_player() -> void:
+	var route := MapLink.RELIC_LIBRARY_ROUTE
+	check_eq(MapLink.parse("#Relic-Library/"), route)
+	check_eq(MapLink.to_hash(route), "#relic-library")
+	check_eq(MapLink.scene_for(route), "res://scenes/lesson.tscn")
+	var made: Array = await _map(MapLink.WORLD)
+	var m: Control = made[1]
+	var library := m.world_board.get_node("RelicLibrary") as Button
+	check(not library.disabled)
+	check_eq(m.world_state("relic_library"), "open")
+	check_eq(m.here(), "bazaar", "study does not become a travel location")
 	_done(made)

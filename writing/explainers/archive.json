@@ -1,0 +1,15 @@
+{
+  "format": 1,
+  "entries": [
+    {
+      "lesson": "ex.functions.function-machine",
+      "title": "Function notation",
+      "zone": "Signal Tower",
+      "prompt": "Find the east mast relay's output.",
+      "worked": "example-1",
+      "practice": "turn-1",
+      "practice_mode": "authored-twin",
+      "courses": ["aa-sl", "aa-hl", "ai-sl", "ai-hl"]
+    }
+  ]
+}

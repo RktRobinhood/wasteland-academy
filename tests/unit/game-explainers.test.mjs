@@ -33,3 +33,19 @@ test('the game never accepts a stale, retired, unreviewed or substituted take', 
   assert.deepEqual(voiceIndex(sources(line), manifest(), () => Buffer.from('wrong recording')), {});
   assert.deepEqual(voiceIndex(sources(line), manifest(), () => null), {});
 });
+
+
+test('release catalog requires a real worked example and an exact course-fit twin', async () => {
+  const { checkArchive } = await import('../../tools/game-explainers.mjs');
+  const sources = build();
+  const original = JSON.parse(sources['archive.json']);
+  assert.doesNotThrow(() => checkArchive(sources));
+  assert.equal(original.entries.length, 1, 'rollout is explicit, not every shipped draft');
+  const invalid = fields => ({ ...sources, 'archive.json': JSON.stringify({ ...original, entries: [
+    { ...original.entries[0], ...fields },
+  ] }) });
+  assert.throws(() => checkArchive(invalid({ practice: 'turn-2' })), /its own twin/);
+  assert.throws(() => checkArchive(invalid({ courses: ['unknown-course'] })), /course mapping/);
+  assert.throws(() => checkArchive(invalid({ lesson: 'ex.not.ready' })), /worked example/);
+  assert.throws(() => checkArchive(invalid({ practice_mode: 'unverified-engine' })), /complete stem/);
+});
