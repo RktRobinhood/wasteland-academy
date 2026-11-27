@@ -1,0 +1,46 @@
+{
+  "purpose": "Art-only candidates for an additive shared humanoid pool; not runtime encounter definitions.",
+  "pool": "Shared ordinary humans with theatrical nonfunctional salvage augmentations, separate from the biome bestiary.",
+  "export": {
+    "canvas_px": [
+      256,
+      256
+    ],
+    "format": "RGBA PNG",
+    "orientation": "screen-left three-quarter",
+    "foot_contact_normalized_y": 0.9375,
+    "placement": "Standalone art; no route wiring or replacement of original five or D1\u2013D5."
+  },
+  "provenance": {
+    "generator": "OpenAI built-in ImageGen",
+    "normalization": "Godot 4 native alpha-bounds crop, Lanczos resize and alpha-preserving placement",
+    "style_reference": "Wasteland Academy existing assets/enemies/d2-raider.png (style only, no copied pixels)",
+    "reference_source_commit": "1423ce06030f61fa9ae7563c9d8cd1946b134d32"
+  },
+  "assets": [
+    {
+      "asset": "wirestep-runner",
+      "file": "wirestep-runner.png",
+      "art_label": "Wirestep runner",
+      "visual_hook": "Lean lunging human with one serrated scrap leg, exposed face and large teal cable loop.",
+      "sha256": "bf7cd5efc609cfb2b7a878ab064b1a243c1ca282b23d3a89ec50b824963a99f9",
+      "source_sha256": "a91b1645039426277c4965e035fa6701fa84d3c8f92cb235ec2f69068d75e952"
+    },
+    {
+      "asset": "boiler-mask-rigger",
+      "file": "boiler-mask-rigger.png",
+      "art_label": "Boiler-mask rigger",
+      "visual_hook": "Heavy planted human silhouette with mismatched vent shoulder and theatrical lower-face housing.",
+      "sha256": "47b489b0e5478dd850064f6889f418ee09fe9e6c95341d47b0e75fb57612be90",
+      "source_sha256": "c1381ab7a66937a522a7d4d7d887a2cf2386bade88a843a0a64dc471f133bb3a"
+    },
+    {
+      "asset": "dish-shouldered-bandit",
+      "file": "dish-shouldered-bandit.png",
+      "art_label": "Dish-shouldered bandit",
+      "visual_hook": "Tall human face, conspicuous ivory dish-shaped shoulder plate, violet wiring and sawtooth coat.",
+      "sha256": "4cad1a6c84742ea63720fea5125f057f50d066f7c4fd9b14936e4f45323eb28f",
+      "source_sha256": "7a6cdd381e43ba4c2307a42d31f011a55bb1964ca25f1cf68ef28e59a8b46e83"
+    }
+  ]
+}
