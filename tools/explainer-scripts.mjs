@@ -71,6 +71,7 @@ export const FIGURES = {
   axes: { x: 'range', y: 'range' },
   'number-line': { from: 'number', to: 'number' },
   balance: { left: 'text', right: 'text' },
+  'function-machine': { id: 'slug', title: 'nonempty', input: 'nonempty', rule: 'nonempty', phase: 'machinePhase' },
 };
 // Common words that are never a turn's context, even when its fallback story uses them.
 const PLAIN = new Set(('the and for are but not you your all any can had her was one our out has his how its may new now '
@@ -181,9 +182,18 @@ function checkFigure(fig, err, where) {
     count: v => Number.isInteger(v) && v > 0,
     number: isNum,
     text: v => typeof v === 'string',
+    nonempty: v => typeof v === 'string' && v.trim().length > 0,
+    slug: v => typeof v === 'string' && /^[a-z][a-z0-9-]*$/.test(v),
+    machinePhase: v => ['given', 'substitute', 'evaluate'].includes(v),
     range: v => Array.isArray(v) && v.length === 2 && v.every(isNum) && v[0] < v[1],
   };
   for (const [k, kind] of Object.entries(spec)) if (!ok[kind](fig[k])) err(where, `a ${fig.kind} figure needs ${k} (${kind})`);
+  if (fig.kind === 'function-machine') {
+    if (fig.phase === 'given' ? 'expression' in fig : !ok.nonempty(fig.expression))
+      err(where, 'function-machine expression belongs on substitute and evaluate only');
+    if (fig.phase === 'evaluate' ? !ok.nonempty(fig.output) : 'output' in fig)
+      err(where, 'function-machine output belongs on the evaluate phase only');
+  }
   if (fig.kind === 'area-grid' && Array.isArray(fig.cells) && (fig.cells.length !== fig.side?.length || fig.cells.some(r => r.length !== fig.top?.length)))
     err(where, 'an area-grid figure has one row of cells per side term and one cell per top term');
 }
@@ -226,6 +236,10 @@ export function checkScript(script, ctx, file = `${script.id}.json`) {
     }
     if ('figure' in o) {
       checkFigure(o.figure, err, `${w}.figure`);
+      if (o.figure?.kind === 'function-machine') {
+        const move = { given: 'read-givens', substitute: 'substitute', evaluate: 'evaluate' }[o.figure.phase];
+        if (move && o.move !== move) err(w, `function-machine phase ${o.figure.phase} belongs to move ${move}`);
+      }
       if (typeof o.alt !== 'string' || !o.alt) err(w, 'a figure has alt, the words a screen reader reads for it');
     }
     if (typeof o.write === 'string' && TEXT_DRAWING.test(o.write)) fix(w, `"${o.write}" is drawn with spaces; make it a figure (README, "Figures")`);
