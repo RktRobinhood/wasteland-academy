@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "radio-spires",
+  "creature_family": "cable-slung-slug",
+  "category": "biomechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    58,
+    124,
+    579,
+    281
+  ],
+  "anchor": [
+    318,
+    280
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 23596,
+      "sha256": "569d5c3d160b16b5a5dc2c838735dd44a1c2e82f20dd4ddafe7253297a8a7e4e"
+    },
+    {
+      "path": "masters/cable-slung-slug.png",
+      "bytes": 1244776,
+      "sha256": "f1cf7cd22cab41a5aebd1b39a7d5b0711f24fe2e83532e8bf906788fc270ea49"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 3752,
+      "sha256": "a518585dee0b339bf974b5381bdda5e0430fdeeeaa4c4f4aa747796321150f68"
+    }
+  ]
+}

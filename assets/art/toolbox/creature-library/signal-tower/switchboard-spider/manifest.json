@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "signal-tower",
+  "creature_family": "switchboard-spider",
+  "category": "mechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    61,
+    66,
+    581,
+    351
+  ],
+  "anchor": [
+    321,
+    350
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 49430,
+      "sha256": "cbd955ce8e643e5cab8116ebb478b4e042eebd243eb8db44f15e9b59b1594aec"
+    },
+    {
+      "path": "masters/switchboard-spider.png",
+      "bytes": 1276786,
+      "sha256": "afff336ff42863aef03b3359e4712995f29c9284f80af60b7a956247ba317802"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 6049,
+      "sha256": "15a17e9454889f2f3afc4d9d7897a0fe5ff872b5421359d8b6a9386255e1736e"
+    }
+  ]
+}

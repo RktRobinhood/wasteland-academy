@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "signal-tower",
+  "creature_family": "perch-receiver",
+  "category": "flyer",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    80,
+    92,
+    574,
+    304
+  ],
+  "anchor": [
+    327,
+    198
+  ],
+  "anchor_type": "hover center",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 42136,
+      "sha256": "379e0e3c567fb4432a37f98a7edbb6baae321fcad35e8b1f7c73f5282e83c32b"
+    },
+    {
+      "path": "masters/perch-receiver.png",
+      "bytes": 1613741,
+      "sha256": "e6a809069c963907fa10b18b10ab8277acc357a3bca89f76aab79acae1c09b2e"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 5791,
+      "sha256": "e09cbf51876589cec65a463c613e4ae129113b21bb448e152df49a995b58940f"
+    }
+  ]
+}

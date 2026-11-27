@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "radio-spires",
+  "creature_family": "linewalker",
+  "category": "mechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    236,
+    37,
+    420,
+    374
+  ],
+  "anchor": [
+    328,
+    373
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 19046,
+      "sha256": "ee5fe135ed4a126d27b0e6da2e94678efab27b293a572edc7724b52c34e5d524"
+    },
+    {
+      "path": "masters/linewalker.png",
+      "bytes": 429928,
+      "sha256": "804302494176ffe7b7b761782d9fab9c2eb394a50adb6518c8104ed0a27e1e46"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 2751,
+      "sha256": "f8ae1f611ceeb6329768e6dc83a516c7c7b4a53171cf798d00f3d56c9484967c"
+    }
+  ]
+}

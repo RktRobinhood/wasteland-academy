@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "engine-core",
+  "creature_family": "soot-finch",
+  "category": "flyer",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    164,
+    51,
+    474,
+    330
+  ],
+  "anchor": [
+    319,
+    190
+  ],
+  "anchor_type": "hover center",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 29188,
+      "sha256": "5241ef3cc6b45f5adaaae9efa511866c40491f16e4b27bff4c51d0dc216d41bc"
+    },
+    {
+      "path": "masters/soot-finch.png",
+      "bytes": 1774864,
+      "sha256": "388aaa30469847cb1089e6a366e339fb679debcc1f2b6d77f0c49de3d125305f"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 4078,
+      "sha256": "84dd9619bc47baf2caf884dac0d3a3626573457eb749f2b305fa5376e45ff106"
+    }
+  ]
+}

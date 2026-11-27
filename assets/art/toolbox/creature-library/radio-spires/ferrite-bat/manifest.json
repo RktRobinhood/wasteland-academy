@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "radio-spires",
+  "creature_family": "ferrite-bat",
+  "category": "flyer",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    129,
+    89,
+    511,
+    310
+  ],
+  "anchor": [
+    320,
+    199
+  ],
+  "anchor_type": "hover center",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 28364,
+      "sha256": "879d088f42cda8726899caf8e16b2bb53a241acb874e7962b12ad5ed7c363d49"
+    },
+    {
+      "path": "masters/ferrite-bat.png",
+      "bytes": 1636217,
+      "sha256": "c71071f1a533cabef401aae7bf83462c20c8207464970bdc9a690ec151180750"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 4038,
+      "sha256": "ec297cbecc126be0f9cfd4c7db543530cf668a3edbd283e48bc040ff59dcb15c"
+    }
+  ]
+}

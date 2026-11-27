@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "dry-flats",
+  "creature_family": "canvas-ray",
+  "category": "flyer",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    49,
+    94,
+    593,
+    324
+  ],
+  "anchor": [
+    321,
+    209
+  ],
+  "anchor_type": "hover center",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 35766,
+      "sha256": "8ba3dad4e58a55fd187e0ef856204d787562d0060657ed690ebcbee7486b4866"
+    },
+    {
+      "path": "masters/canvas-ray.png",
+      "bytes": 1299933,
+      "sha256": "3fce1543386eb8cc40688def16aae7cef3993cae8ef0a3f11297caecccefd6ff"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 4789,
+      "sha256": "f00d69e21e80c67683ae9a5d06d628cc1eaaa9ecd8808cfb42f1e26a695d30f2"
+    }
+  ]
+}

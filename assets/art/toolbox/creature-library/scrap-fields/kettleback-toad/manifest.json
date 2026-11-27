@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "scrap-fields",
+  "creature_family": "kettleback-toad",
+  "category": "biomechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    90,
+    46,
+    560,
+    363
+  ],
+  "anchor": [
+    325,
+    362
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 55832,
+      "sha256": "a4d66006486fff87ca0db57e90ccc2d5db86dc5ef129101e3b011b46ddc47a4e"
+    },
+    {
+      "path": "masters/kettleback-toad.png",
+      "bytes": 2662474,
+      "sha256": "ee98e06b9ddb4d5870da4fa949ebc5ecec41738270b6bf74e7d25f80bb121581"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 7045,
+      "sha256": "48e56b30b2140e42d7cbcc0911abe9a75a848bd207ffc812a67ba86c5012d0d1"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "dry-flats",
+  "creature_family": "dust-hare",
+  "category": "wild",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    155,
+    42,
+    478,
+    352
+  ],
+  "anchor": [
+    316,
+    351
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 0.9998,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 37424,
+      "sha256": "3047342b9c7a99dfff2cd2db5010f41b4918597937d8ccd75ea6f3b0cfdeffa9"
+    },
+    {
+      "path": "masters/dust-hare.png",
+      "bytes": 1860189,
+      "sha256": "41cebca844a01564960bab17c017497ea91fdd1331a81f810dac6e061dec3a74"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 4473,
+      "sha256": "0efe364e05ac7482415c2325d0269c25226d660623aa4f1a864347011755b647"
+    }
+  ]
+}

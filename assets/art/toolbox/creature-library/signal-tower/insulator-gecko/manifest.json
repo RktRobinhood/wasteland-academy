@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "signal-tower",
+  "creature_family": "insulator-gecko",
+  "category": "wild",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    48,
+    128,
+    593,
+    292
+  ],
+  "anchor": [
+    320,
+    291
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 37558,
+      "sha256": "2796b5c2df6e0fd45137fb4a99e529f34ef5a2c42cab21cc89162ec4664a76ec"
+    },
+    {
+      "path": "masters/insulator-gecko.png",
+      "bytes": 1692640,
+      "sha256": "477548fc609af86963fbbb560b86b2449ae71ddb4fb99a33e8f02ce6d805609f"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 5054,
+      "sha256": "594a91946cf8049270e90b4f4e05cd65aa1c6b0a24a86f45f8f5c3a89b273b3b"
+    }
+  ]
+}
