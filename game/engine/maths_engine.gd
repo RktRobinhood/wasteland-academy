@@ -56,6 +56,21 @@ static func requests(course: String = "", exam_only: bool = false, type_ids: Arr
 	return QuestionEngine.cells(exam_only, type_ids, course)
 
 
+## Whether a scripted view is also a normal choice in this course. A shared
+## question can omit an exact method with "any"; its representation/unknown must
+## still match a cell. Probes follow the question type's course eligibility.
+static func request_in_course(request: Dictionary, course: String) -> bool:
+	var type_id := str(request.get("type", ""))
+	if request.get("format") == "probe":
+		return type_id in QuestionEngine.built_types(course)
+	var angle := str(request.get("angle", "any"))
+	for cell in requests(course, false, [type_id]):
+		var same_cell: bool = cell.unknown == request.get("unknown") and cell.rep == request.get("rep")
+		if same_cell and (angle == "any" or cell.angle == angle):
+			return true
+	return false
+
+
 ## The syllabus topic (its "n") of a question type, or 0.
 static func topic_of(type_id: String) -> int:
 	return int(QuestionEngine.type_of(type_id).get("topic", 0))

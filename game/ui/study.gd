@@ -50,6 +50,8 @@ var _picks := {}       # pick id -> OptionButton
 var _choices: Array = [] # CheckBoxes, one per option
 var _requests: Array = []
 var _hud_was_visible := true
+var _answer_preview := false
+const PREVIEW_NOTE := "Preview only. This answer will not be recorded."
 
 
 func _ready() -> void:
@@ -67,6 +69,9 @@ func _ready() -> void:
 	if not link.is_empty():
 		select_request(link)
 		var auto: String = url_args().get("autoplay", "")
+		_answer_preview = auto in ["right", "wrong"] or not MathsEngine.request_in_course(link, course)
+		if _answer_preview and not question.has("error"):
+			feedback.text = PREVIEW_NOTE
 		if auto in ["right", "wrong"] and not question.has("error"):
 			enter(MathsEngine.model_response(question, auto == "right"))
 			check_answer()
@@ -267,6 +272,7 @@ func current_request() -> Dictionary:
 
 
 func _ask() -> void:
+	_answer_preview = false
 	var r := current_request()
 	if not r.is_empty():
 		show_request(r)
@@ -439,8 +445,9 @@ func check_answer() -> void:
 		return
 	result = r
 	mark_button.disabled = true
-	MathsEngine.record(evidence, question, r, int(Time.get_unix_time_from_system()))
-	_store_evidence(evidence_path, evidence)
+	if not _answer_preview:
+		MathsEngine.record(evidence, question, r, int(Time.get_unix_time_from_system()))
+		_store_evidence(evidence_path, evidence)
 	if r.correct:
 		feedback.text = "Correct." if not r.get("glancing", false) else "Correct value, but give it to the accuracy asked for. " + MathsEngine.answer_sentence(question)
 		feedback.add_theme_color_override("font_color", RIGHT)
@@ -448,6 +455,8 @@ func check_answer() -> void:
 		var note: String = r.get("note", "")
 		feedback.text = "Not correct. " + ("" if note == "" else note + " ") + MathsEngine.answer_sentence(question)
 		feedback.add_theme_color_override("font_color", WRONG)
+	if _answer_preview:
+		feedback.text += "\n" + PREVIEW_NOTE
 	_show_solution()
 	_show_results()
 

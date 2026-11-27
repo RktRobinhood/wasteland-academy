@@ -38,6 +38,8 @@ var save_path := SaveData.PATH
 var save: Dictionary
 var question: Dictionary = {}
 var answered := false
+var _answer_preview := false
+const PREVIEW_NOTE := "Preview only. This answer will not be recorded."
 ## Plan from this region only ("" for every built type).
 var practice_region := ""
 
@@ -86,7 +88,11 @@ func _ready() -> void:
 		launch_view = {}
 		show_view(v)
 	elif not deep.is_empty():
+		_answer_preview = deep.autoplay != "" or not MathsEngine.request_in_course(deep.view, Courses.of(save))
 		show_view(deep.view)
+		if _answer_preview and not question.has("error"):
+			feedback.text = PREVIEW_NOTE
+			feedback.visible = true
 		if deep.autoplay != "":
 			autoplay(deep.autoplay == "right")
 		open_from_link(url_args())
@@ -194,6 +200,7 @@ func now() -> int:
 
 
 func next_question() -> void:
+	_answer_preview = false
 	var v := Planner.next(save, now(), {"region": practice_region} if practice_region != "" else {})
 	SaveData.store(save, save_path)
 	show_view(v)
@@ -558,8 +565,11 @@ func check_answer() -> void:
 		_reveal_result()
 		return
 	answered = true
-	_record(result)
+	if not _answer_preview:
+		_record(result)
 	_show_feedback(result)
+	if _answer_preview:
+		feedback.text += "\n" + PREVIEW_NOTE
 	_update_progress()
 	check_button.visible = false
 	next_button.visible = true
