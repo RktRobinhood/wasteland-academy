@@ -559,13 +559,13 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			return ans.label + poly_text(ans, v)
 		"named":
 			# fixed.exact names the values that are exact, which stay as they are beside a
-			# GDC's 3 s.f. one when they have 3 s.f. or fewer ("k = −1, x = 2.35", #272).
+			# GDC's 3 s.f. one when they have 3 s.f. or fewer ("k = −1 and x = 2.35", #272).
 			var parts: PackedStringArray = []
 			for i in fx.names.size():
 				var x: Variant = v["v%d" % i]
 				var t := exact_short(x) if ans.get("show", "") == "sf" and fx.names[i] in fx.get("exact", []) else ""
 				parts.append("%s = %s%s" % [fx.names[i], t if t != "" else shown(ans, x), fx.units[i] if fx.has("units") else ""])
-			return ", ".join(parts)
+			return (" and " if parts.size() == 2 else ", ").join(parts)
 		"pair":
 			var rs := _sorted([v.r1, v.r2])
 			return "%s%s and %s" % [ans.label, Fmt.num(rs[0]), Fmt.num(rs[1])]
@@ -1133,7 +1133,7 @@ static func trap_text(ans: Dictionary, values: Dictionary) -> String:
 			var parts: PackedStringArray = []
 			for i in ans.fixed.names.size():
 				parts.append("%s = %s" % [ans.fixed.names[i], Fmt.dec(values["v%d" % i])])
-			return ", ".join(parts)
+			return (" and " if parts.size() == 2 else ", ").join(parts)
 		# The exp-model traps (FAL-1144): at 2 s.f. as written, so 6.0 stays "6.0 days",
 		# not "6 days" (Fmt.dec) or "6.00 days" (text's 3 s.f.).
 		"measure":

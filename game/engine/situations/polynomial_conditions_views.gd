@@ -104,7 +104,7 @@ static func one(letter: String, v: Q) -> Dictionary:
 	return ans
 
 
-## Two letters typed, exact: "a = 1, b = 2".
+## Two named values, exact: "a = 1 and b = 2".
 static func two(letters: Array, v0: Q, v1: Q) -> Dictionary:
 	var ans := Answer.make("named", {"v0": v0, "v1": v1}, {"names": letters})
 	ans.exact = true
@@ -196,12 +196,12 @@ static func two_methods(s: Dictionary, rep: String, conds: Array, ans: Dictionar
 	var says: Array = []
 	for i in conds.size():
 		says.append("%s(%s) = %s gives %s." % [conds[i][3], N(conds[i][1]), N(conds[i][2]), eqs[i]])
-	var sol := [s.vals[letters[0]], s.vals[letters[1]]]
+	var sol := Answer.text(ans)
 	return {
-		"form-equations": method([deriv_line(s, rep, d)] + says + ["Solving them together gives %s." % pair_text(letters, sol)], ans.values),
-		"two-equations": method([deriv_line(s, rep, d)] + says + ["Solving them together gives %s." % pair_text(letters, sol)], ans.values),
+		"form-equations": method([deriv_line(s, rep, d)] + says + ["Solving them together gives %s." % sol], ans.values),
+		"two-equations": method([deriv_line(s, rep, d)] + says + ["Solving them together gives %s." % sol], ans.values),
 		"gdc-solver": method([deriv_line(s, rep, d), "The conditions give %s and %s." % eqs,
-			"The GDC's simultaneous equation solver gives %s." % pair_text(letters, sol)], ans.values),
+			"The GDC's simultaneous equation solver gives %s." % sol], ans.values),
 	}
 
 
@@ -272,7 +272,7 @@ func u_from_tangent(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var e1 := equation(d, x0, s.tm, letters)
 	var e2 := equation(s.terms, x0, s.y0, letters)
 	var touch := "On the tangent at x = %s, y = %s, so f(%s) = %s: %s." % [N(x0), N(s.y0), N(x0), N(s.y0), e2]
-	var sol := pair_text(letters, [a, b])
+	var sol := Answer.text(ans)
 	out.methods = {
 		"form-equations": method([deriv_line(s, rep, d), "The tangent's gradient is %s, so f′(%s) = %s: %s." % [N(s.tm), N(x0), N(s.tm), e1], touch,
 			"Solving them together gives %s." % sol], ans.values),
@@ -383,5 +383,5 @@ func u_two_from_two_stationary(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 		"factor-form": method(["f′(x) = %s, a quadratic with roots %s and %s and leading coefficient %s." % [poly(d), N(s.p), N(s.q), N(three)],
 			"So f′(x) = %s = %s." % [factored, expanded],
 			"Comparing coefficients: 2b = %s and c = %s." % [N(three.mul(-(s.p + s.q))), N(c)],
-			"So b = %s, c = %s." % [N(b), N(c)]], ans.values)}
+			"So %s." % Answer.text(ans)], ans.values)}
 	return out

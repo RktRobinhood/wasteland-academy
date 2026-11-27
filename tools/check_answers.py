@@ -4445,6 +4445,12 @@ def ext_bracket(r):
     return "x" if r == 0 else f"(x {'+' if r > 0 else '−'} {frac_text(abs(r))})"
 
 
+def named_join(parts):
+    """Two named values read as a pair; leave longer enumerations alone."""
+    parts = list(parts)
+    return (" and " if len(parts) == 2 else ", ").join(parts)
+
+
 def ext_text(ans, v):
     kind, fx, label = ans["kind"], ans.get("fixed") or {}, ans.get("label", "")
     if kind == "number":
@@ -4458,7 +4464,7 @@ def ext_text(ans, v):
         exact = fx.get("exact", [])
         parts = [f"{n} = {ext_named_value(ans, v[f'v{i}']) if n in exact else ext_shown(ans, v[f'v{i}'])}{units[i]}"
                  for i, n in enumerate(fx["names"])]
-        return ", ".join(parts)
+        return named_join(parts)
     if kind == "pair":
         a, b = sorted([R(v["r1"]), R(v["r2"])])
         return f"{label}{frac_text(a)} and {frac_text(b)}"
@@ -7462,9 +7468,27 @@ def gc_cards(q, fn, d1, d2, open_left, F):
     return next(o["text"] for o in ch if o["correct"])
 
 
+def gc_named_pair_expected(q, text):
+    """Render an independently solved custom answer with the declared pair separator.
+
+    Older custom checks construct right and wrong texts directly from their own
+    solved values. Only format the boundary before the second declared label; do
+    not normalise any actual output, numbers, units, or other punctuation.
+    """
+    ans = q["answer"]
+    names = ans.get("fixed", {}).get("names", []) if ans["kind"] == "named" else []
+    if len(names) == 2 and text is not None and text.startswith(names[0] + " = "):
+        text = text.replace(", " + names[1] + " = ", " and " + names[1] + " = ", 1)
+    return text
+
+
 def gc_check_common(q, want, wrongs, trap=None, steps=(2, 5)):
     """want: the answer's text as the game writes it, from the checker's own values.
     wrongs: ref -> the texts that misconception gives. trap: the 2 s.f. text, or None."""
+    want = gc_named_pair_expected(q, want)
+    trap = gc_named_pair_expected(q, trap)
+    if q["answer"]["kind"] == "named" and len(q["answer"]["fixed"]["names"]) == 2:
+        wrongs = {ref: {gc_named_pair_expected(q, text) for text in texts} for ref, texts in wrongs.items()}
     ch = q["choices"]
     need(q["answer_text"] == want, f"engine answer {q['answer_text']!r} is wrong (expected {want!r})")
     need(len(ch) == 4, f"{len(ch)} options")
@@ -7913,10 +7937,10 @@ def check_gdc_two_curves(q):
         need(len(cs) == 2 and len(others) == 1, "the line doesn't meet the curve once more")
         need(gc_fair(others[0][0]), "the other crossing is not a fair 3 s.f. value")
         # k is exact: it shows as it is when it has 3 s.f. or fewer, beside x to 3 s.f. (#272).
-        want = f"k = {gc_named(k)}, x = {gc_s(others[0][0])}"
-        wr = {TC_GI + "6": {f"k = {gc_named(k)}, x = {gc_s(others[0][1])}"},  # the other crossing's y
-              TC_GI + "8": {f"k = {gc_named(mm)}, x = {gc_s(others[0][0])}"}}  # k = the gradient
-        gc_check_common(q, want, wr, gc_trap([k, others[0][0]], f"k = {gc_s2(k)}, x = {gc_s2(others[0][0])}"))
+        want = f"k = {gc_named(k)} and x = {gc_s(others[0][0])}"
+        wr = {TC_GI + "6": {f"k = {gc_named(k)} and x = {gc_s(others[0][1])}"},  # the other crossing's y
+              TC_GI + "8": {f"k = {gc_named(mm)} and x = {gc_s(others[0][0])}"}}  # k = the gradient
+        gc_check_common(q, want, wr, gc_trap([k, others[0][0]], f"k = {gc_s2(k)} and x = {gc_s2(others[0][0])}"))
         return None, None
     f, g, lo, hi, open_left = tc_read(q)
     if hi is None:
@@ -9301,6 +9325,7 @@ def check_binomial(q):
 
     else:
         raise Fail(f"no check for {u}")
+    want = gc_named_pair_expected(q, want)
     gc_check_common(q, want, wrongs, trap)
     need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
     for sol in q["solutions"]:
@@ -9582,6 +9607,7 @@ def check_data_summary(q):
             need({o["text"] for o in q["choices"]} <= set(DS_MEASURES), "an option is not a measure of spread")
     else:
         raise Fail(f"no check for {u}")
+    want = gc_named_pair_expected(q, want)
     gc_check_common(q, want, wrongs, trap)
     if q["view"]["angle"] != "any":
         need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
@@ -17445,7 +17471,7 @@ def check_transform(q):
     elif u == "stretch-and-shift-parameters":
         tc_lines_pair(q, g, M)
         k, d = moves[0]["a"], moves[1]["d"]
-        fx = lambda t: tuple(tc_num(v) for v in re.fullmatch(rf"horizontal scale factor = ({TC_NUM}), vertical translation = ({TC_NUM})", t).groups())
+        fx = lambda t: tuple(tc_num(v) for v in re.fullmatch(rf"horizontal scale factor = ({TC_NUM}) and vertical translation = ({TC_NUM})", t).groups())
         tc_opts(q, fx, lambda v: v == (k, d), {"SL2.11.stretch#0": lambda v: v == (1 / k, d)})
     elif u == "vector-from-key-point":
         if rep == "words":
@@ -17599,7 +17625,7 @@ def tc_asymptote(q, g, M, rep):
         tc_f_said(q, g)
     x, y = tc_image(M, 0, 0)[0] if hasx else None, tc_image(M, 0, 0)[1] if hasy else None
     if hasx and hasy:
-        rd = lambda t: tuple(tc_num(v) for v in re.fullmatch(rf"x = ({TC_NUM}), y = ({TC_NUM})", t).groups())
+        rd = lambda t: tuple(tc_num(v) for v in re.fullmatch(rf"x = ({TC_NUM}) and y = ({TC_NUM})", t).groups())
         tc_opts(q, rd, lambda v: v == (x, y), {"SL2.11.sketch-transformed#0": lambda v: v == (0, y), "SL2.11.translate#2": lambda v: v == (x, 0)})
     else:
         name, val = ("x", x) if hasx else ("y", y)
@@ -17997,6 +18023,7 @@ def check_regression_pair(q):
         wrongs[RP_SKILL + "mean-point-intersection#1"] = {lab + dec_text(slip)}
     else:
         raise Fail(f"no check for {u}")
+    want = gc_named_pair_expected(q, want)
     gc_check_common(q, want, wrongs, trap)
     for sol in q["solutions"]:
         need(want in sol["steps"][-1], f"{sol['name']}: the last step {sol['steps'][-1]!r} doesn't state {want!r}")
@@ -18605,6 +18632,7 @@ def nu_check(q):
         wrongs[NU_T + "15"] = {f"μ = {sol[s_]}"}
     else:
         raise Fail(f"no check for {u}")
+    want = gc_named_pair_expected(q, want)
     gc_check_common(q, want, wrongs, trap)
     for sol in q["solutions"]:
         last = sol["steps"][-1]
@@ -23990,7 +24018,7 @@ def tm_f(v):
 
 
 def tm_named(pairs, sf=True):
-    return ", ".join(f"{n} = {gc_s(tm_f(v)) if sf else dec_text(v)}" for n, v in pairs)
+    return named_join(f"{n} = {gc_s(tm_f(v)) if sf else dec_text(v)}" for n, v in pairs)
 
 
 def tm_x(paper, v):
@@ -24284,7 +24312,7 @@ def gs_xs_text(p, name, vals):
 
 
 def gs_named(show, names, vals):
-    return ", ".join(f"{n} = {gs_text(show, v)}" for n, v in zip(names, vals))
+    return named_join(f"{n} = {gs_text(show, v)}" for n, v in zip(names, vals))
 
 
 def gs_terms(p, u1, r, k=4):
@@ -30266,7 +30294,7 @@ def bfu_xs(letter, vals, sf=False):
 
 
 def bfu_named(names, vals):
-    return ", ".join(f"{n} = {bfu_t(v)}" for n, v in zip(names, vals))
+    return named_join(f"{n} = {bfu_t(v)}" for n, v in zip(names, vals))
 
 
 def bfu_root(v, e):
@@ -39770,7 +39798,7 @@ def E12CC_slips(name, op, a, b, back, v):
 
 
 def E12CC_text(names, vals):
-    return ", ".join(f"{n} = {E12CC_d(v)}" for n, v in zip(names, vals))
+    return named_join(f"{n} = {E12CC_d(v)}" for n, v in zip(names, vals))
 
 
 def E12CC_fits(v):

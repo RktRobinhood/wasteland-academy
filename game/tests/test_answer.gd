@@ -83,3 +83,21 @@ func test_an_unordered_group_is_matched_one_to_one() -> void:
 	check(Answer.values_right(ans, {"a": Q.new(3), "b": Q.new(1), "c": Q.new(2)}), "any order")
 	check(not Answer.values_right(ans, {"a": Q.new(1), "b": Q.new(1), "c": Q.new(2)}), "one typed value can't fill two slots")
 	check(not Answer.values_right(ans, {"a": Q.new(1), "b": Q.new(2)}), "every slot needs a value")
+
+
+func test_named_pair_display_does_not_change_precision_or_marking() -> void:
+	var pair := Answer.make("named", {"v0": Q.new(-3, 2), "v1": Q.new(13, 5)},
+		{"names": ["k", "x"], "exact": ["k"], "units": ["", " m"]})
+	pair.show = "sf"
+	check_eq(Answer.text(pair), "k = −1.5 and x = 2.60 m")
+	check_eq(Answer.text(pair, {"v0": Q.new(3, 2), "v1": Q.new(-31, 10)}), "k = 1.5 and x = −3.10 m")
+	check_eq(Answer.trap_text(pair, {"v0": Q.new(-3, 2), "v1": Q.new(13, 5)}), "k = −1.5 and x = 2.6")
+	check(",  x = " in pair.template, "typed input template is unchanged")
+	check(Answer.mark(pair, {"v0": "-1.5", "v1": "2.60"}).correct)
+	check(not Answer.mark(pair, {"v0": "-1.5", "v1": "8.60"}).correct)
+
+	var one := Answer.make("named", {"v0": Q.new(-2)}, {"names": ["a"]})
+	check_eq(Answer.text(one), "a = −2")
+	var three := Answer.make("named", {"v0": Q.new(-2), "v1": Q.new(0), "v2": Q.new(3)},
+		{"names": ["a", "b", "c"]})
+	check_eq(Answer.text(three), "a = −2, b = 0, c = 3")

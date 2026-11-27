@@ -535,7 +535,7 @@ func u_root_substitute(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"Collect the parts: (%s + %sp + q) + (%s + %sp)i = 0." % [sq[0].text(), Fmt.lead(m), two_mn.text(), Fmt.lead(n)],
 		"The imaginary part is 0: %s + %sp = 0, so p = %s." % [two_mn.text(), Fmt.lead(n), p.text()],
 		"The real part is 0: %s%s + q = 0, so q = %s." % [sq[0].text(), Fmt.plus(m.mul(p)), q.text()],
-		"So p = %s, q = %s." % [p.text(), q.text()]]
+		"So %s." % Answer.text(ans)]
 	return _pack(["The equation z² + pz + q = 0, where p and q are real, has a root z = %s." % T(z)],
 		"Find the value of p and the value of q.", ans, wr, fill, {"substitute-x-iy": steps})
 
