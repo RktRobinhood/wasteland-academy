@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "id": "false-mirror-gate",
+  "biome": "signal-tower",
+  "category": "fictional trap dressing",
+  "static": true,
+  "canonical_board_key": "functions",
+  "style_reference_revision": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "facing": "3/4-side art prop",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha_coverage_bbox_xyxy": [
+    140,
+    62,
+    492,
+    370
+  ],
+  "suggested_ground_anchor_xy": [
+    316,
+    369
+  ],
+  "art_cue": "A visibly off-axis mirror and dark base suggest an uncanny route, not a working mechanism.",
+  "integration": "Unwired. This is purely visual, no geometry, physics, collision, game rules, skill changes or interaction mechanics.",
+  "files": [
+    {
+      "path": "source.png",
+      "bytes": 2004650,
+      "sha256": "a92a69d1429da76db15d136db8ee784491a51b58945cff5dfbbca36d647f524f"
+    },
+    {
+      "path": "prop.webp",
+      "bytes": 34708,
+      "sha256": "82e89bd3d77aea71ee62897b92eaf834f7418fa42bdda92b63681a63de82a023"
+    },
+    {
+      "path": "day-night-96px.jpg",
+      "bytes": 106494,
+      "sha256": "b21090e178cf0af634dbcdf76aebc7a473f8f5f7b7572feebf26724455ce4e6a"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "id": "sandglass-sinkhole",
+  "biome": "dry-flats",
+  "category": "terrain hazard dressing",
+  "static": true,
+  "canonical_board_key": "geometry",
+  "style_reference_revision": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "facing": "3/4-side art prop",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha_coverage_bbox_xyxy": [
+    57,
+    104,
+    583,
+    318
+  ],
+  "suggested_ground_anchor_xy": [
+    320,
+    317
+  ],
+  "art_cue": "Washed chalk rim and a dark bowl suggest depth; keep the uneven edge visible.",
+  "integration": "Unwired. This is purely visual, no geometry, physics, collision, game rules, skill changes or interaction mechanics.",
+  "files": [
+    {
+      "path": "source.png",
+      "bytes": 1843052,
+      "sha256": "3dd0808bae445225c5cb02d31520f8d896cc4816bf8405e4cc9345bda59603f4"
+    },
+    {
+      "path": "prop.webp",
+      "bytes": 42324,
+      "sha256": "d6ddc3f58ed7251508cc731c8e1d7960272c06ccb0492f3811a09d0e597a511b"
+    },
+    {
+      "path": "day-night-96px.jpg",
+      "bytes": 80066,
+      "sha256": "94b984a48bd9407ac380a42c68af9a2476b06b81eff33c4434cf5b32bcef7c48"
+    }
+  ]
+}

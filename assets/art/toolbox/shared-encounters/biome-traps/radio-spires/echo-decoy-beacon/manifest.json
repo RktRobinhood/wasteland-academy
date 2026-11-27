@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "id": "echo-decoy-beacon",
+  "biome": "radio-spires",
+  "category": "fictional trap dressing",
+  "static": true,
+  "canonical_board_key": "stats",
+  "style_reference_revision": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "facing": "3/4-side art prop",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha_coverage_bbox_xyxy": [
+    218,
+    43,
+    443,
+    377
+  ],
+  "suggested_ground_anchor_xy": [
+    330,
+    376
+  ],
+  "art_cue": "A violet and teal antenna housing reads as a false signal at small scale.",
+  "integration": "Unwired. This is purely visual, no geometry, physics, collision, game rules, skill changes or interaction mechanics.",
+  "files": [
+    {
+      "path": "source.png",
+      "bytes": 980805,
+      "sha256": "e69ed95b4bd1926a1f1de04a7f99546830688086dd19de113e065e251fa92d54"
+    },
+    {
+      "path": "prop.webp",
+      "bytes": 25498,
+      "sha256": "2d54ba9fda94bc96bd97f8e37194cca20d78f6d96f82aec08483b2824dcd7dee"
+    },
+    {
+      "path": "day-night-96px.jpg",
+      "bytes": 82550,
+      "sha256": "30edea739c0594dff37b16af1faccb466ecabb4a6b248ebd4f1cf659f0d2044e"
+    }
+  ]
+}
