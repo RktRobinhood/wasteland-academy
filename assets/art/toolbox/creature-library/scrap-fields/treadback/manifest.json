@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "scrap-fields",
+  "creature_family": "treadback",
+  "category": "mechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    65,
+    90,
+    584,
+    320
+  ],
+  "anchor": [
+    324,
+    319
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 45728,
+      "sha256": "6061557dff46aacec70581419444e35f408da5c928ed827b759947ded7f42873"
+    },
+    {
+      "path": "masters/treadback.png",
+      "bytes": 1787169,
+      "sha256": "c4817637e77573d24ed2861acb4896b1f43f30a14de9c19c1a5f04f47b728775"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 6105,
+      "sha256": "f49ed8e992669bdc3fb777800fe1c89962c4f0c8e35e0b504f0c3858ae574c57"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "signal-tower",
+  "creature_family": "shard-crow",
+  "category": "flyer",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    78,
+    66,
+    593,
+    351
+  ],
+  "anchor": [
+    335,
+    208
+  ],
+  "anchor_type": "hover center",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 46288,
+      "sha256": "a0521c244d3342fa6d733aa070dd292fd7f828f626eb1471a83bf36070fa3e08"
+    },
+    {
+      "path": "masters/shard-crow.png",
+      "bytes": 1726229,
+      "sha256": "39292f3851b2b534bd134cb5dfe15906371c09cdde34b5bdd3fe252d9633d23c"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 5002,
+      "sha256": "3ec93be0e6c2204a362b19afa464697a1af63658775876ccc904b94be5e87b91"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "dry-flats",
+  "creature_family": "dune-cutwing",
+  "category": "flyer",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    97,
+    46,
+    555,
+    357
+  ],
+  "anchor": [
+    326,
+    201
+  ],
+  "anchor_type": "hover center",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 36878,
+      "sha256": "58c59566e1e548013b8ff0a92872ccb5178a56fb148669a602b12529016bd798"
+    },
+    {
+      "path": "masters/dune-cutwing.png",
+      "bytes": 1837253,
+      "sha256": "f6553978386fb4e333c555d26c16ff1d04b567636f53c97224b20eb3953aa5d6"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 4754,
+      "sha256": "94fd7a5e65d7d72dc39cb110bda905f4b499a8654cacb3120bb07d94e05b6f49"
+    }
+  ]
+}

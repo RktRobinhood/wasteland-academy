@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "dry-flats",
+  "creature_family": "windvane-skitter",
+  "category": "biomechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    90,
+    142,
+    575,
+    275
+  ],
+  "anchor": [
+    332,
+    274
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 23008,
+      "sha256": "7f372e67a236081b7107b5fa015b4f57dee7c29067eb5f4b4acc5bc7df471509"
+    },
+    {
+      "path": "masters/windvane-skitter.png",
+      "bytes": 774935,
+      "sha256": "8c4faa395fd55202f341179a1e87280f5cb218184ce619edfcdf8c0478882917"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 3177,
+      "sha256": "26fbda4cf5b39b34a79189bf9a7e9b4618c48d9b52fb7448506c8d92cf6149b5"
+    }
+  ]
+}

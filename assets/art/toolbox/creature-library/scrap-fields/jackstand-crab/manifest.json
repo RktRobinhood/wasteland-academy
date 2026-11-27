@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "scrap-fields",
+  "creature_family": "jackstand-crab",
+  "category": "mechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    46,
+    36,
+    549,
+    368
+  ],
+  "anchor": [
+    297,
+    367
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 56358,
+      "sha256": "e013f9ced8dfe09f17ed2759834eddc922e18b11f5dd33ed9c259907e6a6ab05"
+    },
+    {
+      "path": "masters/jackstand-crab.png",
+      "bytes": 2105258,
+      "sha256": "288ff6b9af3e2c341fac894613196affdabbf5c4c86c884b79fcd96166ef30b2"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 7029,
+      "sha256": "d43baecec67ae0fcf2889660eb6c4d1212a7b5b472958eb9edd0c413616e2203"
+    }
+  ]
+}

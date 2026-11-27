@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "radio-spires",
+  "creature_family": "static-tern",
+  "category": "flyer",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    69,
+    77,
+    584,
+    312
+  ],
+  "anchor": [
+    326,
+    194
+  ],
+  "anchor_type": "hover center",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 35218,
+      "sha256": "5f71668a3ccdff5ca15f446456ad7dc68539aee7d506302bf2ea3ab719829f8d"
+    },
+    {
+      "path": "masters/static-tern.png",
+      "bytes": 1035990,
+      "sha256": "40afbed0f85a07befe013930d129fd246dddb6571cb0e333d6b2385b1484b414"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 4492,
+      "sha256": "eecef107699c2215a6e987a68a8017fbfb64fd1bdc4293bca84f23ce0bdc2d86"
+    }
+  ]
+}

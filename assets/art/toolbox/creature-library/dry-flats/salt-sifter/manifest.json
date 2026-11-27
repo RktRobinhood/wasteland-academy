@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "dry-flats",
+  "creature_family": "salt-sifter",
+  "category": "mechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    51,
+    91,
+    588,
+    304
+  ],
+  "anchor": [
+    319,
+    303
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 40458,
+      "sha256": "3e37388dd080f25742ee53ade3747943727dbb9c0be853c7fc5e491d5362b9a4"
+    },
+    {
+      "path": "masters/salt-sifter.png",
+      "bytes": 1549500,
+      "sha256": "3dbf3b025d948282caadf67e99039ee116965719ffcced035006b40024d5b555"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 5665,
+      "sha256": "27114f175faba64536386aaa6d4aed5b661c47b0bd9ce8d0ebc96b07eb954773"
+    }
+  ]
+}
