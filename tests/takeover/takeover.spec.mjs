@@ -356,7 +356,8 @@ test.describe('switch on: Godot at the root, the HTML game not published', () =>
 
     // The lesson ends: the new build takes over, with the old cache dropped
     await page.evaluate(async () => (await navigator.serviceWorker.getRegistration()).waiting.postMessage('skip-waiting'));
-    await expect.poll(async () => Object.keys(await cachedUrls(page)), { timeout: 60_000 }).toEqual(['wasteland-academy-godot-next']);
+    // Query names only. Opening a deleted cache here would recreate it during update activation.
+    await expect.poll(() => page.evaluate(() => caches.keys()), { timeout: 60_000 }).toEqual(['wasteland-academy-godot-next']);
     await page.reload();
     await godotBoots(page);
     expect(await build()).toBe('2');
