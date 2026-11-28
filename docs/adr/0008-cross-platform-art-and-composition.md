@@ -49,3 +49,8 @@ Hold the scene grade while a fight question is open, then ease toward the curren
 Each painted zone board gets one short visual cue belonging to that location: a low welding glow in Scrap Fields, a slow tower signal, wind over the Dry Flats salt, a circling scout over Radio Spires and interactive furnace smoke at Engine Core. Author the cue's anchor in both compositions; grade that layer with the artwork, keep it behind the landmark buttons and do not spend new boot bytes on duplicate textures. Use established movement and smoke-input handling, not per-zone UI or new game mechanics. On desktop, use the pointing-hand cursor only over actionable places; on touch, keep the first tap's place card before the second tap enters. Closed locations, keyboard focus, existing suggested activities and route/save IDs are unchanged.
 
 If the viewport or asynchronously loaded composition changes during the zoom back to a map, settle at the new frame. An obsolete tween must not slide the new painting and hit areas off-centre.
+
+
+### Object-source lighting stays 2D
+
+Use a compact glow at each emitter and a separately shaped light footprint on the rock, sand or metal that receives it. Orient and size the footprint in each painting; fade it at the edges and leave the shadow side of the landmark alone. Gate, lantern, furnace and lava lights share the existing clock and blend; avoid a brighter global grade, point markers, real geometry or a second set of high-resolution map images. There is no decorative location dot on the no-art fallback either.
