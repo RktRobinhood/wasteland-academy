@@ -157,8 +157,6 @@ const SPOTS := {
 		"integration": Vector2(50, 28.6), "all": Vector2(50, 51.7), "relic": Vector2(48, 71.1),
 	},
 }
-## The jetty the player lands at: painted only, a dot on the coded look, not a button.
-const LANDING := Vector2(50, 97)
 ## The coded landmark's glyph for each region, in place of a number. Only characters the
 ## title font has (no superscript letters, FAL-499); mark() falls back to initials.
 const GLYPHS := {
@@ -225,6 +223,7 @@ var _quiet := false
 
 var scene_light := WorldLight.SceneGrade.new()
 var _world_lights: Array[TextureRect] = []
+var _world_spills: Array[Polygon2D] = []
 var _world_ambient: AmbientLayer
 var _light_elapsed := 0.0
 var _zone_ambient: AmbientLayer
@@ -232,16 +231,53 @@ var _zone_ambient: AmbientLayer
 # One legend-free light per painted source, registered separately on portrait
 # and landscape. The size is a native-art ellipse, not a marker or hit area.
 # id, portrait position, landscape position, portrait spread, wide spread,
-# source colour, max alpha, seconds of gentle breathing (0 = steady).
+# source colour, max alpha, breathing seconds (0 = steady), portrait and wide
+# receiving-surface extent. Asymmetric footprints only cover the visible ground.
 const WORLD_LIGHTS := [
-	["Furnace", Vector2(551, 1196), Vector2(963, 837), Vector2(153, 105), Vector2(160, 120), Color(1, 0.58, 0.18), 0.66, 0.0],
-	["LavaLeft", Vector2(459, 1201), Vector2(803, 948), Vector2(132, 37), Vector2(143, 52), Color(1, 0.37, 0.10), 0.65, 7.4],
-	["LavaRight", Vector2(615, 1166), Vector2(1167, 840), Vector2(97, 51), Vector2(154, 68), Color(1, 0.41, 0.11), 0.54, 9.1],
-	["ScrapGate", Vector2(248, 572), Vector2(640, 307), Vector2(95, 53), Vector2(151, 63), Color(1, 0.72, 0.31), 0.45, 0.0],
-	["SignalBase", Vector2(922, 526), Vector2(1337, 266), Vector2(82, 75), Vector2(111, 108), Color(0.17, 0.77, 1), 0.45, 0.0],
-	["RadioDoors", Vector2(898, 852), Vector2(1618, 574), Vector2(120, 93), Vector2(144, 111), Color(0.38, 0.40, 1), 0.53, 0.0],
-	["BazaarLanterns", Vector2(234, 1352), Vector2(358, 842), Vector2(192, 63), Vector2(320, 82), Color(1, 0.69, 0.31), 0.45, 0.0],
+	["Furnace", Vector2(551, 1196), Vector2(963, 837), Vector2(153, 105), Vector2(160, 120), Color(1, 0.58, 0.18), 0.66, 0.0, Vector2(255, 188), Vector2(263, 204)],
+	["LavaLeft", Vector2(459, 1201), Vector2(803, 948), Vector2(132, 37), Vector2(143, 52), Color(1, 0.37, 0.10), 0.65, 7.4, Vector2(212, 122), Vector2(194, 94)],
+	["LavaRight", Vector2(615, 1166), Vector2(1167, 840), Vector2(97, 51), Vector2(154, 68), Color(1, 0.41, 0.11), 0.54, 9.1, Vector2(186, 132), Vector2(192, 126)],
+	["ScrapGate", Vector2(248, 572), Vector2(640, 307), Vector2(95, 53), Vector2(151, 63), Color(1, 0.72, 0.31), 0.45, 0.0, Vector2(154, 117), Vector2(194, 113)],
+	["SignalBase", Vector2(922, 526), Vector2(1337, 266), Vector2(82, 75), Vector2(111, 108), Color(0.17, 0.77, 1), 0.45, 0.0, Vector2(150, 116), Vector2(144, 92)],
+	["RadioDoors", Vector2(898, 852), Vector2(1618, 574), Vector2(120, 93), Vector2(144, 111), Color(0.38, 0.40, 1), 0.53, 0.0, Vector2(180, 114), Vector2(211, 112)],
+	["BazaarLanterns", Vector2(234, 1352), Vector2(358, 842), Vector2(192, 63), Vector2(320, 82), Color(1, 0.69, 0.31), 0.45, 0.0, Vector2(273, 130), Vector2(333, 151)],
+	["DomeGate", Vector2(540, 849), Vector2(980, 566), Vector2(112, 56), Vector2(145, 71), Color(1, 0.59, 0.19), 0.32, 0.0, Vector2(154, 107), Vector2(193, 123)],
+	["RelicThreshold", Vector2(872, 1400), Vector2(1650, 891), Vector2(79, 67), Vector2(98, 60), Color(0.69, 0.77, 1), 0.28, 0.0, Vector2(133, 135), Vector2(143, 117)],
 ]
+
+# Source-facing edge is short. The fan opens across the ground with an
+# inner shoulder and a soft zero-alpha boundary; it cannot glow behind walls.
+const SPILL_EDGE := [
+	Vector2(-0.16, -0.17), Vector2(0.12, -0.17), Vector2(0.36, 0.22),
+	Vector2(0.5, 0.62), Vector2(0.35, 0.91), Vector2(0.06, 1.0),
+	Vector2(-0.26, 0.92), Vector2(-0.47, 0.66), Vector2(-0.44, 0.27),
+]
+
+
+static func _new_spill(blend: CanvasItemMaterial) -> Polygon2D:
+	var pool := Polygon2D.new()
+	var core := Vector2(0.0, 0.16)
+	var points := PackedVector2Array([core])
+	var colours := PackedColorArray([Color(1, 1, 1, 0.94)])
+	var faces: Array[PackedInt32Array] = []
+	var n := SPILL_EDGE.size()
+	for p in SPILL_EDGE:
+		points.append(core.lerp(p, 0.55))
+		colours.append(Color(1, 1, 1, 0.42))
+	for p in SPILL_EDGE:
+		points.append(p)
+		colours.append(Color(1, 1, 1, 0.0))
+	for i in n:
+		var a := i + 1
+		var b := (i + 1) % n + 1
+		faces.append(PackedInt32Array([0, a, b]))
+		faces.append(PackedInt32Array([a, a + n, b + n, b]))
+	pool.polygon = points
+	pool.vertex_colors = colours
+	pool.polygons = faces
+	pool.material = blend
+	return pool
+
 
 
 func _update_world_light(delta: float) -> void:
@@ -265,6 +301,8 @@ func _update_world_light(delta: float) -> void:
 		var colour: Color = entry[5]
 		colour.a = float(entry[6]) * scene_light.local_light * pulse
 		_world_lights[i].self_modulate = colour
+		colour.a *= 0.68
+		_world_spills[i].self_modulate = colour
 
 
 func _process(delta: float) -> void:
@@ -479,7 +517,11 @@ func _frame_painting(board: Control) -> void:
 			var at: Vector2 = entry[2] if wide else entry[1]
 			var spread: Vector2 = entry[4] if wide else entry[3]
 			light.size = spread
-			light.position = source_frame.position + at - frame.position - spread * 0.5
+			var source_pos := source_frame.position + at - frame.position
+			light.position = source_pos - spread * 0.5
+			var spill := _world_spills[i]
+			spill.position = source_pos
+			spill.scale = entry[9] if wide else entry[8]
 		var ambient := board.get_node("Ambient") as AmbientLayer
 		var key := "map_wide" if wide else "map"
 		if ambient.get_meta("layout", "map") != key:
@@ -512,6 +554,11 @@ func _build() -> void:
 	var blend := CanvasItemMaterial.new()
 	blend.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 	for entry in WORLD_LIGHTS:
+		var pool := _new_spill(blend)
+		pool.name = String(entry[0]) + "Spill"
+		pool.self_modulate.a = 0.0
+		art.add_child(pool)
+		_world_spills.append(pool)
 		var light := TextureRect.new()
 		light.name = entry[0]
 		light.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1304,7 +1351,7 @@ func _fill_island() -> void:
 
 
 ## The coded ground when there is no painting: the island's dusk gradient
-## (ArtSlots.ground) and the jetty as a dot.
+## (ArtSlots.ground). Its UI uses square glyph tiles, not dots.
 func _coded_ground(island_id: String) -> Control:
 	var g := TextureRect.new()
 	g.name = "Ground"
@@ -1313,19 +1360,7 @@ func _coded_ground(island_id: String) -> Control:
 	g.stretch_mode = TextureRect.STRETCH_SCALE
 	g.size = BOARD
 	g.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var jetty := Jetty.new()
-	jetty.name = "Jetty"
-	jetty.size = BOARD
-	g.add_child(jetty)
 	return g
-
-
-class Jetty extends Control:
-	func _ready() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	func _draw() -> void:
-		draw_circle(LANDING * BOARD / 100.0, 22.0, Color(UiTheme.SAND, 0.6))
 
 
 ## A registered landmark on the zone board. Paint is the permanent affordance;

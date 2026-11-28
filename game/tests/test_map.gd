@@ -677,7 +677,7 @@ func test_no_roads_on_the_island() -> void:
 	var made: Array = await _map({"screen": "island", "island": "functions"}, {}, Vector2(1080, 1920), NO_ART)
 	var board: Control = made[1].island_board
 	check(board.find_child("Roads", true, false) == null, "no road node")
-	check(board.get_node_or_null("Ground/Jetty") != null, "the jetty dot stays")
+	check(board.get_node_or_null("Ground/Jetty") == null, "the art fallback also has no dots")
 	_done(made)
 
 
@@ -1606,8 +1606,8 @@ func test_overworld_art_lights_hold_registered_anchors_and_leave_input_alone() -
 		map.scene_light.clock = func(): return 22.0 * 60.0
 		for i in 25:
 			map._update_world_light(0.25)
-		check_eq(art.get_child_count(), map.WORLD_LIGHTS.size(), "only the registered sources")
-		check(map._world_lights.size() >= 6, "the landmarks have their own lights")
+		check_eq(art.get_child_count(), 2 * map.WORLD_LIGHTS.size(), "only the registered sources")
+		check(map._world_lights.size() == 9, "the landmarks have their own lights")
 		for i in map._world_lights.size():
 			var light: TextureRect = map._world_lights[i]
 			var entry: Array = map.WORLD_LIGHTS[i]
@@ -1617,5 +1617,11 @@ func test_overworld_art_lights_hold_registered_anchors_and_leave_input_alone() -
 			check(light.self_modulate.a > day[i] * 2.0, "local light brightens at night rather than covering the daytime art")
 			check_eq(light.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 			check(light.texture == map._world_lights[0].texture, "one shared falloff")
+			var pool: Polygon2D = map._world_spills[i]
+			check_eq(pool.position, light.position + light.size * 0.5, "surface receives light from that source")
+			check(pool.scale.y > 0.0 and pool.polygon[0].y > 0.0, "peak is on the ground-facing side")
+			check(pool.self_modulate.a > 0.0 and pool.self_modulate.a < light.self_modulate.a)
+			check_eq(pool.vertex_colors[-1].a, 0.0)
+			check(pool.material == light.material, "shared blend, no post processing")
 		check(map.world_board.get_node("Island_calculus").get_node_or_null("Pin") == null)
 		_done(made)
