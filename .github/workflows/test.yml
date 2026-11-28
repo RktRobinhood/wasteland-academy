@@ -45,23 +45,41 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-  # The suite alone, about 8 minutes (FAL-755) and growing with each AA SL type. The export
-  # and the browser shots are the web job: together they went past 25 minutes on main (FAL-721).
-  # 18 minutes on main by 2026-11-20; batch 2's reading tests took it past 25 (FAL-1201).
-  godot:
+  # The single native run repeatedly reached 40 minutes on main. Partition
+  # the same tests into independent runners; keep `godot` as the full gate.
+  godot-shard:
+    name: godot shard ${{ matrix.shard }}/3
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     steps:
       - uses: actions/checkout@v7
       - run: scripts/ci-install-godot.sh
-      - run: ./test.sh
+      - run: ./test.sh --shard=${{ matrix.shard }}/3
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: godot-test-logs
+          name: godot-test-logs-${{ matrix.shard }}
           path: _scratch/*.log
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 14
+
+  godot:
+    needs: godot-shard
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: test "${{ needs.godot-shard.result }}" = success
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: godot-test-logs-*
+          path: native-results
+      - run: python3 scripts/check-native-test-coverage.py native-results
 
   # The web export, built once per run and shared with the web and takeover jobs (#192):
   # each built its own before, and with pages.yml that was three exports a push.
