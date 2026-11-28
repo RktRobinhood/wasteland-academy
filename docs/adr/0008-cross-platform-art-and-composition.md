@@ -27,6 +27,10 @@ The common treatment itself stays calm: no sustained camera shake or rapid flash
 - For optional assets, verify cold loads, invalid or missing responses, and offline fallback. A playable preview is not a release: use the normal checks, merge to main, and confirm the exact deployed build.
 - Different compositions add a registration and visual review cost. Prefer reuse until the picture or interaction actually requires a different layout. The current implementation work is tracked in [#226](https://github.com/RktRobinhood/wasteland-academy/issues/226), not marked as shipped by this ADR.
 
+## Amendment: painted overworld landmarks (2026-11-28)
+
+The owner chose the painted landmarks themselves as the overworld controls. Do not layer persistent dots, progress flags, locked icons, labels, or a last-location marker over them. Progress stays in the same card shown on hover, keyboard focus or first touch. The regional activity indicators and all registered click/tap areas are unchanged.
+
 ## References
 
 - [Godot: Multiple resolutions](https://docs.godotengine.org/en/stable/tutorials/rendering/multiple_resolutions.html) and [Importing images](https://docs.godotengine.org/en/4.7/tutorials/assets_pipeline/importing_images.html)
