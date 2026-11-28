@@ -222,6 +222,29 @@ var _zooming := false
 var _quiet := false
 
 
+var scene_light := WorldLight.SceneGrade.new()
+var _furnace_spill: TextureRect
+
+# The same painted furnace has a separate registration in each artwork.
+const FURNACE_PORTRAIT := Vector2(551, 1196)
+const FURNACE_LANDSCAPE := Vector2(963, 837)
+
+
+
+func _update_world_light(delta: float) -> void:
+	scene_light.advance(delta)
+	for board in [world_board, island_board]:
+		var art := board.get_node_or_null("Art") as TextureRect
+		if art != null:
+			art.self_modulate = scene_light.grade
+	region_backdrop.self_modulate = scene_light.grade
+	_furnace_spill.self_modulate.a = 0.50 * scene_light.local_light
+
+
+func _process(delta: float) -> void:
+	_update_world_light(delta)
+
+
 func _ready() -> void:
 	theme = UiTheme.make()
 	save = SaveData.load_from(save_path)
@@ -238,6 +261,7 @@ func _ready() -> void:
 			MapLink._write(r, true)
 	_fit()
 	show_route(r)
+	_update_world_light(0.0)
 	if SaveData.needs_course(save):
 		ask_course()
 
@@ -417,6 +441,11 @@ func _frame_painting(board: Control) -> void:
 	art.position = frame.position
 	art.size = frame.size
 	if on_world:
+		var source_frame := WIDE_FRAME if wide else Rect2(Vector2.ZERO, BOARD)
+		var furnace := FURNACE_LANDSCAPE if wide else FURNACE_PORTRAIT
+		var spread := Vector2(140, 96) if wide else Vector2(130, 92)
+		_furnace_spill.size = spread
+		_furnace_spill.position = source_frame.position + furnace - frame.position - spread * 0.5
 		var ambient := board.get_node("Ambient") as AmbientLayer
 		var key := "map_wide" if wide else "map"
 		if ambient.get_meta("layout", "map") != key:
@@ -445,6 +474,13 @@ func _build() -> void:
 	art.size = BOARD
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	world_board.add_child(art)
+	_furnace_spill = TextureRect.new()
+	_furnace_spill.name = "FurnaceLight"
+	_furnace_spill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_furnace_spill.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_furnace_spill.texture = WorldLight.radial_falloff()
+	_furnace_spill.self_modulate = Color(1.0, 0.54, 0.16, 0.0)
+	art.add_child(_furnace_spill)
 	# Over the painting, under the zone buttons and pins; it takes no taps.
 	var ambient := AmbientLayer.new()
 	ambient.name = "Ambient"

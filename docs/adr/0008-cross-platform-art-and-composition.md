@@ -31,6 +31,12 @@ The common treatment itself stays calm: no sustained camera shake or rapid flash
 
 The owner chose the painted landmarks themselves as the overworld controls. Do not layer persistent dots, progress flags, locked icons, labels, or a last-location marker over them. Progress stays in the same card shown on hover, keyboard focus or first touch. The regional activity indicators and all registered click/tap areas are unchanged.
 
+## Amendment: local daylight on artwork (2026-11-28)
+
+The overworld, zone boards and fight scenery share a stylised device-local daylight palette. Dawn and dusk blend gradually. No location, network or save data is needed. Apply colour to the artwork only: keep labels, focus, hit regions, actors and the maths panel outside the grade. The painted overworld furnace may spill a small warm light onto the immediate surroundings; the light takes no input and does not move the landmark.
+
+Hold the scene grade while a fight question is open, then ease toward the current time after submission. Existing alternate Journey paintings are selected when a battle opens. This slice does not morph between those paintings during combat, add a new settings mode or promise distinct artwork for every region. Test dusk in the same open scene and after a fresh entry, as well as dark landmark activation on desktop and phone.
+
 ## References
 
 - [Godot: Multiple resolutions](https://docs.godotengine.org/en/stable/tutorials/rendering/multiple_resolutions.html) and [Importing images](https://docs.godotengine.org/en/4.7/tutorials/assets_pipeline/importing_images.html)
