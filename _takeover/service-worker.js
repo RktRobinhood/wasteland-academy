@@ -70,19 +70,20 @@ self.addEventListener('install', event => {
 
 // A page can ask a waiting worker to take over now
 self.addEventListener('message', event => {
-  if (event.data === 'skip-waiting') self.skipWaiting();
+  if (event.data === 'skip-waiting') event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     // The HTML game names its caches wasteland-academy-v<n>, at the root and at classic/.
     // An earlier build's cache of ours goes too.
+    // Stop the previous controller taking new cache requests before removing its cache.
+    await self.clients.claim();
     let retired = false;
     for (const key of await caches.keys()) {
       if (/^wasteland-academy-v\d+$/.test(key)) { await caches.delete(key); retired = true; }
       else if (key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME) await caches.delete(key);
     }
-    await self.clients.claim();
     // A page the old worker served may be the old game, from its cache
     if (retired) {
       for (const client of await self.clients.matchAll({ type: 'window' })) client.navigate(client.url);
@@ -107,9 +108,11 @@ self.addEventListener('fetch', event => {
 // which it can't answer.
 async function cacheFirst(event, key) {
   const { request } = event;
-  const cache = await caches.open(CACHE_NAME);
-  const cached = await cache.match(key);
+  // Lookup does not create a cache. Take a handle to an installed cache before
+  // the network wait so a late fetch from a retired worker cannot recreate it.
+  const cached = await caches.match(key, { cacheName: CACHE_NAME });
   if (cached) return cached;
+  const cache = await caches.has(CACHE_NAME) ? await caches.open(CACHE_NAME) : null;
   let response;
   if (request.mode === 'navigate') {
     response = await fetch(request.url, { cache: 'no-cache' });
@@ -118,7 +121,7 @@ async function cacheFirst(event, key) {
     response = await fetch(new Request(request, { cache: 'no-cache' }));
   }
   const type = (response.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
-  if (response.ok && (!WIDE_MAP_ART.includes(key) || type === 'image/webp')) {
+  if (cache && response.ok && (!WIDE_MAP_ART.includes(key) || type === 'image/webp')) {
     event.waitUntil(cache.put(key, response.clone()));
   }
   return response;

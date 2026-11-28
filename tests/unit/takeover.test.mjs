@@ -171,6 +171,11 @@ function rootWorker(cached = {}, online = {}) {
     },
     caches: {
       keys: async () => [...store.keys()],
+      has: async key => store.has(key),
+      match: async (url, { cacheName }) => {
+        const v = store.get(cacheName)?.get(url);
+        return typeof v === 'string' ? response(v) : v;
+      },
       open: async key => {
         if (!store.has(key)) store.set(key, new Map());
         const c = store.get(key);
