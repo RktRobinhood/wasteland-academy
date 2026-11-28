@@ -272,6 +272,43 @@ func test_another_region_requires_resuming_or_leaving_the_saved_run() -> void:
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(file))
 
 
+func test_saved_run_keeps_its_character_when_the_profile_changes() -> void:
+	var path := "user://test_resume_character_%s.json" % str(Time.get_ticks_usec())
+	var scene := load("res://scenes/fight.tscn") as PackedScene
+	var frame := Control.new()
+	frame.size = Vector2(1080, 1920)
+	tree.root.add_child(frame)
+	var profile := SaveData.blank()
+	profile.profile = {"avatar": "male"}
+	SaveData.store(profile, path)
+	var original: Control = scene.instantiate()
+	original.save_path = path
+	original.select_first = false
+	original.region = "quadratics"
+	original.run_seed = 3
+	frame.add_child(original)
+	for _frame: int in 12:
+		await tree.process_frame
+	var saved := SaveData.load_from(path)
+	check_eq(saved.get("settled_run", {}).get("values", {}).get("avatar"), "learner-male", "the run records the actual character")
+	original.free()
+	saved.profile.avatar = "dog"
+	SaveData.store(saved, path)
+	var continued: Control = scene.instantiate()
+	continued.save_path = path
+	continued.select_first = false
+	continued.region = "quadratics"
+	frame.add_child(continued)
+	for _frame: int in 12:
+		await tree.process_frame
+	check_eq(continued.run.avatar, "learner-male", "the same character belongs to this run")
+	check_eq(continued.journey.avatar, "learner-male", "the art follows the run, not a later profile choice")
+	frame.free()
+	for file: String in [path, SaveData.backup_path(path), SaveData.temp_path(path)]:
+		if FileAccess.file_exists(file):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(file))
+
+
 func test_start_new_replaces_the_only_run_even_on_the_same_route() -> void:
 	var path := "user://test_resume_replace_%s.json" % str(Time.get_ticks_usec())
 	var scene := load("res://scenes/fight.tscn") as PackedScene

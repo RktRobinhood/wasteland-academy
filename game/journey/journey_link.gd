@@ -31,7 +31,7 @@ static func attach(p_run: Run, p_stage: Control, save: Dictionary = {}) -> Journ
 	var link := JourneyLink.new()
 	link.run = p_run
 	link.stage = p_stage
-	link.avatar = avatar_for(save)
+	link.avatar = _run_avatar(p_run, save)
 	p_run.run_started.connect(link._on_started)
 	p_run.question_opened.connect(link._on_opened)
 	p_run.answer_resolved.connect(link._on_resolved)
@@ -46,6 +46,12 @@ static func avatar_for(save: Dictionary) -> String:
 	var profile = save.get("profile", {})
 	var id := String(profile.get("avatar", "")) if profile is Dictionary else ""
 	return "learner-" + (id if id != "" else "female")
+
+
+## New runs pin their visual avatar in their checkpoint. Older saves and direct
+## engine fixtures used the generic "learner"; preserve their profile fallback.
+static func _run_avatar(p_run: Run, save: Dictionary) -> String:
+	return p_run.avatar if p_run.avatar.begins_with("learner-") else avatar_for(save)
 
 
 static func region_for(run_region: String) -> String:
@@ -63,7 +69,7 @@ static func questions_of(p_run: Run) -> int:
 ## encounter as the strip does, from the same inputs, so the strip sends nothing back.
 static func job_words(p_run: Run, save: Dictionary = {}) -> Dictionary:
 	var assets := JourneyStage.shared_assets()
-	if not assets.has_avatar(avatar_for(save)) or not assets.has_scenery(region_for(p_run.region)):
+	if not assets.has_avatar(_run_avatar(p_run, save)) or not assets.has_scenery(region_for(p_run.region)):
 		return {}
 	var e := JourneyBeats.encounter(p_run.run_seed, p_run.fight, p_run.tier,
 			assets.roster(region_for(p_run.region)), questions_of(p_run))

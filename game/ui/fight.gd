@@ -286,7 +286,7 @@ func start_run(offer_choice: bool = false) -> void:
 	_restored_on_open = resuming
 	if run_seed == 0:
 		run_seed = int(Time.get_unix_time_from_system()) % 1000000 + 1
-	run = restored if resuming else Run.new(save, region, start_floor, run_seed)
+	run = restored if resuming else Run.new(save, region, start_floor, run_seed, JourneyLink.avatar_for(save))
 	_taunted = -1
 	_job_fight = -1
 	_announced = -1
