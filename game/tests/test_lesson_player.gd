@@ -523,3 +523,53 @@ func test_archive_gradient_matches_the_track_to_the_students_answer() -> void:
 	check(await _run(p), "the valid gradient completes the repair check")
 	check(status != null and status.text == "Track rated · gradient confirmed", "correct maths certifies the track")
 	frame.queue_free()
+
+
+
+func test_archive_pressure_gauge_uses_the_same_interval_as_the_marked_answer() -> void:
+	var frame := _phone()
+	var scene := load("res://scenes/lesson.tscn") as PackedScene
+	var screen := scene.instantiate()
+	var script: GDScript = screen.get_script()
+	script.open_preview = true
+	frame.add_child(screen)
+	await _settle()
+	var index := -1
+	for i: int in screen.entries.size():
+		if screen.entries[i].lesson == "ex.foundations.pre-read-and-round":
+			index = i
+			break
+	check(index >= 0, "the reviewed gauge pair is in the archive")
+	if index < 0:
+		frame.queue_free()
+		return
+	screen._select_entry(index)
+	await _tap(screen.watch_button)
+	var p: LessonPlayer = screen.player
+	p.paused = true
+	check_eq(p.section().id, "example-1")
+	await _run(p, func(pl): return pl.state == "input" or pl.state == "end")
+	check(p.board.any(func(row): return str(row.text).contains("2.5")), "the worked example shows the value per interval")
+	await _tap(p.actions.get_node("Choices/Choice0"))
+	check(await _run(p), "worked gauge exercise completes")
+	p.close()
+	await _settle()
+	await _tap(screen.try_button)
+	p = screen.player
+	p.paused = true
+	await _run(p, func(pl): return pl.state == "input")
+	check(str(p.prompt.text).contains("pressure gauge"))
+	check_eq(p._activity_signal.config.needle_step, 3)
+	var status := p.find_child("ActivityStatus", true, false) as Label
+	check(status != null and status.text == "Awaiting pressure reading")
+	var entry = p.actions.get_node("Entry/Box")
+	entry.text = "30"
+	entry.text_submitted.emit("30")
+	await _run(p, func(pl): return pl.state == "input")
+	check(status != null and status.text == "Check the value of each interval")
+	entry = p.actions.get_node("Entry/Box")
+	entry.text = "35"
+	entry.text_submitted.emit("35")
+	check(await _run(p), "the matched gauge reading completes the exercise")
+	check(status != null and status.text == "Pressure logged")
+	frame.queue_free()

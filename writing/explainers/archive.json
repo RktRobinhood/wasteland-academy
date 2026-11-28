@@ -46,6 +46,33 @@
         "ai-sl",
         "ai-hl"
       ]
+    },
+    {
+      "lesson": "ex.foundations.pre-read-and-round",
+      "title": "Read a gauge",
+      "zone": "Scrapworks",
+      "prompt": "Read the dial before opening the pressure valve.",
+      "worked": "example-1",
+      "practice": "turn-1",
+      "practice_mode": "authored-twin",
+      "activity": {
+        "kind": "gauge",
+        "title": "Scrapworks · Pressure dial",
+        "waiting": "Awaiting pressure reading",
+        "retry": "Check the value of each interval",
+        "sent": "Pressure logged",
+        "coached": "Pressure dial · working shown",
+        "low": 20,
+        "high": 40,
+        "intervals": 4,
+        "needle_step": 3
+      },
+      "courses": [
+        "aa-sl",
+        "aa-hl",
+        "ai-sl",
+        "ai-hl"
+      ]
     }
   ]
 }

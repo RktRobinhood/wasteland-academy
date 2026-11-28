@@ -40,7 +40,7 @@ test('release catalog requires a real worked example and an exact course-fit twi
   const sources = build();
   const original = JSON.parse(sources['archive.json']);
   assert.doesNotThrow(() => checkArchive(sources));
-  assert.deepEqual(original.entries.map(e => e.lesson), ['ex.functions.function-machine', 'ex.functions.gradient'], 'rollout is explicit, not every shipped draft');
+  assert.deepEqual(original.entries.map(e => e.lesson), ['ex.functions.function-machine', 'ex.functions.gradient', 'ex.foundations.pre-read-and-round'], 'rollout is explicit, not every shipped draft');
   const invalid = fields => ({ ...sources, 'archive.json': JSON.stringify({ ...original, entries: [
     { ...original.entries[0], ...fields },
   ] }) });
@@ -48,4 +48,13 @@ test('release catalog requires a real worked example and an exact course-fit twi
   assert.throws(() => checkArchive(invalid({ courses: ['unknown-course'] })), /course mapping/);
   assert.throws(() => checkArchive(invalid({ lesson: 'ex.not.ready' })), /worked example/);
   assert.throws(() => checkArchive(invalid({ practice_mode: 'unverified-engine' })), /complete stem/);
+});
+
+test('a published practice dial cannot mark a different reading from its needle', async () => {
+  const { checkArchive } = await import('../../tools/game-explainers.mjs');
+  const sources = build();
+  const archive = JSON.parse(sources['archive.json']);
+  const gauge = archive.entries.find(e => e.activity?.kind === 'gauge');
+  gauge.activity.needle_step -= 1;
+  assert.throws(() => checkArchive({ ...sources, 'archive.json': JSON.stringify(archive) }), /needle must match/);
 });

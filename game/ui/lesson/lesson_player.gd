@@ -1116,7 +1116,7 @@ func _turn(t: Dictionary, part: int, misses: int, q: Dictionary) -> void:
 			_resume(_turn_done(t, fb, engine, q, true))
 			return
 		_activity_state("retry", Explainer.RUST)
-		var after: Array = [{"_lit": "Static.", "_good": false}]
+		var after: Array = [{"_lit": str(activity.get("retry", "Static.")), "_good": false}]
 		after.append_array(Lesson.not_yet_for(t.get("not_yet", []), mis, misses + part))
 		after.append({"_turn": t, "_part": part, "_misses": misses + 1, "_question": q})
 		_resume(after)
@@ -1157,13 +1157,13 @@ func _turn_done(t: Dictionary, fb: Dictionary, engine: bool, q: Dictionary, righ
 ## What happened in the world, in the caption's place: teal when the signal goes out,
 ## rust for static or a sparked tile. The next line's caption puts the colour back.
 func _mount_activity() -> void:
-	if str(activity.get("kind", "")) not in ["relay", "track"]:
+	if str(activity.get("kind", "")) not in ["relay", "track", "gauge"]:
 		return
 	var rail := HBoxContainer.new()
 	rail.name = "RelicActivity"
 	rail.add_theme_constant_override("separation", 20)
 	_activity_signal = ActivitySignal.new()
-	_activity_signal.kind = str(activity.kind)
+	_activity_signal.config = activity
 	rail.add_child(_activity_signal)
 	var labels := VBoxContainer.new()
 	labels.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1188,7 +1188,7 @@ func _activity_state(next: String, ink: Color) -> void:
 
 
 class ActivitySignal extends Control:
-	var kind := ""
+	var config: Dictionary = {}
 	var phase := ""
 	var ink := Explainer.DUST
 
@@ -1203,7 +1203,10 @@ class ActivitySignal extends Control:
 
 	func _draw() -> void:
 		var y := size.y * 0.5
-		if kind == "track":
+		if config.kind == "gauge":
+			_draw_gauge(y)
+			return
+		if config.kind == "track":
 			_draw_track(y)
 			return
 		var left := Vector2(16, y)
@@ -1221,6 +1224,24 @@ class ActivitySignal extends Control:
 			draw_arc(mast, 24.0, -0.75, 0.75, 14, ink, 3.0, true)
 		elif phase == "retry":
 			draw_polyline(PackedVector2Array([relay + Vector2(-8, 5), relay + Vector2(-2, -5), relay + Vector2(3, 4), relay + Vector2(8, -5)]), ink, 2.0, true)
+
+	func _draw_gauge(y: float) -> void:
+		draw_rect(Rect2(0, y - 29, 155, 58), Explainer.SLATE_DEEP)
+		var intervals := maxi(1, int(config.get("intervals", 1)))
+		var step := clampi(int(config.get("needle_step", 0)), 0, intervals)
+		var left := 21.0
+		var width := 110.0
+		draw_line(Vector2(left, y), Vector2(left + width, y), Explainer.IRON_GLOSS, 2.0, true)
+		for i in range(intervals + 1):
+			var x := left + width * float(i) / float(intervals)
+			var tick := 8.0 if i in [0, intervals] else 5.0
+			draw_line(Vector2(x, y - tick), Vector2(x, y + tick), Explainer.CHALK, 2.0, true)
+		var point := left + width * float(step) / float(intervals)
+		draw_colored_polygon(PackedVector2Array([Vector2(point - 6, y - 17), Vector2(point + 6, y - 17), Vector2(point, y - 4)]), ink)
+		var font := ThemeDB.fallback_font
+		draw_string(font, Vector2(left - 7, y + 24), str(int(config.low)), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Explainer.CHALK)
+		draw_string(font, Vector2(left + width - 9, y + 24), str(int(config.high)), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Explainer.CHALK)
+
 
 	func _draw_track(y: float) -> void:
 		draw_rect(Rect2(0, y - 28, 155, 56), Explainer.SLATE_DEEP)

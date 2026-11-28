@@ -52,6 +52,14 @@ export function checkArchive(sources) {
     if (watch?.kind !== 'example' || watch.level !== 'full' || !watch.problem?.setup ||
         practice?.kind !== 'your-turn' || practice.turn?.like !== e.worked) fail('expected a worked example and its own twin');
     if (e.practice_mode !== 'authored-twin' || !(practice.turn.fallback?.parts?.length > 0)) fail('the authored twin needs a complete stem');
+    if (e.activity?.kind === 'gauge') {
+      const { low, high, intervals, needle_step } = e.activity;
+      if (![low, high, intervals, needle_step].every(Number.isSafeInteger) ||
+          !(high > low && intervals >= 2 && intervals <= 12 && needle_step >= 0 && needle_step <= intervals) ||
+          practice.turn.fallback.parts.length !== 1 ||
+          Number(practice.turn.fallback.parts[0].answer) !== low + (high - low) * needle_step / intervals)
+        fail('gauge markings and needle must match the marked answer');
+    }
     if (!e.title?.trim() || !e.zone?.trim() || !e.prompt?.trim()) fail('missing student-facing entry text');
     if (!Array.isArray(e.courses) || !e.courses.length || !e.courses.every(c => script.courses.includes(c)) ||
         new Set(e.courses).size !== e.courses.length) fail('course mapping does not match the source lesson');
