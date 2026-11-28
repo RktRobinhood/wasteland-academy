@@ -21,6 +21,8 @@ func test_settled_answer_and_earned_scrap_survive_reopening_without_replaying() 
 		shown_answer[id] = fight._slots[id].text
 	var shown_choice: int = fight._choice
 	check(not shown_answer.is_empty() or shown_choice >= 0, "the fixture has a visible submitted entry")
+	var label: String = str(fight.job.get("label", ""))
+	var feedback: String = fight.feedback.text
 	var run: Run = fight.run
 	var cell: String = run.question.cell
 	var health: int = run.hp
@@ -45,6 +47,8 @@ func test_settled_answer_and_earned_scrap_survive_reopening_without_replaying() 
 	check_eq(MathsEngine.prompt(reopened_screen.run.question), prompt)
 	check_eq(reopened_screen.run.lifelines.hint, 0)
 	check_eq(reopened_screen._choice, shown_choice)
+	check_eq(str(reopened_screen.job.get("label", "")), label, "restore the same encounter with packaged Journey assets")
+	check_eq(reopened_screen.feedback.text, feedback, "restore the original result wording")
 	for id in shown_answer:
 		check_eq(reopened_screen._slots[id].text, shown_answer[id], "restore the recorded entry alongside feedback")
 	check_eq(int(reopened_screen.save.scrap), reward)

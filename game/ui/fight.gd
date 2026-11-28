@@ -1035,11 +1035,12 @@ func _show_result(r: Dictionary, settle := true) -> void:
 	answered = true
 	if settle:
 		Audio.play_sfx(sfx_for(r))
-		if job.is_empty():
-			var checkpoint := run.settled_checkpoint(r, _settled_upgrades, perk)
-			if not checkpoint.is_empty():
-				checkpoint.entry = _capture_entry()
-				save.settled_run = checkpoint
+		# Journey jobs use the same seeded question, rewards and result as a fight.
+		# The checkpoint is an engine concern, not a decision of its artwork/wording.
+		var checkpoint := run.settled_checkpoint(r, _settled_upgrades, perk)
+		if not checkpoint.is_empty():
+			checkpoint.entry = _capture_entry()
+			save.settled_run = checkpoint
 		SaveData.store(save, save_path)
 	feedback.visible = true
 	var color := UiTheme.TEAL
