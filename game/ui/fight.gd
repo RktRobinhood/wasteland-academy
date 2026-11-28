@@ -91,6 +91,7 @@ static var launch: Dictionary = {}
 var run: Run
 ## The Bazaar perk this run plays with ({} for none).
 var perk: Dictionary = {}
+var _settled_upgrades: Dictionary = {}
 var region := "quadratics"
 var start_floor := 1
 var run_seed := 0
@@ -278,6 +279,8 @@ func start_run() -> void:
 		run.records = false
 	# What the Bazaar sold (G6) reaches the run through its modifiers only.
 	perk = Bazaar.equip(run, save)
+	var shop: Dictionary = Bazaar.record(save)
+	_settled_upgrades = {"max_hp": shop.max_hp, "lifelines": shop.lifelines.duplicate(true)}
 	SaveData.store(save, save_path)
 	run.question_opened.connect(func(_f, _t): _show_question())
 	run.question_opened.connect(func(_f, _t): Audio.play_location(MapLink.music_for(region, run.kind != "fight")))
@@ -981,6 +984,10 @@ func _show_result(r: Dictionary) -> void:
 	result = r
 	answered = true
 	Audio.play_sfx(sfx_for(r))
+	if job.is_empty():
+		var checkpoint := run.settled_checkpoint(r, _settled_upgrades, perk)
+		if not checkpoint.is_empty():
+			save.settled_run = checkpoint
 	SaveData.store(save, save_path)
 	feedback.visible = true
 	var color := UiTheme.TEAL
@@ -1184,6 +1191,7 @@ func next_question() -> void:
 
 
 func _show_summary(s: Dictionary) -> void:
+	save.erase("settled_run")
 	SaveData.store(save, save_path)
 	if int(s.get("scrap", 0)) > 0:
 		Audio.play_sfx("reward")

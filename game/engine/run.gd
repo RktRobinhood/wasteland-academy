@@ -84,6 +84,7 @@ var warmups_left := 0
 ## its taunt's take is under (ArtSlots.enemy).
 var enemy: Dictionary = {}
 var question: Dictionary = {}
+var _question_request: Dictionary = {}
 var question_no := 0
 ## True while the open question is an "Another way" follow-up.
 var another_way := false
@@ -247,6 +248,7 @@ func _open_question() -> void:
 		rule = "link" if boss.link and boss.part == boss.parts.size() - 1 else "boss"
 	else:
 		var view := _plan()
+		_question_request = view.duplicate(true)
 		question = MathsEngine.generate(view) if not view.has("error") else view
 		if question.has("error"):
 			push_error("Run: %s" % question.error)
@@ -569,3 +571,105 @@ func _end(reason: String) -> void:
 		"right": int(stats.right) + int(stats.late) + int(stats.glancing),
 		"scrap": stats.scrap, "missed": missed.duplicate(), "stats": stats.duplicate(), "banked": save.scrap}
 	run_ended.emit(summary)
+
+## V1 covers the first vertical slice: an ordinary settled fight. It is a plain
+## save value, not a second save file or a replay of the answer.
+const SETTLED_FIELDS := [
+	"course", "region", "avatar", "start_floor", "floor_no", "fight", "fights", "hp", "max_hp",
+	"slot", "kind", "tier", "floor_cells", "floor_seen", "warmups_left",
+	"enemy", "question_no", "another_way", "time_total", "time_left",
+	"untimed", "frozen_left", "refund_left", "_refused", "lifelines", "removed",
+	"hint", "stats", "missed", "answers", "_banked", "_followup", "_prior", "rule",
+]
+
+
+func settled_checkpoint(result: Dictionary, upgrades: Dictionary, equipped: Dictionary) -> Dictionary:
+	if not records or state != "result" or kind != "fight" or not boss.is_empty():
+		return {}
+	var values := {}
+	for field: String in SETTLED_FIELDS:
+		values[field] = get(field)
+	if _question_request.is_empty() or not _plain_checkpoint(_question_request) or not _plain_checkpoint(values) or not _plain_checkpoint(result):
+		return {}
+	# JSON numbers lose precision for arbitrary 64-bit seeds.
+	return {"version": 1, "seed": str(run_seed), "values": values.duplicate(true),
+		"request": _question_request.duplicate(true), "cell": question.cell, "prompt": MathsEngine.prompt(question),
+		"result": result.duplicate(true), "upgrades": upgrades.duplicate(true), "perk": equipped.duplicate(true)}
+
+
+static func restore_settled(save_data: Dictionary, checkpoint: Dictionary) -> Run:
+	if checkpoint.get("version") != 1 or not checkpoint.get("seed") is String:
+		return null
+	var seed: String = checkpoint.seed
+	if not seed.is_valid_int() or str(int(seed)) != seed:
+		return null
+	var values: Variant = checkpoint.get("values")
+	var result: Variant = checkpoint.get("result")
+	var upgrades: Variant = checkpoint.get("upgrades")
+	var equipped: Variant = checkpoint.get("perk")
+	if not values is Dictionary or not result is Dictionary or not upgrades is Dictionary or not equipped is Dictionary:
+		return null
+	if not _plain_checkpoint(checkpoint) or result.get("complete") != true:
+		return null
+	if values.get("kind") != "fight" or values.get("course") != Courses.of(save_data):
+		return null
+	if not values.get("region") is String or not values.get("avatar") is String:
+		return null
+	if values.region.is_empty() or values.avatar.is_empty():
+		return null
+	var run := Run.new(save_data, values.region, 1, int(seed), values.avatar)
+	for field: String in SETTLED_FIELDS:
+		if not values.has(field):
+			return null
+		var current: Variant = run.get(field)
+		var value: Variant = values[field]
+		if current is int:
+			if not (value is int or value is float) or not is_finite(float(value)) or absf(float(value)) > 9007199254740991.0 or float(value) != floorf(float(value)):
+				return null
+			value = int(value)
+		elif current is float:
+			if not (value is int or value is float) or not is_finite(float(value)):
+				return null
+			value = float(value)
+		elif typeof(current) != typeof(value):
+			return null
+		run.set(field, value.duplicate(true) if value is Array or value is Dictionary else value)
+	if run.question_no < 1 or run.answers.is_empty() or not checkpoint.get("request") is Dictionary:
+		return null
+	run._question_request = checkpoint.request.duplicate(true)
+	run.question = MathsEngine.generate(run._question_request)
+	if run.question.has("error") or run.question.get("cell") != checkpoint.get("cell"):
+		return null
+	if MathsEngine.prompt(run.question) != checkpoint.get("prompt"):
+		return null
+	if not run.question.get("cell") is String or not run.question.get("view") is Dictionary or not run.question.get("solutions") is Array:
+		return null
+	if not run.stats.get("scrap") is float and not run.stats.get("scrap") is int:
+		return null
+	if run._banked < 0 or run._banked != int(run.stats.scrap):
+		return null
+	if not upgrades.get("lifelines") is Dictionary:
+		return null
+	run.modifiers.add(Bazaar.modifier(upgrades, equipped))
+	run.state = "result"
+	return run
+
+
+static func _plain_checkpoint(value: Variant, depth := 0) -> bool:
+	if depth > 16:
+		return false
+	if value is Dictionary:
+		if value.size() > 500:
+			return false
+		for key: Variant in value:
+			if not key is String or not _plain_checkpoint(value[key], depth + 1):
+				return false
+		return true
+	if value is Array:
+		if value.size() > 1000:
+			return false
+		for item: Variant in value:
+			if not _plain_checkpoint(item, depth + 1):
+				return false
+		return true
+	return value == null or value is bool or value is int or value is String or (value is float and is_finite(value))
