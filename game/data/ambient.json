@@ -22,6 +22,36 @@
      "fps": 10, "frames": "cycle", "motion": "path", "path": [[455, 95], [1005, 135], [1700, 95], [1960, 128]],
      "seconds": 18, "loop": false, "face": "flip", "bob": 4, "bob_period": 1.2, "phase": 0.0, "alpha": 0.8}
   ],
+  "zone_algebra": [
+    {"id": "yard-welder", "sheet": "hit-spark", "position": [526, 925], "anchor": [128, 128], "scale": 0.27, "motion": "pulse", "frames": "still", "period": 5.6, "phase": 0.31, "alpha": 0.53}
+  ],
+  "zone_algebra_wide": [
+    {"id": "yard-welder", "sheet": "hit-spark", "position": [825, 408], "anchor": [128, 128], "scale": 0.27, "motion": "pulse", "frames": "still", "period": 5.6, "phase": 0.31, "alpha": 0.53}
+  ],
+  "zone_functions": [
+    {"id": "tower-signal", "sheet": "signal-beacon", "position": [552, 571], "anchor": [20, 20], "scale": 0.85, "motion": "pulse", "frames": "still", "period": 6.0, "phase": 0.55, "alpha": 0.56}
+  ],
+  "zone_functions_wide": [
+    {"id": "tower-signal", "sheet": "signal-beacon", "position": [960, 257], "anchor": [20, 20], "scale": 0.85, "motion": "pulse", "frames": "still", "period": 6.0, "phase": 0.55, "alpha": 0.56}
+  ],
+  "zone_geometry": [
+    {"id": "salt-wind", "sheet": "flats-dust", "position": [24, 1450], "anchor": [0, 48], "scale": 1.35, "motion": "drift", "frames": "cycle", "to": [195, 1490], "seconds": 13, "fps": 8, "alpha": 0.64}
+  ],
+  "zone_geometry_wide": [
+    {"id": "salt-wind", "sheet": "flats-dust", "position": [480, 807], "anchor": [0, 48], "scale": 1.35, "motion": "drift", "frames": "cycle", "to": [765, 837], "seconds": 13, "fps": 8, "alpha": 0.64}
+  ],
+  "zone_stats": [
+    {"id": "spires-scout", "sheet": "crow", "position": [26, 442], "anchor": [36, 22], "scale": 0.82, "motion": "path", "frames": "cycle", "path": [[388, 377], [707, 476], [1060, 400]], "seconds": 23, "loop": false, "face": "flip", "bob": 6, "bob_period": 2.2, "phase": 0.3, "fps": 9, "alpha": 0.83}
+  ],
+  "zone_stats_wide": [
+    {"id": "spires-scout", "sheet": "crow", "position": [-40, 165], "anchor": [36, 22], "scale": 0.82, "motion": "path", "frames": "cycle", "path": [[584, 185], [1140, 246], [1970, 173]], "seconds": 23, "loop": false, "face": "flip", "bob": 6, "bob_period": 2.2, "phase": 0.3, "fps": 9, "alpha": 0.83}
+  ],
+  "zone_calculus": [
+    {"id": "furnace-stack", "sheet": "engine-smoke", "position": [556, 765], "anchor": [130, 128], "scale": 1.1, "motion": "none", "frames": "cycle", "fps": 10, "stir": true, "phase": 0.77, "alpha": 0.9}
+  ],
+  "zone_calculus_wide": [
+    {"id": "furnace-stack", "sheet": "engine-smoke", "position": [920, 417], "anchor": [130, 128], "scale": 1.1, "motion": "none", "frames": "cycle", "fps": 10, "stir": true, "phase": 0.77, "alpha": 0.9}
+  ],
   "fight": {
     "hit-spark": {"sheet": "hit-spark", "anchor": [128, 128], "fps": 12, "chest": 20},
     "dust-burst": {"sheet": "dust-burst", "anchor": [192, 180], "fps": 12, "fade": 0.4}

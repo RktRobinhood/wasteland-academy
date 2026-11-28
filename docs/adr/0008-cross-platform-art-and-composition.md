@@ -29,11 +29,11 @@ The common treatment itself stays calm: no sustained camera shake or rapid flash
 
 ## Amendment: painted overworld landmarks (2026-11-28)
 
-The owner chose the painted landmarks themselves as the overworld controls. Do not layer persistent dots, progress flags, locked icons, labels, or a last-location marker over them. Progress stays in the same card shown on hover, keyboard focus or first touch. The regional activity indicators and all registered click/tap areas are unchanged.
+The owner chose the painted landmarks themselves as the overworld controls. Do not layer persistent dots, progress flags, locked icons, labels, or a last-location marker over them. Progress stays in the same card shown on hover, keyboard focus or first touch. The owner extended this to all five zone boards. Both world and zone paintings are free of persistent dots, rings, flags and locks. Suggestions and activity states are in the same on-demand cards; all registered click/tap areas are unchanged.
 
 ## Amendment: local daylight on artwork (2026-11-28)
 
-The overworld, zone boards and fight scenery share a stylised device-local daylight palette. Dawn and dusk blend gradually. No location, network or save data is needed. Apply colour to the artwork only: keep labels, focus, hit regions, actors and the maths panel outside the grade. The painted overworld furnace may spill a small warm light onto the immediate surroundings; the light takes no input and does not move the landmark.
+The overworld, zone boards and fight scenery share a stylised device-local daylight palette. Dawn and dusk blend gradually. No location, network or save data is needed. Apply colour to the artwork only: keep labels, focus, hit regions, actors and the maths panel outside the grade. The overworld lights come from painted sources: furnace and lava, shop lanterns, a scrapyard gate and radio equipment. Register their shape and position independently on portrait and landscape art, share one cheap falloff texture, and use the same device-clock palette. Lava may breathe slowly, never flash. No light should read as a new map marker or take input.
 
 Hold the scene grade while a fight question is open, then ease toward the current time after submission. Existing alternate Journey paintings are selected when a battle opens. This slice does not morph between those paintings during combat, add a new settings mode or promise distinct artwork for every region. Test dusk in the same open scene and after a fresh entry, as well as dark landmark activation on desktop and phone.
 
@@ -42,3 +42,10 @@ Hold the scene grade while a fight question is open, then ease toward the curren
 - [Godot: Multiple resolutions](https://docs.godotengine.org/en/stable/tutorials/rendering/multiple_resolutions.html) and [Importing images](https://docs.godotengine.org/en/4.7/tutorials/assets_pipeline/importing_images.html)
 - [Subset Games: Into the Breach Advanced Edition and mobile](https://subsetgames.com/itb_ae.html)
 - [Playdigious: How it ported Dead Cells to mobile](https://www.gamedeveloper.com/design/porting-i-dead-cells-i-to-mobile-an-in-depth-breakdown)
+
+
+### Zone ambience and destination discovery
+
+Each painted zone board gets one short visual cue belonging to that location: a low welding glow in Scrap Fields, a slow tower signal, wind over the Dry Flats salt, a circling scout over Radio Spires and interactive furnace smoke at Engine Core. Author the cue's anchor in both compositions; grade that layer with the artwork, keep it behind the landmark buttons and do not spend new boot bytes on duplicate textures. Use established movement and smoke-input handling, not per-zone UI or new game mechanics. On desktop, use the pointing-hand cursor only over actionable places; on touch, keep the first tap's place card before the second tap enters. Closed locations, keyboard focus, existing suggested activities and route/save IDs are unchanged.
+
+If the viewport or asynchronously loaded composition changes during the zoom back to a map, settle at the new frame. An obsolete tween must not slide the new painting and hit areas off-centre.

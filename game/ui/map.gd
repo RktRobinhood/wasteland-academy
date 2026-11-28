@@ -13,13 +13,13 @@ extends Control
 ##   reveals status on hover, focus or tap. Last travel location stays in the save.
 ##   The header shows the Scrap there is to spend. Between the painting and the buttons,
 ##   the ambient layer (FAL-1075, ui/ambient_layer.gd, pieces in AMBIENT) plays a crow,
-##   the beacon, smoke, neon and dust; it takes no taps, and holds still with reduced motion.
+##   signal light, smoke, neon and dust; it takes no taps, and holds still with reduced motion.
 ## - An island is a hub (FAL-531 plan): its all-regions dungeon in the middle and its
 ##   regions (MapLink.region_ids(island)) around it, any of them in any order. No roads:
 ##   the places are fast-travel points. A locked spot waits for a Relic device. A region
 ##   with no built type is "coming soon", worked out from the engine, so a region lights
 ##   up when its situations merge. SPARK's pick (Progress.suggest() over the island's
-##   regions) gets a beacon and first focus: a suggestion, never a gate.
+##   regions) gets first focus and a note in its card: a suggestion, never a gate.
 ## - No persistent place names on either board. Hovering, focusing or tapping a
 ##   place shows its card: its name, then the topic, progress or availability.
 ##   With a mouse or keyboard a press goes in. On a touch screen the first tap shows the
@@ -216,6 +216,7 @@ var _wide_failed := {}
 var _wide_update_waiting := false
 var _active_touch := {}
 var _tween: Tween
+var _return_zoom := false
 ## True while the board zooms into a place: presses wait for the next layer.
 var _zooming := false
 ## True while the first focus is set, so it doesn't show a card on its own.
@@ -223,12 +224,24 @@ var _quiet := false
 
 
 var scene_light := WorldLight.SceneGrade.new()
-var _furnace_spill: TextureRect
+var _world_lights: Array[TextureRect] = []
+var _world_ambient: AmbientLayer
+var _light_elapsed := 0.0
+var _zone_ambient: AmbientLayer
 
-# The same painted furnace has a separate registration in each artwork.
-const FURNACE_PORTRAIT := Vector2(551, 1196)
-const FURNACE_LANDSCAPE := Vector2(963, 837)
-
+# One legend-free light per painted source, registered separately on portrait
+# and landscape. The size is a native-art ellipse, not a marker or hit area.
+# id, portrait position, landscape position, portrait spread, wide spread,
+# source colour, max alpha, seconds of gentle breathing (0 = steady).
+const WORLD_LIGHTS := [
+	["Furnace", Vector2(551, 1196), Vector2(963, 837), Vector2(153, 105), Vector2(160, 120), Color(1, 0.58, 0.18), 0.66, 0.0],
+	["LavaLeft", Vector2(459, 1201), Vector2(803, 948), Vector2(132, 37), Vector2(143, 52), Color(1, 0.37, 0.10), 0.65, 7.4],
+	["LavaRight", Vector2(615, 1166), Vector2(1167, 840), Vector2(97, 51), Vector2(154, 68), Color(1, 0.41, 0.11), 0.54, 9.1],
+	["ScrapGate", Vector2(248, 572), Vector2(640, 307), Vector2(95, 53), Vector2(151, 63), Color(1, 0.72, 0.31), 0.45, 0.0],
+	["SignalBase", Vector2(922, 526), Vector2(1337, 266), Vector2(82, 75), Vector2(111, 108), Color(0.17, 0.77, 1), 0.45, 0.0],
+	["RadioDoors", Vector2(898, 852), Vector2(1618, 574), Vector2(120, 93), Vector2(144, 111), Color(0.38, 0.40, 1), 0.53, 0.0],
+	["BazaarLanterns", Vector2(234, 1352), Vector2(358, 842), Vector2(192, 63), Vector2(320, 82), Color(1, 0.69, 0.31), 0.45, 0.0],
+]
 
 
 func _update_world_light(delta: float) -> void:
@@ -238,7 +251,20 @@ func _update_world_light(delta: float) -> void:
 		if art != null:
 			art.self_modulate = scene_light.grade
 	region_backdrop.self_modulate = scene_light.grade
-	_furnace_spill.self_modulate.a = 0.50 * scene_light.local_light
+	if is_instance_valid(_zone_ambient) and _zone_ambient.is_visible_in_tree():
+		_zone_ambient.modulate = scene_light.grade
+	if not world.is_visible_in_tree():
+		return
+	_light_elapsed += delta
+	for i in _world_lights.size():
+		var entry: Array = WORLD_LIGHTS[i]
+		var period: float = entry[7]
+		var pulse := 1.0
+		if period > 0.0 and not _world_ambient.reduced_motion:
+			pulse = 0.94 + 0.06 * sin(_light_elapsed * TAU / period + i)
+		var colour: Color = entry[5]
+		colour.a = float(entry[6]) * scene_light.local_light * pulse
+		_world_lights[i].self_modulate = colour
 
 
 func _process(delta: float) -> void:
@@ -278,6 +304,7 @@ func show_route(r: Dictionary) -> void:
 	if _tween != null:
 		_tween.kill()
 	_zooming = false
+	_return_zoom = false
 	card_for = null
 	armed = null
 	for layer in [world, island, region_view]:
@@ -303,6 +330,7 @@ func show_route(r: Dictionary) -> void:
 	var out := (from == "island" and screen == "world") or (from == "region" and screen == "island")
 	_tween = create_tween().set_parallel()
 	if out:
+		_return_zoom = true
 		var board := world_board if screen == "world" else island_board
 		var at := _island_point(String(was.get("island", ""))) if screen == "world" else _spot_point(String(was.get("island", "")), String(was.get("region", "")))
 		var fit: Array = _fitted[board]
@@ -313,6 +341,7 @@ func show_route(r: Dictionary) -> void:
 		_tween.tween_property(board, "scale", fit[1], ZOOM_TIME).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	layer.modulate.a = 0.0
 	_tween.tween_property(layer, "modulate:a", 1.0, FADE_TIME)
+	_tween.finished.connect(func(): _return_zoom = false)
 
 
 func go(r: Dictionary) -> void:
@@ -329,6 +358,8 @@ func reduced_motion() -> bool:
 func apply_settings() -> void:
 	var ambient := world_board.get_node("Ambient") as AmbientLayer
 	var reduce := reduced_motion()
+	if is_instance_valid(_zone_ambient):
+		_zone_ambient.reduced_motion = reduce
 	if ambient.reduced_motion != reduce:
 		ambient.reduced_motion = reduce
 		ambient.build(AmbientLayer.entries(AMBIENT, "map_wide" if _wide_world else "map"))
@@ -442,10 +473,13 @@ func _frame_painting(board: Control) -> void:
 	art.size = frame.size
 	if on_world:
 		var source_frame := WIDE_FRAME if wide else Rect2(Vector2.ZERO, BOARD)
-		var furnace := FURNACE_LANDSCAPE if wide else FURNACE_PORTRAIT
-		var spread := Vector2(140, 96) if wide else Vector2(130, 92)
-		_furnace_spill.size = spread
-		_furnace_spill.position = source_frame.position + furnace - frame.position - spread * 0.5
+		for i in _world_lights.size():
+			var light := _world_lights[i]
+			var entry: Array = WORLD_LIGHTS[i]
+			var at: Vector2 = entry[2] if wide else entry[1]
+			var spread: Vector2 = entry[4] if wide else entry[3]
+			light.size = spread
+			light.position = source_frame.position + at - frame.position - spread * 0.5
 		var ambient := board.get_node("Ambient") as AmbientLayer
 		var key := "map_wide" if wide else "map"
 		if ambient.get_meta("layout", "map") != key:
@@ -474,19 +508,26 @@ func _build() -> void:
 	art.size = BOARD
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	world_board.add_child(art)
-	_furnace_spill = TextureRect.new()
-	_furnace_spill.name = "FurnaceLight"
-	_furnace_spill.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_furnace_spill.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_furnace_spill.texture = WorldLight.radial_falloff()
-	_furnace_spill.self_modulate = Color(1.0, 0.54, 0.16, 0.0)
-	art.add_child(_furnace_spill)
+	var falloff := WorldLight.radial_falloff()
+	var blend := CanvasItemMaterial.new()
+	blend.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	for entry in WORLD_LIGHTS:
+		var light := TextureRect.new()
+		light.name = entry[0]
+		light.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		light.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		light.texture = falloff
+		light.material = blend
+		light.self_modulate.a = 0.0
+		art.add_child(light)
+		_world_lights.append(light)
 	# Over the painting, under the zone buttons and pins; it takes no taps.
 	var ambient := AmbientLayer.new()
 	ambient.name = "Ambient"
 	ambient.size = BOARD
 	ambient.reduced_motion = reduced_motion()
 	world_board.add_child(ambient)
+	_world_ambient = ambient
 	ambient.build(AmbientLayer.entries(AMBIENT, "map"))
 	_header(world, "The Wasteland", "◂ Title", func(): MapLink.home(get_tree()))
 	var scrap := UiTheme.label("", UiTheme.SMALL, UiTheme.SAND)
@@ -653,6 +694,13 @@ static func map_frame(room: Vector2, wide: bool, island_map: bool) -> Rect2:
 
 
 func _fit(refresh_assets := true) -> void:
+	# A returning board's tween ends at the old transform. If a window resize
+	# or a landscape art upgrade changes that transform, settle at the new fit
+	# rather than letting the old tween move the map and its hitboxes off-centre.
+	if _return_zoom:
+		_tween.kill()
+		_return_zoom = false
+		(world if screen == "world" else island).modulate.a = 1.0
 	var area := size
 	var room := Rect2(0, HEADER, area.x, maxf(1.0, area.y - HEADER))
 	var had_frame := not _map_frames.is_empty()
@@ -872,6 +920,7 @@ func zoom_to(board: Control, at: Vector2, then: Callable) -> void:
 		then.call()
 		return
 	_zooming = true
+	_return_zoom = false
 	var z := _zoomed(board, at)
 	if _tween != null:
 		_tween.kill()
@@ -918,6 +967,8 @@ func _place(b: Button, title: String, line: String, color: Color, enter: Callabl
 	b.set_meta("card", [title, line, color])
 	b.set_meta("enter", enter)
 	b.accessibility_name = "%s: %s" % [title, line]
+	if enter.is_valid() and not b.disabled:
+		b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	# The card is the visible hover label. Keep richer context for assistive
 	# technology without a second, native tooltip over the same marker.
 	if tooltip != b.accessibility_name:
@@ -1198,39 +1249,17 @@ func _go_from_world(id: String, at: Vector2, then: Callable) -> void:
 	zoom_to(world_board, at, then)
 
 
-## A place's pin on a regional board, its top-left at its position: a disc ringed in its
-## state's colour (STATE_COLOR), with a dot when open, a flag when cleared and a padlock
-## when locked.
-class Pin extends Control:
-	const R := 28.0
-	var radius := R
-	var kind := "open"
-
-	func _ready() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		size = Vector2.ONE * (2.0 * radius)
-
-	func _draw() -> void:
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE * (radius / R))
-		var c := Vector2(R, R)
-		var col: Color = STATE_COLOR[kind]
-		draw_circle(c, R, Color(0.05, 0.06, 0.09, 0.92))
-		draw_arc(c, R - 5.0, 0.0, TAU, 40, col, 8.0, true)
-		match kind:
-			"cleared":
-				draw_line(c + Vector2(-7, 12), c + Vector2(-7, -12), UiTheme.TEXT, 4.0, true)
-				draw_colored_polygon(PackedVector2Array([c + Vector2(-5, -12), c + Vector2(10, -7), c + Vector2(-5, -2)]), col)
-			"locked":
-				draw_arc(c + Vector2(0, -3), 6.0, PI, TAU, 16, UiTheme.TEXT, 3.0, true)
-				draw_rect(Rect2(c + Vector2(-9, -3), Vector2(18, 13)), UiTheme.TEXT)
-			_:
-				draw_circle(c, 9.0, col)
+## A single site-specific layer uses the source art's coordinates. It never
+## enlarges, moves or consumes input from a registered landmark.
+static func zone_ambient_key(id: String, wide: bool) -> String:
+	return "zone_" + id + ("_wide" if wide else "")
 
 
 # ── An island ────────────────────────────────────────────────
 
 func _fill_island() -> void:
 	_clear(island_board)
+	_zone_ambient = null
 	var info := island_info(route.island)
 	var title := island.get_node("Header").get_child(0).get_node("Title") as Label
 	title.text = info.name
@@ -1248,6 +1277,16 @@ func _fill_island() -> void:
 		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		island_board.add_child(art)
 		_frame_painting(island_board)
+		# A fixture or future fallback has no authored registration.
+		if art_dir == "":
+			_zone_ambient = AmbientLayer.new()
+			_zone_ambient.name = "ZoneAmbience"
+			_zone_ambient.position = WIDE_FRAME.position if _wide_island else Vector2.ZERO
+			_zone_ambient.size = WIDE_FRAME.size if _wide_island else BOARD
+			_zone_ambient.modulate = scene_light.grade
+			_zone_ambient.reduced_motion = reduced_motion()
+			island_board.add_child(_zone_ambient)
+			_zone_ambient.build(AmbientLayer.entries(AMBIENT, zone_ambient_key(route.island, _wide_island)))
 	else:
 		island_board.add_child(_coded_ground(route.island))
 	var regions := MapLink.region_ids(route.island)
@@ -1289,9 +1328,8 @@ class Jetty extends Control:
 		draw_circle(LANDING * BOARD / 100.0, 22.0, Color(UiTheme.SAND, 0.6))
 
 
-## A place on the island: a square button round its point with its landmark art for its
-## state, a compact pin or state chip over a painting, or the coded ring, and SPARK's beacon when it is the pick. Every spot but the Relic device opens
-## its region screen; the Relic device is small and locked.
+## A registered landmark on the zone board. Paint is the permanent affordance;
+## the card reveals status and suggestions on hover, focus or first touch.
 func _spot(id: String, title: String, state: String, painted: bool = false) -> Button:
 	var at := _spot_point(route.island, id)
 	var relic := id == "relic"
@@ -1310,31 +1348,6 @@ func _spot(id: String, title: String, state: String, painted: bool = false) -> B
 	var look := _landmark(id, state, d, painted)
 	if look != null:
 		b.add_child(look)
-	elif state != "open":
-		if state == "locked":
-			var wash := Wash.new()
-			wash.name = "Wash"
-			wash.size = b.size
-			b.add_child(wash)
-		var chip := Chip.new()
-		chip.name = "Padlock" if state == "locked" else "Flag"
-		chip.kind = state
-		chip.position = Vector2(d / 2.0 - Chip.R, d - 2.0 * Chip.R - 6.0)
-		b.add_child(chip)
-	else:
-		# Some locations exist only in the background painting. Never leave
-		# an invisible tap target when the persistent text plate is gone.
-		var pin := Pin.new()
-		pin.name = "Pin"
-		pin.radius = 39.0
-		pin.position = b.size / 2.0 - Vector2.ONE * pin.radius
-		b.add_child(pin)
-	if id == pick.get("region"):
-		var beacon := Beacon.new()
-		beacon.name = "Beacon"
-		beacon.r = d * 0.5 - 8.0
-		beacon.position = b.size / 2.0
-		b.add_child(beacon)
 	island_board.add_child(b)
 	if relic:
 		b.disabled = true
@@ -1379,7 +1392,7 @@ func spot_line(id: String, state: String) -> String:
 
 
 ## The look of a spot in a state, filling its square: its landmark art, a fallback
-## requested from the caller when the place is painted (null), or the coded ring in the state's colour with
+## drawn only as scenery when the place is painted, or a compact fallback glyph tile in the state's colour with
 ## the region's glyph (mark()).
 func _landmark(id: String, state: String, box: float, painted: bool) -> Control:
 	var path := "%s%s-%s.png" % [island_art_dir(), spot_key(id), state]
@@ -1404,12 +1417,12 @@ func _landmark(id: String, state: String, box: float, painted: bool) -> Control:
 	if Dungeon.is_all(id) and state != "locked":
 		border = UiTheme.PINK
 	var bg := UiTheme.PANEL if state != "locked" else Color(0.1, 0.12, 0.16, 0.85)
-	holder.add_child(_ring(mark(spot_key(id)), box * (1.0 if Dungeon.is_all(id) else 0.8), border, bg))
+	holder.add_child(_glyph_tile(mark(spot_key(id)), box * (1.0 if Dungeon.is_all(id) else 0.8), border, bg))
 	return holder
 
 
-## A coded ring, d across, with a short mark in it.
-func _ring(text: String, d: float, border: Color, bg: Color) -> Control:
+## A compact sign tile only on the unpainted fallback board.
+func _glyph_tile(text: String, d: float, border: Color, bg: Color) -> Control:
 	var ring := PanelContainer.new()
 	ring.name = "Coded"
 	ring.custom_minimum_size = Vector2(d, d)
@@ -1418,7 +1431,7 @@ func _ring(text: String, d: float, border: Color, bg: Color) -> Control:
 	sb.bg_color = bg
 	sb.border_color = border
 	sb.set_border_width_all(10)
-	sb.set_corner_radius_all(int(d / 2.0))
+	sb.set_corner_radius_all(12)
 	ring.add_theme_stylebox_override("panel", sb)
 	var l := UiTheme.label(text, 96 if text.length() == 1 else 72, border)
 	l.name = "Mark"
@@ -1451,55 +1464,6 @@ class Stall extends Control:
 		draw_rect(Rect2(c.x - w / 2.0 + 8.0, top + r * 0.35, 10.0, r * 0.65), UiTheme.SAND)
 		draw_rect(Rect2(c.x + w / 2.0 - 18.0, top + r * 0.35, 10.0, r * 0.65), UiTheme.SAND)
 		draw_rect(Rect2(c.x - w / 2.0, c.y + r * 0.4, w, r * 0.2), UiTheme.SAND)
-
-
-## The dark wash over a painted place that can't be played yet.
-class Wash extends Control:
-	func _ready() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	func _draw() -> void:
-		draw_circle(size / 2.0, size.x / 2.0 - 10.0, Color(0.03, 0.04, 0.06, 0.55))
-
-
-## A state chip on a painted place, its top-left at its position: a padlock ("locked")
-## or a flag ("cleared"), drawn so one painting serves every state.
-class Chip extends Control:
-	const R := 30.0
-	var kind := "locked"
-
-	func _ready() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		size = Vector2(2.0 * R, 2.0 * R)
-
-	func _draw() -> void:
-		var c := Vector2(R, R)
-		draw_circle(c, R, Color(0.05, 0.06, 0.09, 0.92))
-		draw_arc(c, R - 2.0, 0.0, TAU, 40, UiTheme.SAND if kind == "cleared" else UiTheme.DIM, 4.0, true)
-		if kind == "cleared":
-			draw_line(c + Vector2(-9, 16), c + Vector2(-9, -16), UiTheme.TEXT, 4.0, true)
-			draw_colored_polygon(PackedVector2Array([c + Vector2(-7, -16), c + Vector2(14, -9), c + Vector2(-7, -2)]), UiTheme.SAND)
-		else:
-			draw_arc(c + Vector2(0, -4), 8.0, PI, TAU, 16, UiTheme.TEXT, 4.0, true)
-			draw_rect(Rect2(c + Vector2(-12, -4), Vector2(24, 18)), UiTheme.TEXT)
-
-
-## SPARK's beacon on the pick: two rings round the place and signal waves over it,
-## pulsing. Drawn on top, so it shows over art too. Centred on its position.
-class Beacon extends Control:
-	var r := 140.0
-
-	func _ready() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var t := create_tween().set_loops()
-		t.tween_property(self, "modulate:a", 0.45, 0.9).set_trans(Tween.TRANS_SINE)
-		t.tween_property(self, "modulate:a", 1.0, 0.9).set_trans(Tween.TRANS_SINE)
-
-	func _draw() -> void:
-		draw_arc(Vector2.ZERO, r, 0.0, TAU, 64, UiTheme.PINK, 8.0, true)
-		draw_arc(Vector2.ZERO, r + 18.0, 0.0, TAU, 64, Color(UiTheme.PINK, 0.4), 4.0, true)
-		for i in 2:
-			draw_arc(Vector2(0, -r - 12.0), 14.0 + 12.0 * i, PI * 1.2, PI * 1.8, 16, UiTheme.PINK, 6.0, true)
 
 
 # ── The region screen ────────────────────────────────────────
