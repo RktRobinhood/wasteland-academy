@@ -103,6 +103,7 @@ var title: Label
 var quit_button: Button
 ## The region's backdrop (FAL-470), hidden while it has none.
 var backdrop: TextureRect
+var arena_art: TextureRect
 ## The scene's frame: the strip, the enemy's overlay, and the portrait when no strip shows.
 var scene_box: Control
 var strip: Control
@@ -276,7 +277,10 @@ func start_run() -> void:
 	apply_settings()
 	summary_box.visible = false
 	floor_box.visible = false
-	UiTheme.show_backdrop(backdrop, _backdrop())
+	var painting := _backdrop()
+	UiTheme.show_backdrop(backdrop, painting)
+	UiTheme.show_backdrop(arena_art, painting)
+	_sync_scene_art()
 	quit_button.visible = true
 	card_frame.visible = true
 	scroll.visible = true
@@ -511,6 +515,11 @@ func _scene() -> Control:
 	back.set_anchors_preset(Control.PRESET_FULL_RECT)
 	back.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	scene_box.add_child(back)
+	# A standing opponent should still be in a real place. The same authored
+	# region painting fills the arena when a moving Journey strip is not used.
+	arena_art = UiTheme.backdrop(0.28)
+	arena_art.name = "ArenaArt"
+	scene_box.add_child(arena_art)
 	enemy_art = TextureRect.new()
 	enemy_art.name = "EnemyArt"
 	enemy_art.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -522,11 +531,16 @@ func _scene() -> Control:
 	strip.name = "JourneyStrip"
 	strip.custom_minimum_size = Vector2.ZERO
 	strip.set_anchors_preset(Control.PRESET_FULL_RECT)
-	strip.visibility_changed.connect(func(): enemy_art.visible = not strip.visible)
+	strip.visibility_changed.connect(_sync_scene_art)
 	scene_box.add_child(strip)
 	scene_box.add_child(_enemy_tag())
 	scene_box.add_child(_progress_tag())
 	return scene_box
+
+
+func _sync_scene_art() -> void:
+	enemy_art.visible = not strip.visible
+	arena_art.visible = enemy_art.visible and arena_art.texture != null
 
 
 ## The enemy's name and HP, small, in the scene's top-right corner.

@@ -26,7 +26,7 @@ const TAP = {
   courseContinue: [195, 805], // pinned course-picker footer
   scrapFields: [86, 325],
   sequences: [74, 538],
-  startRun: [195, 414],
+  startRun: [195, 226], // region entry actions now precede the progress summary
   skipCards: [188, 293],
   keyMinus: [294, 599],
   keyOne: [46, 557],

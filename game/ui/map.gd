@@ -26,7 +26,7 @@ extends Control
 ##   card and lights the place, and a second tap on the place or the card goes in.
 ## - Going in zooms the board into the place (ZOOM_TIME), then the next layer fades in;
 ##   going back zooms out. With reduced motion (reduced_motion()) it cuts.
-## - The region screen sits over the region's backdrop, washed (REGION_WASH) so its text
+## - The region screen sits over the region's backdrop, with a fitted scrim so its text
 ##   keeps 4.5:1. It shows accuracy, best floor, coverage and the 3 weakest skills
 ##   (Progress), and starts a run on floor 1 or after a beaten boss, or opens Practice.
 ##
@@ -75,7 +75,6 @@ const HEADER := 190.0
 const TITLE_SIZE := 84
 const TITLE_MIN := 40
 const COLUMN := 1000
-const COLUMN_WIDE := 1500
 ## A place's button on the island board, a square in board units round its point, and
 ## the Relic device's. A painted place fills about this square.
 const HIT := 300.0
@@ -90,9 +89,8 @@ const CARD_LEAST := 300.0
 const ZOOM := 2.6
 const ZOOM_TIME := 0.4
 const FADE_TIME := 0.25
-## The wash of the background colour over a region's backdrop: the dimmest text on the
-## region screen keeps 4.5:1 over every backdrop in assets/regions/ (FAL-790).
-const REGION_WASH := 0.7
+## Base wash; the responsive scrim carries the stronger page contrast.
+const REGION_WASH := 0.12
 
 ## The five islands, where each sits on the overworld (centre and size, in % of the
 ## board) and its pin (a point, in %), measured from the art on FAL-986 (zones.json). Where
@@ -198,6 +196,9 @@ var island: Control
 var island_board: Control
 var region_view: Control
 var region_backdrop: TextureRect
+var region_shade: TextureRect
+var _region_wide := false
+var _shades: Array[GradientTexture2D] = []
 var region_margin: MarginContainer
 var region_col: VBoxContainer
 var region_gap: Control
@@ -467,6 +468,12 @@ func _build() -> void:
 	region_view = _layer("Region")
 	region_backdrop = UiTheme.backdrop(REGION_WASH)
 	region_view.add_child(region_backdrop)
+	region_shade = TextureRect.new()
+	region_shade.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	region_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	region_view.add_child(region_shade)
+	region_shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_shades.assign([_region_scrim(false), _region_scrim(true)])
 	region_margin = MarginContainer.new()
 	region_margin.name = "Margin"
 	region_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -635,19 +642,44 @@ func _fit(refresh_assets := true) -> void:
 		_rebuild_framed_controls(world_board)
 	elif refresh_assets and had_frame and screen == "island" and was_wide_island != _wide_island and island_board.has_node("Card"):
 		_rebuild_framed_controls(island_board)
-	var side := maxf(36.0, (area.x - (COLUMN_WIDE if area.x > area.y else COLUMN)) / 2.0)
 	for m in _headers:
 		m.add_theme_constant_override("margin_left", 36)
 		m.add_theme_constant_override("margin_right", 0)
 		m.add_theme_constant_override("margin_top", 30)
 		(m.get_child(0).get_node("HudGap") as Control).custom_minimum_size.x = AudioHud.RESERVED_RIGHT
-	_side = side
+	# Reserve most of the landscape for the region painting; on portrait keep
+	# the readable vertically scrolling flow, with the action near the top.
+	_region_wide = area.x >= 2100.0 and area.x / area.y >= 1.15
+	_side = clampf(area.x * 0.052, 68.0, 164.0) if _region_wide else maxf(36.0, (area.x - COLUMN) / 2.0)
+	var right := area.x - _side - clampf(area.x * 0.45, 1150.0, 1380.0) if _region_wide else _side
 	if is_instance_valid(region_gap):
-		region_gap.custom_minimum_size.x = maxf(0.0, AudioHud.RESERVED_RIGHT - side)
-	region_margin.add_theme_constant_override("margin_left", int(side))
-	region_margin.add_theme_constant_override("margin_right", int(side))
-	region_margin.add_theme_constant_override("margin_top", 40)
+		region_gap.custom_minimum_size.x = _region_hud_gap()
+	region_margin.add_theme_constant_override("margin_left", int(_side))
+	region_margin.add_theme_constant_override("margin_right", int(right))
+	region_margin.add_theme_constant_override("margin_top", 72 if _region_wide else 40)
 	region_margin.add_theme_constant_override("margin_bottom", 30)
+	region_shade.texture = _shades[int(_region_wide)]
+
+
+func _region_hud_gap() -> float:
+	return 0.0 if _region_wide else maxf(0.0, AudioHud.RESERVED_RIGHT - _side)
+
+
+static func _region_scrim(wide: bool) -> GradientTexture2D:
+	# Judgement and copy sit against the matte tint, while the unoccupied side
+	# shows the region as a place, instead of shading the whole image equally.
+	var stops := Gradient.new()
+	stops.offsets = PackedFloat32Array([0.0, 0.61, 0.74, 1.0] if wide else [0.0, 0.36, 0.61, 1.0])
+	var ink := Color(0.075, 0.092, 0.13)
+	stops.colors = PackedColorArray([
+		Color(ink, 0.94), Color(ink, 0.91), Color(ink, 0.26 if wide else 0.88), Color(ink, 0.09 if wide else 0.88),
+	])
+	var fade := GradientTexture2D.new()
+	fade.gradient = stops
+	fade.width = 256 if wide else 2
+	fade.height = 2 if wide else 256
+	fade.fill_to = Vector2(1.0, 0.0) if wide else Vector2(0.0, 1.0)
+	return fade
 
 
 ## Preserve the selected destination and card when its responsive geometry changes.
@@ -1460,7 +1492,7 @@ func _fill_region() -> void:
 	region_gap = Control.new()
 	region_gap.name = "HudGap"
 	region_gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	region_gap.custom_minimum_size.x = maxf(0.0, AudioHud.RESERVED_RIGHT - _side)
+	region_gap.custom_minimum_size.x = _region_hud_gap()
 	head.add_child(region_gap)
 	region_col.add_child(head)
 	region_col.add_child(_course_row())
@@ -1480,9 +1512,6 @@ func _fill_region() -> void:
 		save.settings.exam_only = on
 		SaveData.store(save, save_path)
 		_fill_region()))
-
-	region_col.add_child(_stats_panel(id))
-	region_col.add_child(_weak_panel(id))
 
 	if can_start(id, Courses.of(save)):
 		var buttons := VBoxContainer.new()
@@ -1510,6 +1539,9 @@ func _fill_region() -> void:
 		(buttons.get_child(0) as Button).grab_focus.call_deferred()
 	else:
 		back.grab_focus.call_deferred()
+
+	region_col.add_child(_stats_panel(id))
+	region_col.add_child(_weak_panel(id))
 
 
 func _stats_panel(id: String) -> Control:
