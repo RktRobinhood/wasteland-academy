@@ -1625,3 +1625,36 @@ func test_overworld_art_lights_hold_registered_anchors_and_leave_input_alone() -
 			check(pool.material == light.material, "shared blend, no post processing")
 		check(map.world_board.get_node("Island_calculus").get_node_or_null("Pin") == null)
 		_done(made)
+
+
+func test_living_zone_lamps_keep_the_source_fixed_at_both_layouts() -> void:
+	for zone in ["algebra", "functions", "geometry", "stats", "calculus"]:
+		for size_px in [Vector2i(390, 844), Vector2i(1440, 900)]:
+			var made := await _map({"screen": "island", "island": zone}, {}, _area(size_px))
+			var map: Control = made[1]
+			var light: TextureRect = map._island_light
+			var spill: Polygon2D = map._island_spill
+			check(is_instance_valid(light) and is_instance_valid(spill), "each painting has one authored source")
+			var frame: Rect2 = map._map_frames[map.island_board]
+			var wide: bool = map._wide_island
+			var entry: Array = map.ZONE_LIGHTS[zone]
+			var anchor: Vector2 = (map.WIDE_FRAME.position if wide else Vector2.ZERO) + entry[2 if wide else 1] - frame.position
+			check_eq(light.position + light.size * 0.5, anchor)
+			check_eq(spill.position, anchor)
+			check_eq(light.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+			check(light.material == map._world_lights[0].material, "a shared runtime light")
+			map._light_elapsed = 0.0
+			map._update_world_light(0.0)
+			var angle_before := spill.rotation
+			var alpha_before := spill.self_modulate.a
+			for tick in 80:
+				map._update_world_light(0.1)
+			check_eq(light.position + light.size * 0.5, anchor, "the emitter stays on the paint")
+			check_eq(spill.position, anchor)
+			if zone == "functions":
+				check(absf(spill.rotation - angle_before) > 0.1, "signal sweeps over the ground")
+			elif zone == "calculus":
+				check(absf(spill.self_modulate.a - alpha_before) > 0.001, "furnace light moves the exposure")
+			elif zone == "stats":
+				check(is_equal_approx(spill.self_modulate.a, alpha_before), "the relay remains a steady doorway")
+			_done(made)

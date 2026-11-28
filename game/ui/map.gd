@@ -224,6 +224,11 @@ var _quiet := false
 var scene_light := WorldLight.SceneGrade.new()
 var _world_lights: Array[TextureRect] = []
 var _world_spills: Array[Polygon2D] = []
+var _island_light: TextureRect
+var _island_spill: Polygon2D
+var _island_light_entry: Array = []
+var _fixture_blend: CanvasItemMaterial
+var _fixture_falloff: GradientTexture2D
 var _world_ambient: AmbientLayer
 var _light_elapsed := 0.0
 var _zone_ambient: AmbientLayer
@@ -231,19 +236,29 @@ var _zone_ambient: AmbientLayer
 # One legend-free light per painted source, registered separately on portrait
 # and landscape. The size is a native-art ellipse, not a marker or hit area.
 # id, portrait position, landscape position, portrait spread, wide spread,
-# source colour, max alpha, breathing seconds (0 = steady), portrait and wide
+# source colour, max alpha, motion style (empty = steady), portrait and wide
 # receiving-surface extent. Asymmetric footprints only cover the visible ground.
 const WORLD_LIGHTS := [
-	["Furnace", Vector2(551, 1196), Vector2(963, 837), Vector2(153, 105), Vector2(160, 120), Color(1, 0.58, 0.18), 0.66, 0.0, Vector2(255, 188), Vector2(263, 204)],
-	["LavaLeft", Vector2(459, 1201), Vector2(803, 948), Vector2(132, 37), Vector2(143, 52), Color(1, 0.37, 0.10), 0.65, 7.4, Vector2(212, 122), Vector2(194, 94)],
-	["LavaRight", Vector2(615, 1166), Vector2(1167, 840), Vector2(97, 51), Vector2(154, 68), Color(1, 0.41, 0.11), 0.54, 9.1, Vector2(186, 132), Vector2(192, 126)],
-	["ScrapGate", Vector2(248, 572), Vector2(640, 307), Vector2(95, 53), Vector2(151, 63), Color(1, 0.72, 0.31), 0.45, 0.0, Vector2(154, 117), Vector2(194, 113)],
-	["SignalBase", Vector2(922, 526), Vector2(1337, 266), Vector2(82, 75), Vector2(111, 108), Color(0.17, 0.77, 1), 0.45, 0.0, Vector2(150, 116), Vector2(144, 92)],
-	["RadioDoors", Vector2(898, 852), Vector2(1618, 574), Vector2(120, 93), Vector2(144, 111), Color(0.38, 0.40, 1), 0.53, 0.0, Vector2(180, 114), Vector2(211, 112)],
-	["BazaarLanterns", Vector2(234, 1352), Vector2(358, 842), Vector2(192, 63), Vector2(320, 82), Color(1, 0.69, 0.31), 0.45, 0.0, Vector2(273, 130), Vector2(333, 151)],
-	["DomeGate", Vector2(540, 849), Vector2(980, 566), Vector2(112, 56), Vector2(145, 71), Color(1, 0.59, 0.19), 0.32, 0.0, Vector2(154, 107), Vector2(193, 123)],
-	["RelicThreshold", Vector2(872, 1400), Vector2(1650, 891), Vector2(79, 67), Vector2(98, 60), Color(0.69, 0.77, 1), 0.28, 0.0, Vector2(133, 135), Vector2(143, 117)],
+	["Furnace", Vector2(551, 1196), Vector2(963, 837), Vector2(153, 105), Vector2(160, 120), Color(1, 0.58, 0.18), 0.66, "heat", Vector2(255, 188), Vector2(263, 204)],
+	["LavaLeft", Vector2(459, 1201), Vector2(803, 948), Vector2(132, 37), Vector2(143, 52), Color(1, 0.37, 0.10), 0.65, "heat", Vector2(212, 122), Vector2(194, 94)],
+	["LavaRight", Vector2(615, 1166), Vector2(1167, 840), Vector2(97, 51), Vector2(154, 68), Color(1, 0.41, 0.11), 0.54, "heat", Vector2(186, 132), Vector2(192, 126)],
+	["ScrapGate", Vector2(248, 572), Vector2(640, 307), Vector2(95, 53), Vector2(151, 63), Color(1, 0.72, 0.31), 0.45, "", Vector2(154, 117), Vector2(194, 113)],
+	["SignalBase", Vector2(922, 526), Vector2(1337, 266), Vector2(82, 75), Vector2(111, 108), Color(0.17, 0.77, 1), 0.45, "search", Vector2(150, 116), Vector2(144, 92)],
+	["RadioDoors", Vector2(898, 852), Vector2(1618, 574), Vector2(120, 93), Vector2(144, 111), Color(0.38, 0.40, 1), 0.53, "", Vector2(180, 114), Vector2(211, 112)],
+	["BazaarLanterns", Vector2(234, 1352), Vector2(358, 842), Vector2(192, 63), Vector2(320, 82), Color(1, 0.69, 0.31), 0.45, "lantern", Vector2(273, 130), Vector2(333, 151)],
+	["DomeGate", Vector2(540, 849), Vector2(980, 566), Vector2(112, 56), Vector2(145, 71), Color(1, 0.59, 0.19), 0.32, "", Vector2(154, 107), Vector2(193, 123)],
+	["RelicThreshold", Vector2(872, 1400), Vector2(1650, 891), Vector2(79, 67), Vector2(98, 60), Color(0.69, 0.77, 1), 0.28, "", Vector2(133, 135), Vector2(143, 117)],
 ]
+
+# Each anchor lands on the painted emitter in both layouts. Never reuse a
+# location's prompt/hit rectangle as an art coordinate.
+const ZONE_LIGHTS := {
+	"algebra": ["YardWeld", Vector2(526, 956), Vector2(945, 485), Vector2(90, 55), Vector2(120, 76), Color(1.0, 0.77, 0.45), 0.47, "heat", Vector2(175, 119), Vector2(201, 133)],
+	"functions": ["TowerLamp", Vector2(543, 898), Vector2(975, 561), Vector2(86, 76), Vector2(104, 97), Color(0.19, 0.77, 1.0), 0.56, "search", Vector2(171, 142), Vector2(209, 151)],
+	"geometry": ["SaltArch", Vector2(532, 974), Vector2(975, 512), Vector2(79, 57), Vector2(109, 69), Color(1.0, 0.38, 0.18), 0.31, "lantern", Vector2(129, 123), Vector2(143, 117)],
+	"stats": ["RelayDoor", Vector2(526, 1099), Vector2(935, 679), Vector2(89, 66), Vector2(129, 83), Color(0.50, 0.45, 1.0), 0.40, "", Vector2(168, 106), Vector2(175, 109)],
+	"calculus": ["EngineGlow", Vector2(548, 1063), Vector2(955, 600), Vector2(178, 96), Vector2(187, 129), Color(1.0, 0.59, 0.17), 0.59, "heat", Vector2(254, 165), Vector2(268, 161)],
+}
 
 # Source-facing edge is short. The fan opens across the ground with an
 # inner shoulder and a soft zero-alpha boundary; it cannot glow behind walls.
@@ -289,20 +304,50 @@ func _update_world_light(delta: float) -> void:
 	region_backdrop.self_modulate = scene_light.grade
 	if is_instance_valid(_zone_ambient) and _zone_ambient.is_visible_in_tree():
 		_zone_ambient.modulate = scene_light.grade
-	if not world.is_visible_in_tree():
-		return
-	_light_elapsed += delta
-	for i in _world_lights.size():
-		var entry: Array = WORLD_LIGHTS[i]
-		var period: float = entry[7]
-		var pulse := 1.0
-		if period > 0.0 and not _world_ambient.reduced_motion:
-			pulse = 0.94 + 0.06 * sin(_light_elapsed * TAU / period + i)
-		var colour: Color = entry[5]
-		colour.a = float(entry[6]) * scene_light.local_light * pulse
-		_world_lights[i].self_modulate = colour
-		colour.a *= 0.68
-		_world_spills[i].self_modulate = colour
+	var motion_allowed := not _world_ambient.reduced_motion
+	if motion_allowed and (world.is_visible_in_tree() or island.is_visible_in_tree()):
+		_light_elapsed += minf(delta, 0.10)
+	if world.is_visible_in_tree():
+		for i in _world_lights.size():
+			_animate_fixture(_world_lights[i], _world_spills[i], WORLD_LIGHTS[i], float(i) * 0.78, motion_allowed)
+	elif island.is_visible_in_tree() and is_instance_valid(_island_light):
+		_animate_fixture(_island_light, _island_spill, _island_light_entry, 0.57, motion_allowed)
+
+
+func _animate_fixture(light: TextureRect, spill: Polygon2D, entry: Array, phase: float, move: bool) -> void:
+	var motion := WorldLight.fixture_motion(entry[7], _light_elapsed, phase) if move else Vector2(1.0, 0.0)
+	var colour: Color = entry[5]
+	colour.a = float(entry[6]) * scene_light.local_light * motion.x
+	light.self_modulate = colour
+	colour.a *= 0.68
+	spill.self_modulate = colour
+	spill.rotation = motion.y
+
+
+func _add_fixture(art: TextureRect, entry: Array) -> Array:
+	var pool := _new_spill(_fixture_blend)
+	pool.name = String(entry[0]) + "Spill"
+	pool.self_modulate.a = 0.0
+	art.add_child(pool)
+	var core := TextureRect.new()
+	core.name = entry[0]
+	core.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	core.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	core.texture = _fixture_falloff
+	core.material = _fixture_blend
+	core.self_modulate.a = 0.0
+	art.add_child(core)
+	return [core, pool]
+
+
+func _fit_fixture(light: TextureRect, spill: Polygon2D, entry: Array, frame: Rect2, wide: bool) -> void:
+	var anchor: Vector2 = entry[2] if wide else entry[1]
+	var spread: Vector2 = entry[4] if wide else entry[3]
+	var source_pos := (WIDE_FRAME.position if wide else Vector2.ZERO) + anchor - frame.position
+	light.size = spread
+	light.position = source_pos - spread * 0.5
+	spill.position = source_pos
+	spill.scale = entry[9] if wide else entry[8]
 
 
 func _process(delta: float) -> void:
@@ -510,18 +555,8 @@ func _frame_painting(board: Control) -> void:
 	art.position = frame.position
 	art.size = frame.size
 	if on_world:
-		var source_frame := WIDE_FRAME if wide else Rect2(Vector2.ZERO, BOARD)
 		for i in _world_lights.size():
-			var light := _world_lights[i]
-			var entry: Array = WORLD_LIGHTS[i]
-			var at: Vector2 = entry[2] if wide else entry[1]
-			var spread: Vector2 = entry[4] if wide else entry[3]
-			light.size = spread
-			var source_pos := source_frame.position + at - frame.position
-			light.position = source_pos - spread * 0.5
-			var spill := _world_spills[i]
-			spill.position = source_pos
-			spill.scale = entry[9] if wide else entry[8]
+			_fit_fixture(_world_lights[i], _world_spills[i], WORLD_LIGHTS[i], frame, wide)
 		var ambient := board.get_node("Ambient") as AmbientLayer
 		var key := "map_wide" if wide else "map"
 		if ambient.get_meta("layout", "map") != key:
@@ -529,6 +564,8 @@ func _frame_painting(board: Control) -> void:
 			ambient.position = WIDE_FRAME.position if wide else Vector2.ZERO
 			ambient.size = WIDE_FRAME.size if wide else BOARD
 			ambient.build(AmbientLayer.entries(AMBIENT, key))
+	elif is_instance_valid(_island_light):
+		_fit_fixture(_island_light, _island_spill, _island_light_entry, frame, wide)
 
 
 # ── Building ─────────────────────────────────────────────────
@@ -550,24 +587,13 @@ func _build() -> void:
 	art.size = BOARD
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	world_board.add_child(art)
-	var falloff := WorldLight.radial_falloff()
-	var blend := CanvasItemMaterial.new()
-	blend.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	_fixture_falloff = WorldLight.radial_falloff()
+	_fixture_blend = CanvasItemMaterial.new()
+	_fixture_blend.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 	for entry in WORLD_LIGHTS:
-		var pool := _new_spill(blend)
-		pool.name = String(entry[0]) + "Spill"
-		pool.self_modulate.a = 0.0
-		art.add_child(pool)
-		_world_spills.append(pool)
-		var light := TextureRect.new()
-		light.name = entry[0]
-		light.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		light.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		light.texture = falloff
-		light.material = blend
-		light.self_modulate.a = 0.0
-		art.add_child(light)
-		_world_lights.append(light)
+		var fixtures := _add_fixture(art, entry)
+		_world_lights.append(fixtures[0])
+		_world_spills.append(fixtures[1])
 	# Over the painting, under the zone buttons and pins; it takes no taps.
 	var ambient := AmbientLayer.new()
 	ambient.name = "Ambient"
@@ -1307,6 +1333,9 @@ static func zone_ambient_key(id: String, wide: bool) -> String:
 func _fill_island() -> void:
 	_clear(island_board)
 	_zone_ambient = null
+	_island_light = null
+	_island_spill = null
+	_island_light_entry.clear()
 	var info := island_info(route.island)
 	var title := island.get_node("Header").get_child(0).get_node("Title") as Label
 	title.text = info.name
@@ -1323,6 +1352,11 @@ func _fill_island() -> void:
 		art.size = BOARD
 		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		island_board.add_child(art)
+		if art_dir == "" and ZONE_LIGHTS.has(route.island):
+			_island_light_entry = ZONE_LIGHTS[route.island].duplicate()
+			var fixtures := _add_fixture(art, _island_light_entry)
+			_island_light = fixtures[0]
+			_island_spill = fixtures[1]
 		_frame_painting(island_board)
 		# A fixture or future fallback has no authored registration.
 		if art_dir == "":
