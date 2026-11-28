@@ -90,6 +90,12 @@ static func encounter(run_seed: int, fight: int, tier: int, roster: Dictionary, 
 		kind = "puzzle" if kind == "explore" else "explore"
 		props = roster.get(kind, [])
 	if props.is_empty():
+		# A region can ship scenery before its own jobs. Keep the real question
+		# encounter visible with its existing shared enemy, not an invented job.
+		if enemies.has(tier):
+			e.kind = "fight"
+			e.group = [enemies[tier]]
+			e.hits = [questions]
 		return e
 	e.kind = kind
 	e.prop = rng.pick(props)

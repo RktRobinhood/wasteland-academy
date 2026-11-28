@@ -1,0 +1,7 @@
+{
+  "region": "engine-core",
+  "layers": {
+    "far": { "image": "far-night.webp", "day_image": "far-day.webp", "w": 596, "h": 256, "scroll": 0.15 },
+    "near": { "image": "near-night.webp", "day_image": "near-day.webp", "w": 896, "h": 98, "scroll": 1.0, "feet_y": 15 }
+  }
+}
