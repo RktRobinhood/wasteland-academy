@@ -4,6 +4,7 @@ extends RefCounted
 ## decides which toys exist; this is where a built one is registered.
 
 const IDS := {
+	"signal-bench": preload("res://ui/toys/signal_bench.gd"),
 	"relay": preload("res://ui/toys/relay_toy.gd"),
 }
 

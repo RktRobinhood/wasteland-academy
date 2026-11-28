@@ -105,3 +105,18 @@ the map.
 Actions for `perform`: `{"send": n}` turns the dial to `n` and throws the switch;
 `{"dial": n}` only turns it. By hand: the − and + keys, a tap on either half of the dial,
 a drag along it (one step per 70 units), the arrow keys, and the switch.
+
+## Signal bench prototype
+
+Open the opt-in toy route with `?toy=signal-bench` (native: `-- --toy=signal-bench`)
+for free exploration, a guided reference and a second channel. It uses the same
+`LessonToy` contract as the relay, with no modifications to `LessonPlayer`.
+This is a prototype, not a published curriculum lesson.
+
+Two separate sliders change the same live model, y = A sin(2πt / T). Amplitude
+changes the distance from centre to peak; the period changes horizontal spacing.
+The dotted reference is a different shape on the same scale. Moving a control never
+marks a guess; only **Test transmission** does. Both parameters must match, and the
+next attempt can use an explicit hint without revealing the settings. Zero amplitude
+is useful for exploration, but is not allowed as a reference: a flat trace has no
+unique period. Preserve the fixed axes and visible + text feedback in production.

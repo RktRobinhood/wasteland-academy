@@ -15,6 +15,13 @@ const TASKS := [
 ## The relay is Rook's toy, so his set reacts.
 const TUTOR := "rook-dead-air"
 
+const SIGNAL_TASKS := [
+	["Explore dials", {"kind": "free"}],
+	["Match training signal", {"kind": "match", "amplitude": 2.5, "period": 6.0}],
+	["New channel", {"kind": "match", "amplitude": 1.5, "period": 5.0}],
+]
+
+var signal_bench := false
 var toy: LessonToy
 var holder: Control
 var caption: Label
@@ -39,10 +46,11 @@ func _ready() -> void:
 	col.add_theme_constant_override("separation", 20)
 	add_child(col)
 	var tasks := HFlowContainer.new()
+	signal_bench = str(preload("res://ui/practice.gd").url_args().get("toy", "")) == "signal-bench"
 	tasks.name = "Tasks"
 	tasks.add_theme_constant_override("h_separation", 14)
 	tasks.add_theme_constant_override("v_separation", 14)
-	for t in TASKS:
+	for t in (SIGNAL_TASKS if signal_bench else TASKS):
 		var b := Button.new()
 		b.text = t[0]
 		b.name = t[0].replace(" ", "")
@@ -55,7 +63,10 @@ func _ready() -> void:
 	radio.toggled.connect(func(on: bool) -> void:
 		broken = on
 		build())
-	tasks.add_child(radio)
+	if not signal_bench:
+		tasks.add_child(radio)
+	else:
+		radio.free()
 	var close := Button.new()
 	close.text = "Close"
 	close.pressed.connect(func() -> void: get_tree().change_scene_to_file.call_deferred(MAIN))
@@ -83,7 +94,7 @@ func _ready() -> void:
 func build() -> void:
 	if toy != null:
 		toy.queue_free()
-	var item := ITEM.duplicate()
+	var item: Dictionary = {"toy": "signal-bench"} if signal_bench else ITEM.duplicate()
 	if broken:
 		item.broken = BROKEN
 	toy = Toys.make(item)
@@ -92,7 +103,8 @@ func build() -> void:
 	toy.task_done.connect(func(_r: Dictionary) -> void: caption.text = "Task met. Pick another.")
 	holder.add_child(toy)
 	var arg := str(preload("res://ui/practice.gd").url_args().get("task", ""))
-	give(TASKS[clampi(int(arg), 0, TASKS.size() - 1)][1] if arg != "" else TASKS[0][1])
+	var modes := SIGNAL_TASKS if signal_bench else TASKS
+	give(modes[clampi(int(arg), 0, modes.size() - 1)][1] if arg != "" else modes[0][1])
 
 
 func give(t: Dictionary) -> void:
