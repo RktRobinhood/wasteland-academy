@@ -9,6 +9,14 @@
       "worked": "example-1",
       "practice": "turn-1",
       "practice_mode": "authored-twin",
+      "activity": {
+        "kind": "relay",
+        "title": "Signal Tower · Training relay",
+        "waiting": "Awaiting output",
+        "retry": "Static · try again",
+        "sent": "Signal transmitted",
+        "coached": "Practice signal · working shown"
+      },
       "courses": ["aa-sl", "aa-hl", "ai-sl", "ai-hl"]
     }
   ]
