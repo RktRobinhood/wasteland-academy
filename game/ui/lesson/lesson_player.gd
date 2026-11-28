@@ -123,7 +123,7 @@ func _init() -> void:
 # An archive may attach an in-world prop to the same marked turn.
 var activity: Dictionary = {}
 var _activity_status: Label
-var _activity_signal: RelaySignal
+var _activity_signal: ActivitySignal
 
 func _ready() -> void:
 	theme = UiTheme.make()
@@ -1157,12 +1157,13 @@ func _turn_done(t: Dictionary, fb: Dictionary, engine: bool, q: Dictionary, righ
 ## What happened in the world, in the caption's place: teal when the signal goes out,
 ## rust for static or a sparked tile. The next line's caption puts the colour back.
 func _mount_activity() -> void:
-	if activity.get("kind") != "relay":
+	if str(activity.get("kind", "")) not in ["relay", "track"]:
 		return
 	var rail := HBoxContainer.new()
 	rail.name = "RelicActivity"
 	rail.add_theme_constant_override("separation", 20)
-	_activity_signal = RelaySignal.new()
+	_activity_signal = ActivitySignal.new()
+	_activity_signal.kind = str(activity.kind)
 	rail.add_child(_activity_signal)
 	var labels := VBoxContainer.new()
 	labels.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1186,7 +1187,8 @@ func _activity_state(next: String, ink: Color) -> void:
 	_activity_signal.show_state(next, ink)
 
 
-class RelaySignal extends Control:
+class ActivitySignal extends Control:
+	var kind := ""
 	var phase := ""
 	var ink := Explainer.DUST
 
@@ -1201,6 +1203,9 @@ class RelaySignal extends Control:
 
 	func _draw() -> void:
 		var y := size.y * 0.5
+		if kind == "track":
+			_draw_track(y)
+			return
 		var left := Vector2(16, y)
 		var relay := Vector2(65, y)
 		var mast := Vector2(124, y)
@@ -1216,6 +1221,25 @@ class RelaySignal extends Control:
 			draw_arc(mast, 24.0, -0.75, 0.75, 14, ink, 3.0, true)
 		elif phase == "retry":
 			draw_polyline(PackedVector2Array([relay + Vector2(-8, 5), relay + Vector2(-2, -5), relay + Vector2(3, 4), relay + Vector2(8, -5)]), ink, 2.0, true)
+
+	func _draw_track(y: float) -> void:
+		draw_rect(Rect2(0, y - 28, 155, 56), Explainer.SLATE_DEEP)
+		var start := Vector2(74, y + 22)
+		# This panel is a symbol, not a measurement grid; the maths board owns the inputs.
+		var corner := Vector2(108, y + 22)
+		var end := Vector2(108, y - 23)
+		var route := Explainer.IRON_GLOSS if phase == "waiting" else ink
+		draw_line(Vector2(18, y + 22), Vector2(140, y + 22), Explainer.IRON, 2.0, true)
+		draw_line(start, end, route, 4.0, true)
+		draw_circle(start, 4.0, route, true, -1.0, true)
+		draw_circle(end, 4.0, route, true, -1.0, true)
+		if phase == "sent" or phase == "coached":
+			draw_dashed_line(start, corner, route, 2.0, 4.0, true, true)
+			draw_dashed_line(corner, end, route, 2.0, 4.0, true, true)
+		elif phase == "retry":
+			var mark := Vector2(130, y - 10)
+			draw_line(mark - Vector2(5, 5), mark + Vector2(5, 5), ink, 2.0, true)
+			draw_line(mark + Vector2(-5, 5), mark + Vector2(5, -5), ink, 2.0, true)
 
 
 func _show_banner(text: String, good: bool) -> void:

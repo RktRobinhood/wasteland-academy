@@ -40,7 +40,7 @@ test('release catalog requires a real worked example and an exact course-fit twi
   const sources = build();
   const original = JSON.parse(sources['archive.json']);
   assert.doesNotThrow(() => checkArchive(sources));
-  assert.equal(original.entries.length, 1, 'rollout is explicit, not every shipped draft');
+  assert.deepEqual(original.entries.map(e => e.lesson), ['ex.functions.function-machine', 'ex.functions.gradient'], 'rollout is explicit, not every shipped draft');
   const invalid = fields => ({ ...sources, 'archive.json': JSON.stringify({ ...original, entries: [
     { ...original.entries[0], ...fields },
   ] }) });

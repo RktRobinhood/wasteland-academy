@@ -226,11 +226,11 @@
         {
           "line": "xpl5zn",
           "speaker": "rook-dead-air",
-          "say": "On paper. Step one: what we're finding. m, the gradient of the line through A and B.",
+          "say": "The Signal Tower crew needs the gradient of an access track. A and B mark two points on it. We'll find m, the change in height for each step across.",
           "clear": true,
           "board": [
             {
-              "write": "Find m, the gradient of the line through A(2, 3) and B(6, 11).",
+              "write": "Access track: find the gradient m through A(2, 3) and B(6, 11).",
               "kind": "heading",
               "label": "Step 1: what are we finding?"
             }
@@ -364,7 +364,7 @@
           }
         ],
         "fallback": {
-          "setup": "Find the gradient of the line through P(1, 4) and Q(4, 19).",
+          "setup": "A second access track runs through P(1, 4) and Q(4, 19). Find its gradient.",
           "parts": [
             {
               "text": "Find the gradient of PQ.",
@@ -383,7 +383,7 @@
           {
             "line": "hoapei",
             "speaker": "rook-dead-air",
-            "say": "Givens, formula, values, and the sign checked. Copy that."
+            "say": "Correct. The track rises five for each step across. Copy that."
           },
           {
             "line": "dnl038",

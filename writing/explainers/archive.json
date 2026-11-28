@@ -17,7 +17,35 @@
         "sent": "Signal transmitted",
         "coached": "Practice signal · working shown"
       },
-      "courses": ["aa-sl", "aa-hl", "ai-sl", "ai-hl"]
+      "courses": [
+        "aa-sl",
+        "aa-hl",
+        "ai-sl",
+        "ai-hl"
+      ]
+    },
+    {
+      "lesson": "ex.functions.gradient",
+      "title": "Gradient from two points",
+      "zone": "Signal Tower",
+      "prompt": "Check the slope of an access track.",
+      "worked": "example-1",
+      "practice": "turn-1",
+      "practice_mode": "authored-twin",
+      "activity": {
+        "kind": "track",
+        "title": "Signal Tower · Track survey",
+        "waiting": "Awaiting track check",
+        "retry": "Track not rated · recheck rise over run",
+        "sent": "Track rated · gradient confirmed",
+        "coached": "Track surveyed · working shown"
+      },
+      "courses": [
+        "aa-sl",
+        "aa-hl",
+        "ai-sl",
+        "ai-hl"
+      ]
     }
   ]
 }

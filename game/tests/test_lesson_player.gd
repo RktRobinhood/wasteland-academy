@@ -474,3 +474,52 @@ func test_opt_in_preview_reuses_two_separate_parts_and_verified_recordings() -> 
 	check_eq(SaveData.load_from(), snapshot, "native preview leaves the save unchanged")
 	frame.free()
 	Input.emulate_touch_from_mouse = false
+
+
+
+func test_archive_gradient_matches_the_track_to_the_students_answer() -> void:
+	var frame := _phone()
+	var scene := load("res://scenes/lesson.tscn") as PackedScene
+	var screen := scene.instantiate()
+	var script: GDScript = screen.get_script()
+	script.open_preview = true
+	frame.add_child(screen)
+	await _settle()
+	var index := -1
+	for i: int in screen.entries.size():
+		if screen.entries[i].lesson == "ex.functions.gradient":
+			index = i
+			break
+	check(index >= 0, "the reviewed gradient pair is in the archive")
+	if index < 0:
+		frame.queue_free()
+		return
+	screen._select_entry(index)
+	await _tap(screen.watch_button)
+	var p: LessonPlayer = screen.player
+	p.paused = true
+	await _run(p, func(pl): return pl.state == "input")
+	check(p.board.any(func(row): return str(row.text).contains("11 − 3")), "Watch shows rise before dividing")
+	await _tap(p.actions.get_node("Choices/Choice0"))
+	check(await _run(p), "Watch completes after explaining rise over run")
+	check(p.board.any(func(row): return str(row.text).contains("m = 8/4 = 2")), "Watch reports the exact result")
+	p.close()
+	await _settle()
+	await _tap(screen.try_button)
+	p = screen.player
+	p.paused = true
+	await _run(p, func(pl): return pl.state == "input")
+	check(str(p.prompt.text).contains("P(1, 4)"), "Try uses a distinct authored problem")
+	var status := p.find_child("ActivityStatus", true, false) as Label
+	check(status != null and status.text == "Awaiting track check", "the track is not rated before an answer")
+	var entry = p.actions.get_node("Entry/Box")
+	entry.text = "0.2"
+	entry.text_submitted.emit("0.2")
+	await _run(p, func(pl): return pl.state == "input")
+	check(status != null and status.text == "Track not rated · recheck rise over run", "the reciprocal is rejected")
+	entry = p.actions.get_node("Entry/Box")
+	entry.text = "5"
+	entry.text_submitted.emit("5")
+	check(await _run(p), "the valid gradient completes the repair check")
+	check(status != null and status.text == "Track rated · gradient confirmed", "correct maths certifies the track")
+	frame.queue_free()
