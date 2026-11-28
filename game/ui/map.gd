@@ -8,9 +8,9 @@ extends Control
 ## - The world map is the overworld painting (FAL-981, FAL-986) with an invisible button
 ##   over each place: the five islands, all open since FAL-925, the Thunderdome (every
 ##   island mixed, a region screen of its own at #thunderdome), the Relic Library (FAL-325,
-##   optional worked examples) and the Bazaar (G6, ui/bazaar.gd). It reads as a
-##   fast-travel map (FAL-988): every place has a pin in its state's colour (a padlock when
-##   locked). Last travel location stays in the save, not on the painting. No roads.
+##   optional worked examples) and the Bazaar (G6, ui/bazaar.gd). The painted landmarks
+##   are the controls: no permanent dots, flags, padlocks or location marker. Its card
+##   reveals status on hover, focus or tap. Last travel location stays in the save.
 ##   The header shows the Scrap there is to spend. Between the painting and the buttons,
 ##   the ambient layer (FAL-1075, ui/ambient_layer.gd, pieces in AMBIENT) plays a crow,
 ##   the beacon, smoke, neon and dust; it takes no taps, and holds still with reduced motion.
@@ -770,7 +770,8 @@ func _world_zone(id: String, portrait: Rect2) -> Rect2:
 	return Rect2(wide_percent(z.position), z.size * WIDE_FRAME.size / BOARD)
 
 
-func _world_pin(id: String, portrait: Vector2) -> Vector2:
+## The painted detail used to audit hotspot registration; no sprite is placed here.
+func _world_landmark_anchor(id: String, portrait: Vector2) -> Vector2:
 	return wide_percent(WIDE_WORLD[id][1]) if _wide_world else portrait
 
 
@@ -1061,14 +1062,17 @@ func _fill_world() -> void:
 	var scrap := int(save.get("scrap", 0))
 	(world.get_node("Header").get_child(0).get_node("Scrap") as Label).text = "Scrap: %d" % scrap
 	for i in ISLANDS:
-		var open := island_open(i.id)
+		var state := world_state(i.id)
+		var open := state != "locked"
 		var b := _zone_button(world_board, "Island_" + i.id, _world_zone(i.id, i.zone))
 		b.disabled = not open
 		var to := {"screen": "island", "island": i.id}
-		_place(b, i.name, i.topic if open else "Coming soon", UiTheme.TEAL if open else UiTheme.DIM,
+		var line: String = i.topic if open else "Coming soon"
+		if state == "cleared":
+			line += " · Cleared"
+		_place(b, i.name, line, UiTheme.TEAL if open else UiTheme.DIM,
 			(func(): _go_from_world(i.id, _island_point(i.id), go.bind(to))) if open else Callable(),
 			"%s: %s" % [i.name, i.topic])
-		_landmark_pin(b, _world_pin(i.id, i.pin), world_state(i.id))
 	var td_zone := _world_zone("thunderdome", THUNDERDOME_ZONE)
 	var td := _zone_button(world_board, "Thunderdome", td_zone)
 	td.disabled = not thunderdome_open()
@@ -1076,11 +1080,9 @@ func _fill_world() -> void:
 	_place(td, "Thunderdome", "Locked" if td.disabled else "Questions from all over the Wasteland", UiTheme.DIM if td.disabled else UiTheme.PINK,
 		Callable() if td.disabled else (func(): _go_from_world(Dungeon.THUNDERDOME, td_at, go.bind(MapLink.THUNDERDOME_ROUTE))),
 		"Thunderdome: opens once two places are open" if td.disabled else "")
-	_landmark_pin(td, _world_pin("thunderdome", THUNDERDOME_PIN), world_state(Dungeon.THUNDERDOME))
 	var lib := _zone_button(world_board, "RelicLibrary", _world_zone("relic-library", RELIC_LIBRARY_ZONE))
 	_place(lib, "Relic Library", RELIC_LIBRARY_LINE, UiTheme.TEAL, func():
 		MapLink.go(get_tree(), MapLink.RELIC_LIBRARY_ROUTE))
-	_landmark_pin(lib, _world_pin("relic-library", RELIC_LIBRARY_PIN), world_state("relic_library"))
 	var shop_zone := _world_zone("bazaar", BAZAAR_ZONE)
 	var shop := _zone_button(world_board, "Bazaar", shop_zone)
 	if not BAZAAR_PAINTED:
@@ -1091,12 +1093,11 @@ func _fill_world() -> void:
 	_place(shop, "Bazaar", "%d Scrap to spend" % scrap, UiTheme.SAND,
 		func(): _go_from_world(HOME, shop_zone.position * BOARD / 100.0, open_bazaar),
 		"Bazaar · %d Scrap to spend" % scrap)
-	_landmark_pin(shop, _world_pin("bazaar", BAZAAR_PIN), "open")
 	_card(world_board)
 	_first_focus.call_deferred(world_board.get_node("Island_functions") as Button)
 
 
-## A place's state on the world map, for its pin: "locked", "open" or "cleared". An island
+## A place's state on the world map, for its revealed card: "locked", "open" or "cleared". An island
 ## is cleared once its all-regions dungeon is (Progress.is_cleared(), as on the island's
 ## board); the Thunderdome waits for a second island. The optional Relic Library and
 ## Bazaar are always open.
@@ -1128,16 +1129,7 @@ func _go_from_world(id: String, at: Vector2, then: Callable) -> void:
 	zoom_to(world_board, at, then)
 
 
-## A world-map place's state pin. `at` is in common board %.
-func _landmark_pin(b: Button, at: Vector2, state: String) -> void:
-	var p := at * BOARD / 100.0 - b.position
-	var pin := Pin.new()
-	pin.name = "Pin"
-	pin.kind = state
-	pin.position = p - Vector2(Pin.R, Pin.R)
-	b.add_child(pin)
-
-## A place's pin on the world map, its top-left at its position: a disc ringed in its
+## A place's pin on a regional board, its top-left at its position: a disc ringed in its
 ## state's colour (STATE_COLOR), with a dot when open, a flag when cleared and a padlock
 ## when locked.
 class Pin extends Control:

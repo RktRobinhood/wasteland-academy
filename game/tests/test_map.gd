@@ -12,8 +12,8 @@ extends "res://tests/test_case.gd"
 ## own island, island_of() for every region, each island's spots laid out with no overlap,
 ## the Thunderdome's screen and the Relic Library's card.
 ## The world map as a fast-travel map (FAL-988): zones from the painting with none
-## overlapping, a pin and a revealable name per place, the pin states and the
-## "you are here" marker.
+## overlapping, with painted landmarks and revealable names and states instead
+## of permanent pins or a "you are here" marker.
 
 const MAP := "res://scenes/map.tscn"
 const FIGHT := "res://scenes/fight.tscn"
@@ -446,21 +446,21 @@ func test_the_world_zones_come_from_the_painting_with_no_two_overlapping() -> vo
 	var m: Control = made[1]
 	for p in places:
 		var b := m.world_board.get_node(p[0]) as Button
-		var pin := b.get_node("Pin") as Control
-		check((b.position + pin.position + pin.size / 2.0).distance_to(p[2] * m.BOARD / 100.0) < 0.5, "%s: the pin at its point" % p[0])
+		var target := Rect2(b.position, b.size)
+		check(target.has_point(p[2] * m.BOARD / 100.0), "%s: painted landmark is clickable" % p[0])
 	check(m.world_board.find_children("*", "Line2D", true, false).is_empty(), "no route lines on the world map")
 	_done(made)
 
 
-func test_the_world_map_uses_visible_pins_without_names_at_rest() -> void:
+func test_the_world_map_has_no_permanent_markers_or_names_at_rest() -> void:
 	var made: Array = await _map({"screen": "world"})
 	var m: Control = made[1]
 	var board: Control = m.world_board
 	for p in _world_places():
 		var b := board.get_node(p[0]) as Button
 		var name := (b.get_meta("card") as Array)[0] as String
-		var pin := b.get_node_or_null("Pin") as Control
-		check(pin != null and pin.is_visible_in_tree(), "%s: visible pin" % name)
+		check(b.get_node_or_null("Pin") == null, "%s: no permanent pin" % name)
+		check(not b.get_node("Glow").visible, "%s: no resting glow" % name)
 		check(b.get_node_or_null("Banner") == null, "%s: no permanent name plate" % name)
 		check(b.accessibility_name.begins_with(name + ": "), "%s: accessible identity" % name)
 		check_eq(b.tooltip_text, "", "%s: the game card is the only hover label" % name)
@@ -471,31 +471,30 @@ func test_the_world_map_uses_visible_pins_without_names_at_rest() -> void:
 	_done(made)
 
 
-func test_the_world_map_pin_uses_its_button_for_a_single_desktop_click() -> void:
+func test_the_painted_landmark_opens_with_a_single_desktop_click() -> void:
 	var save := SaveData.blank()
 	save.settings.reduced_motion = true
 	var made: Array = await _map({"screen": "world"}, save)
 	var m: Control = made[1]
 	var b := m.world_board.get_node("Island_calculus") as Button
-	var pin := b.get_node("Pin") as Control
-	check_eq(pin.mouse_filter, Control.MOUSE_FILTER_IGNORE, "marker art must not intercept input")
+	check_eq(b.get_node("Glow").mouse_filter, Control.MOUSE_FILTER_IGNORE, "hover art must not intercept input")
 	b.pressed.emit()
 	check_eq(MapLink.current, {"screen": "island", "island": "calculus"}, "the Engine Core opens")
 	_done(made)
 
 
-func test_each_world_pin_shows_its_state() -> void:
+func test_the_world_card_reveals_clear_status_without_a_permanent_marker() -> void:
 	var map_script := preload("res://ui/map.gd")
 	var save := SaveData.blank()
 	Dungeon.note_floor(save, Dungeon.all_of("calculus"), Tuning.MIX_FROM_FLOOR - 1, true)
 	var made: Array = await _map({"screen": "world"}, save)
 	var m: Control = made[1]
-	var want := {"Island_algebra": "open", "Island_functions": "open", "Island_geometry": "open", "Island_stats": "open",
-		"Island_calculus": "cleared", "Thunderdome": "open", "RelicLibrary": "open", "Bazaar": "open"}
-	for n in want:
-		var pin := m.world_board.get_node(n + "/Pin") as Control
-		check_eq(pin.kind, want[n], n)
-		check(map_script.STATE_COLOR.has(pin.kind), n)
+	var core := m.world_board.get_node("Island_calculus") as Button
+	check_eq(m.world_state("calculus"), "cleared")
+	check(core.get_node_or_null("Pin") == null, "cleared place is not marked at rest")
+	m.show_card(core)
+	check_eq(_card_of(m, core), "Engine Core · Calculus · Cleared")
+	check(core.accessibility_name.ends_with("Cleared"), "assistive access retains progress")
 	check(not m.world_board.get_node("RelicLibrary").disabled, "optional worked examples stay available")
 	check(map_script.thunderdome_open() == (MapLink.OPEN_ISLANDS.size() >= 2), "the Thunderdome waits for a second island")
 	_done(made)
@@ -1380,12 +1379,14 @@ func test_responsive_art_uses_authored_world_registration_and_keeps_every_target
 			"relic-library": "RelicLibrary", "bazaar": "Bazaar"}
 		for id in nodes:
 			var button := board.get_node(nodes[id]) as Button
-			var pin := button.get_node("Pin") as Control
-			var at := button.position + pin.position + pin.size * 0.5
-			check(frame.grow(0.5).encloses(Rect2(button.position, button.size)), id + " target in frame")
+			var target := Rect2(button.position, button.size)
+			check(frame.grow(0.5).encloses(target), id + " target in frame")
+			check(button.get_node_or_null("Pin") == null, id + " no permanent map pin")
 			if wide:
 				var registered: Vector2 = map_script.WIDE_WORLD[id][1]
-				check(at.distance_to(frame.position + frame.size * registered / 100.0) < 0.01, id + " pinned to wide art")
+				var at: Vector2 = m._world_landmark_anchor(id, Vector2.ZERO) * m.BOARD / 100.0
+				check(at.distance_to(frame.position + frame.size * registered / 100.0) < 0.01, id + " registered to wide art")
+				check(target.has_point(at), id + " painted detail stays inside its wide hitbox")
 			m.show_card(button)
 			var card := board.get_node("Card") as Control
 			check(frame.grow(1.0).encloses(Rect2(card.position, card.size)), id + " card fits")
