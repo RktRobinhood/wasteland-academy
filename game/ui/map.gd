@@ -60,10 +60,11 @@ const WIDE_ART_KEYS := ["overworld", "algebra", "functions", "geometry", "stats"
 ## has a different composition, so its gates cannot use the island transform.
 const WIDE_WORLD := {
 	"algebra": [Rect2(31.8, 19, 33.5, 22), Vector2(33, 25)],
-	"functions": [Rect2(67, 19.5, 24, 23), Vector2(68, 26)],
+	# Leave a narrow strip of open desert between the tower and Radio Spires.
+	"functions": [Rect2(65.75, 19.5, 21, 23), Vector2(68, 26)],
 	"geometry": [Rect2(19, 44.5, 32, 27), Vector2(18, 47)],
 	"thunderdome": [Rect2(51, 42.5, 28, 25), Vector2(51, 51)],
-	"stats": [Rect2(82.5, 42, 29, 30), Vector2(84, 53)],
+	"stats": [Rect2(86.75, 42, 20, 30), Vector2(84, 53)],
 	"bazaar": [Rect2(15.8, 74.5, 28.5, 27), Vector2(16, 78)],
 	"calculus": [Rect2(49.8, 73, 35.5, 34), Vector2(50, 84)],
 	"relic-library": [Rect2(83.5, 74.5, 26, 23), Vector2(85, 79)],

@@ -452,6 +452,24 @@ func test_the_world_zones_come_from_the_painting_with_no_two_overlapping() -> vo
 	_done(made)
 
 
+func test_wide_painted_tower_door_does_not_enter_radio_spires() -> void:
+	for window in [Vector2i(900, 650), Vector2i(1440, 900)]:
+		var made: Array = await _map(MapLink.WORLD, {}, _area(window))
+		var m: Control = made[1]
+		var board: Control = m.world_board
+		var frame: Rect2 = m._map_frames[board]
+		var tower := board.get_node("Island_functions") as Button
+		var radio := board.get_node("Island_stats") as Button
+		var tower_hit := Rect2(tower.position, tower.size)
+		var radio_hit := Rect2(radio.position, radio.size)
+		var door := frame.position + frame.size * Vector2(0.6965, 0.285)
+		var mast := frame.position + frame.size * Vector2(0.84, 0.53)
+		check(tower_hit.has_point(door) and not radio_hit.has_point(door), "painted Tower door only opens Signal Tower")
+		check(radio_hit.has_point(mast) and not tower_hit.has_point(mast), "painted Radio Spires anchor still opens Radio Spires")
+		check(not tower_hit.intersects(radio_hit), "two distinct paintings never claim the same click")
+		_done(made)
+
+
 func test_the_world_map_has_no_permanent_markers_or_names_at_rest() -> void:
 	var made: Array = await _map({"screen": "world"})
 	var m: Control = made[1]
