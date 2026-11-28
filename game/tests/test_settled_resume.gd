@@ -16,6 +16,11 @@ func test_settled_answer_and_earned_scrap_survive_reopening_without_replaying() 
 	fight.use_lifeline("hint")
 	fight.autoplay(true)
 	check(fight.result.get("outcome", "") in ["right", "late"], "the real fight awarded a correct result")
+	var shown_answer: Dictionary = {}
+	for id in fight._slots:
+		shown_answer[id] = fight._slots[id].text
+	var shown_choice: int = fight._choice
+	check(not shown_answer.is_empty() or shown_choice >= 0, "the fixture has a visible submitted entry")
 	var run: Run = fight.run
 	var cell: String = run.question.cell
 	var health: int = run.hp
@@ -39,6 +44,9 @@ func test_settled_answer_and_earned_scrap_survive_reopening_without_replaying() 
 	check_eq(reopened_screen.run.state, "result", "reopening the actual fight shows the settled result")
 	check_eq(MathsEngine.prompt(reopened_screen.run.question), prompt)
 	check_eq(reopened_screen.run.lifelines.hint, 0)
+	check_eq(reopened_screen._choice, shown_choice)
+	for id in shown_answer:
+		check_eq(reopened_screen._slots[id].text, shown_answer[id], "restore the recorded entry alongside feedback")
 	check_eq(int(reopened_screen.save.scrap), reward)
 	reopened_frame.free()
 

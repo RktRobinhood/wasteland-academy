@@ -317,6 +317,7 @@ func start_run() -> void:
 	if resuming:
 		_taunted = run.fights
 		_show_question()
+		_restore_entry(raw_checkpoint.get("entry", {}))
 		_show_result(raw_checkpoint.result, false)
 	else:
 		run.start()
@@ -996,6 +997,39 @@ static func sfx_for(r: Dictionary) -> String:
 	return "correct" if r.get("outcome", "") in ["right", "glancing", "late"] else "retry"
 
 
+# Keep the player's displayed working separate from the normalized question/result.
+# This is local save state; restoring it never calls the marking path.
+func _capture_entry() -> Dictionary:
+	var typed := {}
+	for id in _slots:
+		typed[id] = _slots[id].text
+	return {"typed": typed, "choice": _choice, "picks": _picks.duplicate(true)}
+
+
+func _restore_entry(entry: Variant) -> void:
+	if not entry is Dictionary:
+		return
+	var choice: Variant = entry.get("choice", -1)
+	if (choice is int or choice is float) and choice >= 0 and choice < _choice_buttons.size() and float(choice) == floorf(float(choice)):
+		_choice = int(choice)
+		_choice_buttons[_choice].set_pressed_no_signal(true)
+	var typed: Variant = entry.get("typed")
+	if typed is Dictionary:
+		for id in _slots:
+			var value: Variant = typed.get(id)
+			if value is String and value.length() <= 256:
+				_slots[id].text = value
+	var picks: Variant = entry.get("picks")
+	if picks is Dictionary:
+		for id in _pick_buttons:
+			var value: Variant = picks.get(id)
+			if value is String:
+				for button: Button in _pick_buttons[id]:
+					if UiTheme.button_text(button) == value:
+						_picks[id] = value
+						button.set_pressed_no_signal(true)
+
+
 func _show_result(r: Dictionary, settle := true) -> void:
 	result = r
 	answered = true
@@ -1004,6 +1038,7 @@ func _show_result(r: Dictionary, settle := true) -> void:
 		if job.is_empty():
 			var checkpoint := run.settled_checkpoint(r, _settled_upgrades, perk)
 			if not checkpoint.is_empty():
+				checkpoint.entry = _capture_entry()
 				save.settled_run = checkpoint
 		SaveData.store(save, save_path)
 	feedback.visible = true
