@@ -674,3 +674,63 @@ func test_archive_rehearsal_moves_change_the_bench_but_do_not_mark_the_answer() 
 		p.close()
 		await _settle()
 	frame.queue_free()
+
+
+
+func test_archive_algebra_needs_every_coefficient_and_retains_the_second_part() -> void:
+	var frame := _phone()
+	var scene := load("res://scenes/lesson.tscn") as PackedScene
+	var screen := scene.instantiate()
+	var script: GDScript = screen.get_script()
+	script.open_preview = true
+	frame.add_child(screen)
+	await _settle()
+	var finals := {"area": "x² + 9x + 18", "pin": "y = −2x + 3", "tank": "V = 15t + 120"}
+	for scene_kind in finals:
+		var index := -1
+		for i: int in screen.entries.size():
+			if screen.entries[i].activity.get("kind") == scene_kind:
+				index = i
+				break
+		check(index >= 0, "the reviewed algebra pair is listed")
+		if index < 0:
+			continue
+		screen._select_entry(index)
+		await _tap(screen.watch_button)
+		var p: LessonPlayer = screen.player
+		p.paused = true
+		await _run(p, func(pl): return pl.state == "input")
+		await _tap(p.actions.get_node("Choices/Choice0"))
+		check(await _run(p), "the authored worked example finishes")
+		p.close()
+		await _settle()
+		await _tap(screen.try_button)
+		p = screen.player
+		p.paused = true
+		await _run(p, func(pl): return pl.state == "input")
+		var values: Dictionary = p._input_item.authored_slots.values
+		p.actions.get_node("Slots/Slot_c0").text = str(Q.of(values.c0).n)
+		await _tap(p.actions.get_node("Send"))
+		check_eq(p.state, "input", "a leading number alone never receives a mark")
+		for key in values:
+			p.actions.get_node("Slots/Slot_" + key).text = values[key].text()
+		p.actions.get_node("Slots/Slot_c1").text = "0"
+		await _tap(p.actions.get_node("Send"))
+		await _run(p, func(pl): return pl.state == "input")
+		check_eq(p._activity_signal.phase, "retry")
+		for key in values:
+			p.actions.get_node("Slots/Slot_" + key).text = values[key].text()
+		await _tap(p.actions.get_node("Send"))
+		if scene_kind == "tank":
+			await _run(p, func(pl): return pl.state == "input")
+			check_eq(int(p._input_item.part), 1, "a correct linear model unlocks the separate quantity part")
+			var entry = p.actions.get_node("Entry/Box")
+			entry.text = "210"
+			entry.text_submitted.emit("210")
+		check(await _run(p), "the whole expression completes Try")
+		check_eq(p._activity_signal.phase, "sent")
+		var expected: String = finals[scene_kind]
+		check(p.board.any(func(row): return str(row.text).contains(expected)), "correct algebraic form remains visible")
+		p.close()
+		await _settle()
+	frame.queue_free()

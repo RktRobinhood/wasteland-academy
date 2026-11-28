@@ -77,6 +77,22 @@ export function checkArchive(sources) {
           new Set(options).size !== 2 || ![0, 1].includes(correct))
         fail('a rehearsal bench needs two distinct authored moves, feedback, and one correct choice');
     }
+    for (const part of practice.turn.fallback.parts) {
+      if (!Object.hasOwn(part, 'polynomial')) continue;
+      const { variable, label, powers, coefficients } = part.polynomial ?? {};
+      if (!['x', 't'].includes(variable) || typeof label !== 'string' ||
+          !Array.isArray(powers) || !Array.isArray(coefficients) ||
+          !['1,0', '2,1,0'].includes(powers.join(',')) ||
+          coefficients.length !== powers.length || !coefficients.every(Number.isSafeInteger))
+        fail('an authored polynomial needs exact coefficient slots');
+      const canonical = label + coefficients.map((c, i) => {
+        const abs = powers[i] && Math.abs(c) === 1 ? '' : Math.abs(c);
+        const sign = c < 0 ? '−' : i > 0 ? '+' : '';
+        return sign + abs + (powers[i] ? variable + (powers[i] === 2 ? '²' : '') : '');
+      }).join('');
+      if (canonical.replaceAll(' ', '') !== String(part.answer).replaceAll(' ', ''))
+        fail('authored coefficient slots must match the published solution');
+    }
     if (!e.title?.trim() || !e.zone?.trim() || !e.prompt?.trim()) fail('missing student-facing entry text');
     if (!Array.isArray(e.courses) || !e.courses.length || !e.courses.every(c => script.courses.includes(c)) ||
         new Set(e.courses).size !== e.courses.length) fail('course mapping does not match the source lesson');

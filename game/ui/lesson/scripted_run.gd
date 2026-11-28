@@ -99,6 +99,9 @@ func act(p: LessonPlayer, kind: String, item: Dictionary) -> void:
 			if item.get("engine", false):
 				_answer_engine(p, item.question, miss)
 				return
+			if not (item.get("authored_slots", {}) as Dictionary).is_empty():
+				_answer_engine(p, {"answer": item.authored_slots}, false)
+				return
 			var right: String = Lesson.part_item(item.turn.fallback.parts[item.part]).answer
 			done.append("turn %s %s" % ["miss" if miss else "right", right])
 			_type(p, _wrong(right) if miss else right)

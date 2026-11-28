@@ -205,6 +205,21 @@ static func leading_number(answer: String) -> String:
 	return m.get_string() if m != null else ""
 
 
+## A fallback expression can ask for exact coefficient slots instead of guessing a
+## numeric answer from the first digit of an equation.
+static func part_slots(part: Dictionary) -> Dictionary:
+	var spec: Dictionary = part.get("polynomial", {})
+	if spec.is_empty():
+		return {}
+	var fixed := {"powers": spec.powers, "var": spec.variable}
+	var values := {}
+	for i in spec.coefficients.size():
+		values["c%d" % i] = Q.of(int(spec.coefficients[i]))
+	var answer := Answer.make("poly", values, fixed, str(spec.get("label", "")))
+	answer.exact = true
+	return answer
+
+
 ## A fallback part as a typed item: marked on its leading number, with its wrong answers.
 static func part_item(part: Dictionary) -> Dictionary:
 	var n := leading_number(str(part.get("answer", "")))

@@ -263,6 +263,75 @@
         "ai-sl",
         "ai-hl"
       ]
+    },
+    {
+      "lesson": "ex.foundations.pre-expand",
+      "title": "Expand two brackets",
+      "zone": "Scrapworks",
+      "prompt": "Calculate the area of a new plate.",
+      "worked": "example-1",
+      "practice": "turn-1",
+      "practice_mode": "authored-twin",
+      "courses": [
+        "aa-sl",
+        "aa-hl",
+        "ai-sl",
+        "ai-hl"
+      ],
+      "activity": {
+        "kind": "area",
+        "title": "Scrapworks · Plate layout",
+        "waiting": "Awaiting a calculation",
+        "retry": "Four regions make up the full area",
+        "sent": "Plate layout checked",
+        "coached": "Plate layout · working shown"
+      }
+    },
+    {
+      "lesson": "ex.functions.line-equation",
+      "title": "Find the equation of a line",
+      "zone": "Signal Tower",
+      "prompt": "Plot the line through a survey marker.",
+      "worked": "example-1",
+      "practice": "turn-1",
+      "practice_mode": "authored-twin",
+      "courses": [
+        "aa-sl",
+        "aa-hl",
+        "ai-sl",
+        "ai-hl"
+      ],
+      "activity": {
+        "kind": "pin",
+        "title": "Signal Tower · Survey plot",
+        "waiting": "Awaiting a calculation",
+        "retry": "Check the gradient and crossing separately",
+        "sent": "Survey line confirmed",
+        "coached": "Survey plot · working shown"
+      }
+    },
+    {
+      "lesson": "ex.functions.line-model",
+      "title": "Initial value and rate",
+      "zone": "Signal Tower",
+      "prompt": "Model how quickly the water tank fills.",
+      "worked": "example-1",
+      "practice": "turn-1",
+      "practice_mode": "authored-twin",
+      "courses": [
+        "aa-sl",
+        "aa-hl",
+        "ai-sl",
+        "ai-hl"
+      ],
+      "activity": {
+        "kind": "tank",
+        "title": "Signal Tower · Water level",
+        "waiting": "Awaiting a calculation",
+        "retry": "Check the starting level, rate and time",
+        "sent": "Tank reading confirmed",
+        "coached": "Water level · working shown"
+      }
     }
   ]
 }

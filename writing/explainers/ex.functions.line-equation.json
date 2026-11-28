@@ -449,7 +449,8 @@
           "parts": [
             {
               "text": "Find the equation of the line.",
-              "answer": "y = −2x + 3"
+              "answer": "y = −2x + 3",
+              "polynomial": {"variable": "x", "label": "y = ", "powers": [1, 0], "coefficients": [-2, 3]}
             }
           ],
           "working": [

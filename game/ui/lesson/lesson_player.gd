@@ -1092,7 +1092,8 @@ func _turn(t: Dictionary, part: int, misses: int, q: Dictionary) -> void:
 	else:
 		var p: Dictionary = fb.parts[part]
 		text = "%s\n%s%s" % [fb.get("setup", ""), "(%s) " % p.part if p.has("part") else "", p.get("text", "")]
-	_wait_for("turn", {"turn": t, "part": part, "question": q, "engine": engine}, text)
+	var authored_slots := {} if engine else Lesson.part_slots(fb.parts[part])
+	_wait_for("turn", {"turn": t, "part": part, "question": q, "engine": engine, "authored_slots": authored_slots}, text)
 	var on_send := func(typed: Variant) -> void:
 		var right := false
 		var mis := ""
@@ -1102,6 +1103,12 @@ func _turn(t: Dictionary, part: int, misses: int, q: Dictionary) -> void:
 				return
 			right = r.correct
 			mis = str(r.get("misconception", ""))
+		elif not authored_slots.is_empty():
+			var marked := Answer.mark(authored_slots, typed)
+			if not marked.complete:
+				_show_banner("Fill in every coefficient before sending.", false)
+				return
+			right = marked.correct
 		else:
 			var m := Lesson.mark_typed(Lesson.part_item(fb.parts[part]), str(typed))
 			if m.get("empty", false):
@@ -1122,6 +1129,8 @@ func _turn(t: Dictionary, part: int, misses: int, q: Dictionary) -> void:
 		_resume(after)
 	if engine:
 		_slots(q, on_send)
+	elif not authored_slots.is_empty():
+		_slots({"answer": authored_slots}, on_send)
 	else:
 		_activity_controls()
 		_entry(on_send)
@@ -1158,7 +1167,7 @@ func _turn_done(t: Dictionary, fb: Dictionary, engine: bool, q: Dictionary, righ
 ## What happened in the world, in the caption's place: teal when the signal goes out,
 ## rust for static or a sparked tile. The next line's caption puts the colour back.
 func _mount_activity() -> void:
-	if str(activity.get("kind", "")) not in ["relay", "track", "gauge", "stands", "balance", "substitute", "backtrace", "price"]:
+	if str(activity.get("kind", "")) not in ["relay", "track", "gauge", "stands", "balance", "substitute", "backtrace", "price", "area", "pin", "tank"]:
 		return
 	var rail := HBoxContainer.new()
 	rail.name = "RelicActivity"
@@ -1228,6 +1237,9 @@ class ActivitySignal extends Control:
 
 	func _draw() -> void:
 		var y := size.y * 0.5
+		if config.kind == "area" or config.kind == "pin" or config.kind == "tank":
+			_draw_shape(y)
+			return
 		if config.kind == "backtrace" or config.kind == "price":
 			_draw_trade_or_signal(y)
 			return
@@ -1258,6 +1270,28 @@ class ActivitySignal extends Control:
 			draw_arc(mast, 24.0, -0.75, 0.75, 14, ink, 3.0, true)
 		elif phase == "retry":
 			draw_polyline(PackedVector2Array([relay + Vector2(-8, 5), relay + Vector2(-2, -5), relay + Vector2(3, 4), relay + Vector2(8, -5)]), ink, 2.0, true)
+
+	func _draw_shape(y: float) -> void:
+		draw_rect(Rect2(0, y - 29, 155, 58), Explainer.SLATE_DEEP)
+		var confirmed := phase in ["sent", "coached"]
+		if config.kind == "area":
+			if confirmed:
+				draw_rect(Rect2(37, y - 19, 80, 38), ink.darkened(0.6))
+			draw_rect(Rect2(37, y - 19, 80, 38), ink, false, 2.0)
+			draw_line(Vector2(37, y + 2), Vector2(117, y + 2), ink, 2.0, true)
+			draw_line(Vector2(83, y - 19), Vector2(83, y + 19), ink, 2.0, true)
+		elif config.kind == "pin":
+			draw_line(Vector2(22, y + 20), Vector2(130, y + 20), Explainer.IRON, 2.0, true)
+			draw_line(Vector2(77, y - 21), Vector2(77, y + 23), Explainer.IRON, 2.0, true)
+			draw_circle(Vector2(55, y - 8), 5.0, ink, true, -1.0, true)
+			if confirmed:
+				draw_line(Vector2(26, y - 20), Vector2(123, y + 20), ink, 2.0, true)
+		else:
+			draw_rect(Rect2(37, y - 20, 80, 40), ink, false, 2.0)
+			draw_rect(Rect2(39, y + (-13 if confirmed else 4), 76, 18 if confirmed else 14), ink.darkened(0.35))
+			if confirmed:
+				draw_line(Vector2(39, y - 15), Vector2(115, y - 15), ink, 2.0, true)
+
 
 	func _draw_trade_or_signal(y: float) -> void:
 		draw_rect(Rect2(0, y - 29, 155, 58), Explainer.SLATE_DEEP)

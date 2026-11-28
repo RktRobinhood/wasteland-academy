@@ -350,7 +350,8 @@
           "parts": [
             {
               "text": "Expand.",
-              "answer": "x² + 9x + 18"
+              "answer": "x² + 9x + 18",
+              "polynomial": {"variable": "x", "label": "", "powers": [2, 1, 0], "coefficients": [1, 9, 18]}
             }
           ],
           "working": [

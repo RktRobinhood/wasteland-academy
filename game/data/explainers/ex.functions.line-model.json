@@ -422,7 +422,8 @@
           "parts": [
             {
               "text": "Write down a model for the volume V litres after t minutes.",
-              "answer": "V = 15t + 120"
+              "answer": "V = 15t + 120",
+              "polynomial": {"variable": "t", "label": "V = ", "powers": [1, 0], "coefficients": [15, 120]}
             },
             {
               "text": "Find the volume after 6 minutes.",
