@@ -179,12 +179,12 @@ func _ready() -> void:
 		region = launch.region
 		start_floor = launch.floor if Dungeon.start_floors(save, region).has(launch.floor) else 1
 		launch = {}
-		if SaveData.needs_cards(save):
+		if SaveData.needs_cards(save) and not SaveData.has_active_run(save):
 			# A new student's first run opens on the cards, before its first question
 			# and so before its timer (#186).
-			show_cards(start_run)
+			show_cards(func(): start_run(true))
 		else:
-			start_run()
+			start_run(true)
 		return
 	if deep.is_empty():
 		if select_first:
@@ -273,13 +273,13 @@ var _restored_on_open := false
 
 
 ## Starts a run with this screen's region, floor and seed (a fresh seed if 0).
-func start_run() -> void:
+func start_run(offer_choice: bool = false) -> void:
 	_restored_on_open = false
 	var raw_checkpoint: Variant = save.get("settled_run", {})
 	var restored: Run = null
 	if raw_checkpoint is Dictionary and not raw_checkpoint.is_empty():
 		restored = Run.restore_settled(save, raw_checkpoint)
-		if restored != null and (restored.region != region or restored.start_floor != start_floor or first_fight != 1):
+		if restored != null and (offer_choice or restored.region != region or restored.start_floor != start_floor or first_fight != 1):
 			_offer_active_run(restored)
 			return
 	var resuming := restored != null
@@ -391,7 +391,7 @@ func show_floor_select() -> void:
 			start_floor = f
 			run_seed = 0
 			first_fight = 1
-			start_run())
+			start_run(true))
 		list.add_child(b)
 	var next_locked: int = floors.max() + 1
 	var lock := UiTheme.label("Mile %d · beat the mile %d boss to start here" % [next_locked, next_locked - 1], UiTheme.BODY, UiTheme.DIM)
@@ -406,24 +406,35 @@ func show_floor_select() -> void:
 	(list.get_child(0) as Button).grab_focus.call_deferred()
 
 
-## Changing routes does not abandon the single saved run. The ordinary Quit action
-## on the resumed run is still the only deliberate way to end it.
+## There is one checkpoint. Merely opening this panel changes nothing; starting a
+## new run ends the previous one just like Quit, without taking banked Scrap.
 func _offer_active_run(saved_run: Run) -> void:
 	_show_pre_run_panel()
 	var saved_region := saved_run.region
 	var saved_floor := saved_run.start_floor
 	floor_box.add_child(UiTheme.label("Run in progress", UiTheme.BIG, UiTheme.TEAL))
 	floor_box.add_child(UiTheme.label("%s · Mile %d" % [Dungeon.region_name(saved_region), saved_run.floor_no], UiTheme.BODY, UiTheme.TEXT))
-	floor_box.add_child(UiTheme.label("Continue your run, or return to the map. To start a different run, quit the current one first.", UiTheme.BODY, UiTheme.DIM))
+	floor_box.add_child(UiTheme.label("Starting a new run ends the saved run. You keep the Scrap you already earned.", UiTheme.BODY, UiTheme.DIM))
 	var resume := Button.new()
 	resume.name = "ContinueSavedRun"
-	resume.text = "Continue run"
+	resume.text = "Resume run"
 	resume.pressed.connect(func():
 		region = saved_region
 		start_floor = saved_floor
 		first_fight = 1
 		start_run())
 	floor_box.add_child(resume)
+	var fresh := Button.new()
+	fresh.name = "StartNewRun"
+	fresh.text = "Start new run"
+	fresh.pressed.connect(func():
+		if run != null:
+			return
+		saved_run.quit()
+		save.erase("settled_run")
+		first_fight = 1
+		start_run())
+	floor_box.add_child(fresh)
 	var back := Button.new()
 	back.name = "Map"
 	back.text = "Back to map"
@@ -438,7 +449,7 @@ func to_map() -> void:
 
 
 ## Browser navigation suspends an unanswered question without ending the run.
-## A result is already checkpointed; only the explicit Quit button ends the run.
+## A result is already checkpointed; navigation itself does not abandon the run.
 func leave_run() -> void:
 	_save_open_question()
 

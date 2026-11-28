@@ -272,6 +272,55 @@ func test_another_region_requires_resuming_or_leaving_the_saved_run() -> void:
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(file))
 
 
+func test_start_new_replaces_the_only_run_even_on_the_same_route() -> void:
+	var path := "user://test_resume_replace_%s.json" % str(Time.get_ticks_usec())
+	var scene := load("res://scenes/fight.tscn") as PackedScene
+	var frame := Control.new()
+	frame.size = Vector2(1080, 1920)
+	tree.root.add_child(frame)
+	var original: Control = scene.instantiate()
+	original.save_path = path
+	original.select_first = false
+	original.region = "quadratics"
+	original.run_seed = 3
+	frame.add_child(original)
+	for _frame: int in 12:
+		await tree.process_frame
+	original.autoplay(true)
+	var before := SaveData.load_from(path)
+	var earned := int(before.scrap)
+	check(earned > 0, "fixture must earn Scrap")
+	original.free()
+	var replacement: Control = scene.instantiate()
+	replacement.save_path = path
+	replacement.region = "quadratics"
+	replacement.run_seed = 99
+	replacement.launch = {"region": "quadratics", "floor": 1}
+	frame.add_child(replacement)
+	for _frame: int in 12:
+		await tree.process_frame
+	var fresh := replacement.find_child("StartNewRun", true, false) as Button
+	check(fresh != null and fresh.is_visible_in_tree(), "starting the same route offers a fresh run")
+	check(replacement.run == null, "the choice neither resumes nor replaces automatically")
+	check_eq(SaveData.load_from(path), before, "the choice alone changes nothing")
+	if fresh != null:
+		fresh.pressed.emit()
+		check_eq(replacement.run.run_seed, 99, "new seed replaces the old one")
+		check_eq(replacement.run.state, "question")
+		check_eq(replacement.run.question_no, 1)
+		var after := SaveData.load_from(path)
+		check_eq(int(after.scrap), earned, "keep already-earned Scrap, without crediting it twice")
+		check_eq(int(after.runs.played), 1, "abandon the original exactly once")
+		var restored := Run.restore_settled(after, after.get("settled_run", {}))
+		check(restored != null, "the new run occupies the sole slot")
+		if restored != null:
+			check_eq(restored.run_seed, 99, "the previous run cannot be restored again")
+	frame.free()
+	for file: String in [path, SaveData.backup_path(path), SaveData.temp_path(path)]:
+		if FileAccess.file_exists(file):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(file))
+
+
 func test_recorded_boss_reopens_the_exact_part_and_carries_forward() -> void:
 	var path := "user://test_resume_boss_%s.json" % str(Time.get_ticks_usec())
 	var scene := load("res://scenes/fight.tscn") as PackedScene
