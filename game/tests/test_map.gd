@@ -842,16 +842,13 @@ func test_painted_places_on_a_background() -> void:
 		var b: Button = buttons[id]
 		check(b.get_node_or_null("Landmark") == null, id + ": no ring over the painting")
 		var state: String = "locked" if id == "relic" else m.spot_state(id)
-		check_eq(b.get_node_or_null("Padlock") != null, state == "locked", id + ": a padlock when locked")
-		check_eq(b.get_node_or_null("Wash") != null, state == "locked", id + ": a dark wash when locked")
-		check_eq(b.get_node_or_null("Flag") != null, state == "cleared", id + ": a flag when cleared")
-		var pin := b.get_node_or_null("Pin") as Control
-		check_eq(pin != null, state == "open", id + ": a pin when the painting needs an open marker")
-		if pin != null:
-			check(pin.is_visible_in_tree() and pin.size.x >= 72.0, id + ": visible pin")
-			check_eq(pin.mouse_filter, Control.MOUSE_FILTER_IGNORE, id + ": pin cannot swallow a tap")
+		for marker in ["Pin", "Beacon", "Padlock", "Flag", "Wash"]:
+			check(b.get_node_or_null(marker) == null, id + ": no permanent " + marker)
+		check(b.accessibility_name.begins_with(("Relic device" if id == "relic" else ("All topics" if id == "all" else Dungeon.region_name(id))) + ":"))
+		if state == "locked":
+			check("Closed" in b.accessibility_name or "Coming soon" in b.accessibility_name)
 		check(b.flat and b.text == "", id + ": an unlabelled hit area")
-	check_eq(m.spot_state(open[0]), "cleared", "a cleared region to flag")
+	check_eq(m.spot_state(open[0]), "cleared", "cleared state is not lost when the flag is removed")
 	check(buttons[open[0]].size.is_equal_approx(Vector2(300, 300)), "a region's square")
 	check(buttons.relic.size.is_equal_approx(Vector2(160, 160)), "the relic's square")
 	check(_board_text(board).is_empty(), "no text on the painting: %s" % [_board_text(board)])
@@ -883,11 +880,11 @@ func test_the_coded_landmarks_show_glyphs_not_numbers() -> void:
 	check_eq(map_script.mark("exp-log", "eˣ"), "EL")
 
 
-func test_sparks_pick_gets_the_beacon_its_line_and_first_focus() -> void:
+func test_sparks_pick_keeps_its_line_and_first_focus_without_a_dot() -> void:
 	var open := _open_regions()
 	if open.size() < 2:
 		return
-	# One region tried, the next one not: the beacon is on the untried one.
+	# One region tried, the next one not: only the card marks the recommendation.
 	var save := SaveData.blank()
 	_answer(save, open[0], 2, 3)
 	var made: Array = await _map({"screen": "island", "island": "functions"}, save)
@@ -895,8 +892,7 @@ func test_sparks_pick_gets_the_beacon_its_line_and_first_focus() -> void:
 	check_eq(m.pick, {"region": open[1], "why": "untried"})
 	var buttons := _spot_buttons(m)
 	for id in buttons:
-		check_eq(buttons[id].get_node_or_null("Beacon") != null, id == open[1], id + ": a beacon only on the pick")
-	check(buttons[open[1]].get_node("Beacon").visible, "the beacon is on all the time")
+		check(buttons[id].get_node_or_null("Beacon") == null, id + ": no permanent recommendation marker")
 	check_eq(_card_of(m, buttons[open[1]]), Dungeon.region_name(open[1]) + " · Not tried yet · Spark's pick")
 	check_eq(_card_of(m, buttons[open[0]]), Dungeon.region_name(open[0]) + " · 67% right", "the tried region's line has no pick")
 	check_eq(m.get_viewport().gui_get_focus_owner(), buttons[open[1]], "first focus on the pick")
@@ -905,14 +901,14 @@ func test_sparks_pick_gets_the_beacon_its_line_and_first_focus() -> void:
 	_done(made)
 
 
-func test_the_beacon_shows_over_landmark_art() -> void:
+func test_the_landmark_art_is_not_topped_by_a_beacon() -> void:
 	var open := _open_regions()
 	var made: Array = await _map({"screen": "island", "island": "functions"}, {}, Vector2(1080, 1920),
 		"res://tests/fixtures/art/map/functions/")
 	var b: Button = _spot_buttons(made[1])[open[0]]
 	check(b.get_node_or_null("Landmark/Art") != null, "the fixture's landmark art")
 	var beacon := b.get_node_or_null("Beacon")
-	check(beacon != null and beacon.get_index() > b.get_node("Landmark").get_index(), "the beacon, drawn over the art")
+	check(beacon == null, "the artwork alone is visible")
 	_done(made)
 
 
@@ -1543,3 +1539,83 @@ func test_landscape_rebuild_preserves_focused_destination_and_card() -> void:
 	check(restored != prior and restored.has_focus(), "same destination remains focused")
 	check(m.card_for == restored and m.world_board.get_node("Card").visible)
 	_done(made)
+
+
+func test_painted_zones_have_one_registered_noninteractive_ambient_layer() -> void:
+	var map_script := preload("res://ui/map.gd")
+	var names := {}
+	for id in PAINTED:
+		for wide in [false, true]:
+			var art_size := Vector2(1920, 1080) if wide else Vector2(1080, 1920)
+			var entries := AmbientLayer.entries("res://data/ambient.json", map_script.zone_ambient_key(id, wide))
+			check_eq(entries.size(), 1, "%s owns exactly one cue" % id)
+			check_eq(AmbientLayer.check(entries, art_size), PackedStringArray(), "%s frames and paths resolve" % id)
+			if not entries.is_empty():
+				names[entries[0].id] = id
+		for area in [_area(Vector2i(390, 844)), _area(Vector2i(1440, 900))]:
+			var made := await _map({"screen": "island", "island": id}, {}, area)
+			var map: Control = made[1]
+			var layer := map.island_board.get_node_or_null("ZoneAmbience") as AmbientLayer
+			check(layer != null, "%s mounts its cue" % id)
+			if is_instance_valid(layer):
+				check_eq(layer.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+				check_eq(layer.things.size(), 1)
+				check_eq(layer.position, map.WIDE_FRAME.position if map._wide_island else Vector2.ZERO)
+				check_eq(layer.size, map.WIDE_FRAME.size if map._wide_island else map.BOARD)
+				check(layer.get_index() > map.island_board.get_node("Art").get_index())
+				var active := map.island_board.get_node("Spot_all") as Button
+				var locked := map.island_board.get_node("Spot_relic") as Button
+				check(layer.get_index() < active.get_index())
+				check_eq(active.mouse_default_cursor_shape, Control.CURSOR_POINTING_HAND)
+				check_eq(locked.mouse_default_cursor_shape, Control.CURSOR_ARROW)
+			_done(made)
+	check_eq(names.size(), PAINTED.size(), "no generic repeated cue across zones")
+
+
+func test_resizing_during_return_leaves_map_at_new_fit() -> void:
+	var made := await _map({"screen": "region", "island": "algebra", "region": "sequences"}, {}, _area(Vector2i(390, 844)))
+	var frame: Control = made[0]
+	var map: Control = made[1]
+	map.show_route({"screen": "island", "island": "algebra"})
+	check(map._return_zoom, "the return tween has not yet settled")
+	frame.size = _area(Vector2i(1440, 900))
+	map.size = frame.size
+	map._fit()
+	var board: Control = map.island_board
+	var fitted: Array = map._fitted[board]
+	await tree.create_timer(map.ZOOM_TIME + 0.15).timeout
+	check_eq(board.position, fitted[0], "old portrait tween cannot reposition the new landscape")
+	check_eq(board.scale, fitted[1])
+	check_eq(map.island.modulate.a, 1.0)
+	check(not map._return_zoom)
+	_done(made)
+
+
+func test_overworld_art_lights_hold_registered_anchors_and_leave_input_alone() -> void:
+	for area in [_area(Vector2i(390, 844)), _area(Vector2i(1440, 900))]:
+		var made := await _map(MapLink.WORLD, {}, area)
+		var map: Control = made[1]
+		var art := map.world_board.get_node("Art") as TextureRect
+		var frame: Rect2 = map._map_frames[map.world_board]
+		map.scene_light.clock = func(): return 12.0 * 60.0
+		for tick in 25:
+			map._update_world_light(0.25)
+		var day: Array[float] = []
+		for light in map._world_lights:
+			day.append(light.self_modulate.a)
+		map.scene_light.clock = func(): return 22.0 * 60.0
+		for i in 25:
+			map._update_world_light(0.25)
+		check_eq(art.get_child_count(), map.WORLD_LIGHTS.size(), "only the registered sources")
+		check(map._world_lights.size() >= 6, "the landmarks have their own lights")
+		for i in map._world_lights.size():
+			var light: TextureRect = map._world_lights[i]
+			var entry: Array = map.WORLD_LIGHTS[i]
+			var source: Vector2 = entry[2] if map._wide_world else entry[1]
+			var origin: Vector2 = map.WIDE_FRAME.position if map._wide_world else Vector2.ZERO
+			check((light.position + light.size * 0.5).distance_to(origin + source - frame.position) < 0.01, "painted source remains registered")
+			check(light.self_modulate.a > day[i] * 2.0, "local light brightens at night rather than covering the daytime art")
+			check_eq(light.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+			check(light.texture == map._world_lights[0].texture, "one shared falloff")
+		check(map.world_board.get_node("Island_calculus").get_node_or_null("Pin") == null)
+		_done(made)
