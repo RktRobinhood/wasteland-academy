@@ -625,3 +625,51 @@ func test_archive_one_row_and_the_whole_stand_have_distinct_marks_and_feedback()
 		p.close()
 		await _settle()
 	frame.queue_free()
+
+
+
+func test_archive_rehearsal_moves_change_the_bench_but_do_not_mark_the_answer() -> void:
+	var frame := _phone()
+	var scene := load("res://scenes/lesson.tscn") as PackedScene
+	var screen := scene.instantiate()
+	var script: GDScript = screen.get_script()
+	script.open_preview = true
+	frame.add_child(screen)
+	await _settle()
+	for scene_kind in ["balance", "substitute"]:
+		var index := -1
+		for i: int in screen.entries.size():
+			if screen.entries[i].activity.get("kind") == scene_kind:
+				index = i
+				break
+		check(index >= 0, "the mechanics trial is routed through the archive")
+		if index < 0:
+			continue
+		screen._select_entry(index)
+		await _tap(screen.watch_button)
+		var p: LessonPlayer = screen.player
+		p.paused = true
+		await _run(p, func(pl): return pl.state == "input")
+		await _tap(p.actions.get_node("Choices/Choice0"))
+		check(await _run(p), "the separate worked example remains playable")
+		p.close()
+		await _settle()
+		await _tap(screen.try_button)
+		p = screen.player
+		p.paused = true
+		await _run(p, func(pl): return pl.state == "input")
+		await _tap(p.actions.get_node("BenchControls/Move1"))
+		check_eq(p._activity_signal.phase, "rehearsal-slip", "the wrong operation changes the bench without marking")
+		await _tap(p.actions.get_node("BenchControls/Move0"))
+		check_eq(p._activity_signal.phase, "rehearsed", "the right operation changes the bench")
+		check_eq(p.state, "input", "the learner still supplies their own answer")
+		check(p.board.is_empty(), "the operation rehearsal does not write the solution")
+		var entry = p.actions.get_node("Entry/Box")
+		var answer := "7" if scene_kind == "balance" else "23"
+		entry.text = answer
+		entry.text_submitted.emit(answer)
+		check(await _run(p), "a correct final answer completes the lesson")
+		check_eq(p._activity_signal.phase, "sent")
+		p.close()
+		await _settle()
+	frame.queue_free()

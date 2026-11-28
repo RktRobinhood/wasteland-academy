@@ -69,6 +69,14 @@ export function checkArchive(sources) {
           practice.turn.fallback.parts.length !== 1 || Number(practice.turn.fallback.parts[0].answer) !== expected)
         fail('seat count must match the selected row or stand');
     }
+    if (['balance', 'substitute'].includes(e.activity?.kind)) {
+      const { options, results, correct } = e.activity.control ?? {};
+      if (!Array.isArray(options) || !Array.isArray(results) ||
+          options.length !== 2 || results.length !== 2 ||
+          ![...options, ...results].every(text => typeof text === 'string' && text.trim()) ||
+          new Set(options).size !== 2 || ![0, 1].includes(correct))
+        fail('a rehearsal bench needs two distinct authored moves, feedback, and one correct choice');
+    }
     if (!e.title?.trim() || !e.zone?.trim() || !e.prompt?.trim()) fail('missing student-facing entry text');
     if (!Array.isArray(e.courses) || !e.courses.length || !e.courses.every(c => script.courses.includes(c)) ||
         new Set(e.courses).size !== e.courses.length) fail('course mapping does not match the source lesson');

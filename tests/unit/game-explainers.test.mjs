@@ -40,7 +40,7 @@ test('release catalog requires a real worked example and an exact course-fit twi
   const sources = build();
   const original = JSON.parse(sources['archive.json']);
   assert.doesNotThrow(() => checkArchive(sources));
-  assert.deepEqual(original.entries.map(e => e.lesson), ['ex.functions.function-machine', 'ex.functions.gradient', 'ex.foundations.pre-read-and-round', 'ex.algebra.arithmetic-sequence', 'ex.algebra.arithmetic-series'], 'rollout is explicit, not every shipped draft');
+  assert.deepEqual(original.entries.map(e => e.lesson), ['ex.functions.function-machine', 'ex.functions.gradient', 'ex.foundations.pre-read-and-round', 'ex.algebra.arithmetic-sequence', 'ex.algebra.arithmetic-series', 'ex.foundations.pre-balance', 'ex.foundations.pre-substitute'], 'rollout is explicit, not every shipped draft');
   const invalid = fields => ({ ...sources, 'archive.json': JSON.stringify({ ...original, entries: [
     { ...original.entries[0], ...fields },
   ] }) });
@@ -65,4 +65,12 @@ test('one row and the whole stand must use different marked counts', async () =>
   const archive = JSON.parse(sources['archive.json']);
   archive.entries.find(e => e.lesson === 'ex.algebra.arithmetic-series').activity.mode = 'term';
   assert.throws(() => checkArchive({ ...sources, 'archive.json': JSON.stringify(archive) }), /seat count must match/);
+});
+
+test('a published rehearsal bench requires an authored result for each operation', async () => {
+  const { checkArchive } = await import('../../tools/game-explainers.mjs');
+  const sources = build();
+  const archive = JSON.parse(sources['archive.json']);
+  archive.entries.find(e => e.activity?.kind === 'balance').activity.control.results.pop();
+  assert.throws(() => checkArchive({ ...sources, 'archive.json': JSON.stringify(archive) }), /a rehearsal bench needs/);
 });

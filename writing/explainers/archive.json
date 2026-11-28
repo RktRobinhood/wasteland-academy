@@ -127,6 +127,74 @@
         "ai-sl",
         "ai-hl"
       ]
+    },
+    {
+      "lesson": "ex.foundations.pre-balance",
+      "title": "Balance an equation",
+      "zone": "Scrapworks",
+      "prompt": "Isolate the unknown without tipping the scale.",
+      "worked": "example-1",
+      "practice": "turn-1",
+      "practice_mode": "authored-twin",
+      "courses": [
+        "aa-sl",
+        "aa-hl",
+        "ai-sl",
+        "ai-hl"
+      ],
+      "activity": {
+        "kind": "balance",
+        "title": "Scrapworks · Balance bench",
+        "waiting": "Awaiting a reading",
+        "retry": "Keep the same operation on both sides",
+        "sent": "Bench balanced",
+        "coached": "Bench · working shown",
+        "control": {
+          "options": [
+            "+8 to both sides",
+            "+8 to left only"
+          ],
+          "results": [
+            "Both sides move together",
+            "Keep the same operation on both sides"
+          ],
+          "correct": 0
+        }
+      }
+    },
+    {
+      "lesson": "ex.foundations.pre-substitute",
+      "title": "Substitute a negative number",
+      "zone": "Scrapworks",
+      "prompt": "Program a negative input without losing its sign.",
+      "worked": "example-1",
+      "practice": "turn-1",
+      "practice_mode": "authored-twin",
+      "courses": [
+        "aa-sl",
+        "aa-hl",
+        "ai-sl",
+        "ai-hl"
+      ],
+      "activity": {
+        "kind": "substitute",
+        "title": "Scrapworks · Input bench",
+        "waiting": "Awaiting a reading",
+        "retry": "Square the complete input",
+        "sent": "Input checked",
+        "coached": "Bench · working shown",
+        "control": {
+          "options": [
+            "(−4)²",
+            "−4²"
+          ],
+          "results": [
+            "Brackets hold the sign with the input",
+            "Square the complete input"
+          ],
+          "correct": 0
+        }
+      }
     }
   ]
 }

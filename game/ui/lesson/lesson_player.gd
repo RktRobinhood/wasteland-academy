@@ -1123,6 +1123,7 @@ func _turn(t: Dictionary, part: int, misses: int, q: Dictionary) -> void:
 	if engine:
 		_slots(q, on_send)
 	else:
+		_activity_controls()
 		_entry(on_send)
 	if misses > 0:
 		var show := Button.new()
@@ -1138,7 +1139,7 @@ func _turn(t: Dictionary, part: int, misses: int, q: Dictionary) -> void:
 ## What plays when a turn ends: the signal goes out (or the working is shown), the
 ## working goes on the board, and a right line plays.
 func _turn_done(t: Dictionary, fb: Dictionary, engine: bool, q: Dictionary, right: bool) -> Array:
-	var out: Array = [{"_lit": "Signal's out." if right else "Here's the working.", "_good": true}]
+	var out: Array = [{"_lit": str(activity.get("sent", "Signal's out.")) if right else "Here's the working.", "_good": true}]
 	var steps: Array = []
 	if engine and not q.get("solutions", []).is_empty():
 		for st in q.solutions[0].steps:
@@ -1157,7 +1158,7 @@ func _turn_done(t: Dictionary, fb: Dictionary, engine: bool, q: Dictionary, righ
 ## What happened in the world, in the caption's place: teal when the signal goes out,
 ## rust for static or a sparked tile. The next line's caption puts the colour back.
 func _mount_activity() -> void:
-	if str(activity.get("kind", "")) not in ["relay", "track", "gauge", "stands"]:
+	if str(activity.get("kind", "")) not in ["relay", "track", "gauge", "stands", "balance", "substitute"]:
 		return
 	var rail := HBoxContainer.new()
 	rail.name = "RelicActivity"
@@ -1177,6 +1178,30 @@ func _mount_activity() -> void:
 	rail.add_child(labels)
 	frame.add_child(rail)
 	frame.move_child(rail, 1)
+
+## A rehearsal action changes the bench, but never supplies or marks a numeric answer.
+## These controls are rebuilt with the Try inputs, and leave the existing keypad intact.
+func _activity_controls() -> void:
+	var config: Dictionary = activity.get("control", {})
+	if config.is_empty() or _activity_status == null:
+		return
+	var shelf := VBoxContainer.new()
+	shelf.name = "BenchControls"
+	for index: int in config.options.size():
+		var b := Button.new()
+		b.name = "Move%d" % index
+		b.text = str(config.options[index])
+		b.custom_minimum_size.y = TOUCH * 0.8
+		b.pressed.connect(func() -> void:
+			if state != "input":
+				return
+			var valid := index == int(config.correct)
+			var colour := Explainer.TEAL if valid else Explainer.RUST
+			_activity_status.text = str(config.results[index])
+			_activity_status.add_theme_color_override("font_color", colour)
+			_activity_signal.show_state("rehearsed" if valid else "rehearsal-slip", colour))
+		shelf.add_child(b)
+	actions.add_child(shelf)
 
 
 func _activity_state(next: String, ink: Color) -> void:
@@ -1203,6 +1228,9 @@ class ActivitySignal extends Control:
 
 	func _draw() -> void:
 		var y := size.y * 0.5
+		if config.kind == "balance" or config.kind == "substitute":
+			_draw_bench(y)
+			return
 		if config.kind == "stands":
 			_draw_stands(y)
 			return
@@ -1227,6 +1255,28 @@ class ActivitySignal extends Control:
 			draw_arc(mast, 24.0, -0.75, 0.75, 14, ink, 3.0, true)
 		elif phase == "retry":
 			draw_polyline(PackedVector2Array([relay + Vector2(-8, 5), relay + Vector2(-2, -5), relay + Vector2(3, 4), relay + Vector2(8, -5)]), ink, 2.0, true)
+
+	func _draw_bench(y: float) -> void:
+		draw_rect(Rect2(0, y - 29, 155, 58), Explainer.SLATE_DEEP)
+		if config.kind == "balance":
+			var centre := Vector2(76, y + 1)
+			var skew := 12.0 if phase in ["rehearsal-slip", "retry"] else 0.0
+			var left := centre + Vector2(-47, skew)
+			var right := centre + Vector2(47, -skew)
+			draw_colored_polygon(PackedVector2Array([centre, centre + Vector2(-13, 22), centre + Vector2(13, 22)]), Explainer.IRON)
+			draw_line(left, right, ink, 3.0, true)
+			draw_line(left - Vector2(12, 0), left + Vector2(12, 0), ink, 5.0, true)
+			draw_line(right - Vector2(12, 0), right + Vector2(12, 0), ink, 5.0, true)
+			return
+		var font := ThemeDB.fallback_font
+		var expression := "x²"
+		if phase in ["rehearsed", "sent", "coached"]:
+			expression = str(config.control.options[int(config.control.correct)])
+		elif phase == "rehearsal-slip":
+			expression = str(config.control.options[1 - int(config.control.correct)])
+		draw_rect(Rect2(15, y - 18, 122, 35), Explainer.IRON, false, 2.0)
+		draw_string(font, Vector2(22, y + 9), expression, HORIZONTAL_ALIGNMENT_CENTER, 107, 24, ink)
+
 
 	func _draw_stands(y: float) -> void:
 		draw_rect(Rect2(0, y - 29, 155, 58), Explainer.SLATE_DEEP)
