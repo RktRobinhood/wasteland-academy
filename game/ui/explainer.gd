@@ -103,6 +103,7 @@ func _init() -> void:
 
 
 func _ready() -> void:
+	Audio.hold_music(self, true)
 	theme = UiTheme.make()
 	resized.connect(_fit)
 	_fit()
@@ -112,6 +113,7 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	Audio.stop_voice()
+	Audio.hold_music(self, false)
 
 
 ## Load a question's solution into the player, at the start, playing.

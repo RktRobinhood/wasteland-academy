@@ -147,6 +147,7 @@ var last_voice := ""
 
 var _location := ""
 var _music: Array[AudioStreamPlayer] = []
+var _music_holds: Dictionary[int, bool] = {}
 var _playing := 0
 var _fade: Tween
 var _sfx: Array[AudioStreamPlayer] = []
@@ -199,6 +200,20 @@ func play_location(cue: String) -> void:
 	_location = cue
 	if sound_enabled:
 		_start_music(cue)
+
+
+## Temporarily silence the background for a lesson without changing settings or
+## advancing the loop. An overlapping player cannot release another player's hold.
+func hold_music(owner: Node, held: bool) -> void:
+	var key := owner.get_instance_id()
+	if held:
+		_music_holds[key] = true
+	else:
+		_music_holds.erase(key)
+	var suspended := not _music_holds.is_empty()
+	for player in _music:
+		player.stream_paused = suspended
+	_apply_volumes()
 
 
 ## Stop the music and forget where we were.
@@ -300,7 +315,7 @@ func _set_ducked(on: bool) -> void:
 
 ## True while a music loop is audible. For tests and for the settings screen.
 func music_playing() -> bool:
-	return _music.any(func(player: AudioStreamPlayer) -> bool: return player.playing)
+	return _music.any(func(player: AudioStreamPlayer) -> bool: return player.playing and not player.stream_paused)
 
 
 ## Put the seven settings back to a fresh install and save that.
@@ -336,7 +351,7 @@ func _apply_enabled() -> void:
 
 
 func _apply_volumes() -> void:
-	_set_bus_level(MUSIC_BUS, music_volume, music_muted, DUCK_DB * _duck)
+	_set_bus_level(MUSIC_BUS, music_volume, music_muted or not _music_holds.is_empty(), DUCK_DB * _duck)
 	_set_bus_level(SFX_BUS, sfx_volume, sfx_muted)
 	_set_bus_level(VOICE_BUS, voice_volume, voice_muted)
 
@@ -439,6 +454,7 @@ func _start_music(cue: String) -> void:
 	incoming.stream = stream
 	incoming.volume_db = SILENT_DB
 	incoming.play()
+	incoming.stream_paused = not _music_holds.is_empty()
 	_fade = create_tween().set_parallel(true)
 	_fade.tween_property(incoming, "volume_db", 0.0, CROSSFADE_SEC)
 	if outgoing.playing:

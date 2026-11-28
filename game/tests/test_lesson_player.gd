@@ -89,6 +89,47 @@ func _skip_to(p: LessonPlayer, id: String) -> void:
 
 # ── The rules ────────────────────────────────────────────────
 
+func test_music_stays_paused_for_the_entire_lesson_and_returns_on_exit() -> void:
+	var audio := tree.root.get_node("Audio")
+	var before := bool(audio.sound_enabled)
+	audio.sound_enabled = true
+	audio.play_location("signal-tower")
+	await _settle()
+	check(audio.music_playing(), "the actual background loop starts")
+	var one := await _player()
+	var voice_idx := AudioServer.get_bus_index("Voice")
+	var music_idx := AudioServer.get_bus_index("Music")
+	check(not audio.music_playing(), "opening a lesson pauses the music")
+	check(AudioServer.is_bus_mute(music_idx), "the lesson makes the music bus silent")
+	check(not AudioServer.is_bus_mute(voice_idx), "narration remains audible")
+	var p: LessonPlayer = one[1]
+	p.toggle_pause()
+	p.toggle_pause()
+	check(not audio.music_playing(), "pauses and silent gaps do not bring the music back")
+	audio.play_location("engine-core")
+	await _settle()
+	check(not audio.music_playing(), "a newly started location cue stays paused")
+	var two := await _player()
+	_done(one)
+	check(not audio.music_playing(), "an overlapping lesson keeps music paused")
+	_done(two)
+	await _settle()
+	check(audio.music_playing(), "music resumes after the last lesson exits")
+	check_eq(audio.location(), "engine-core")
+	check(not AudioServer.is_bus_mute(music_idx), "the music bus is restored")
+	audio.sound_enabled = before
+
+
+func test_reading_check_does_not_end_in_a_decorative_glyph() -> void:
+	var made := await _player()
+	var p: LessonPlayer = made[1]
+	p._write({"write": "Check: −2x > 0 when x < 0, so g(−4) > 6 ✓", "kind": "check"}, false)
+	check_eq(p.board.back().text, "Check: −2x > 0 when x < 0, so g(−4) > 6")
+	p._write({"write": "x² ≥ 0", "kind": "step"}, false)
+	check_eq(p.board.back().text, "x² ≥ 0", "mathematical symbols are unchanged")
+	_done(made)
+
+
 func test_the_game_has_a_copy_of_the_exemplar_and_its_shared_lines() -> void:
 	var l := Lesson.load_id(EXEMPLAR)
 	check(l != null, "no res://data/explainers/%s.json: run node tools/game-explainers.mjs --write" % EXEMPLAR)

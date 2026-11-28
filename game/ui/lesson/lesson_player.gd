@@ -126,6 +126,7 @@ var _activity_status: Label
 var _activity_signal: ActivitySignal
 
 func _ready() -> void:
+	Audio.hold_music(self, true)
 	theme = UiTheme.make()
 	callbacks = Lesson.shared("callbacks")
 	verified_voice = Lesson.shared("voice-index")
@@ -142,6 +143,7 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	Audio.stop_voice()
+	Audio.hold_music(self, false)
 
 
 # ── Layout ───────────────────────────────────────────────────
@@ -512,7 +514,8 @@ func _write(item: Dictionary, animate: bool) -> void:
 				b.struck = true
 		_set_board(board)
 		return
-	var text := str(item.get("write", ""))
+	# A trailing decorative check can render as a replacement glyph on phones.
+	var text := str(item.get("write", "")).strip_edges(false, true).trim_suffix(" ✓")
 	var figure: Dictionary = item.figure if item.get("figure") is Dictionary else {}
 	if item.has("figure"):
 		text = str(item.get("alt", "A figure."))
