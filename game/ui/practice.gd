@@ -685,6 +685,8 @@ func _show_working() -> void:
 			b.button_pressed = true
 	if question.solutions.size() > 1:
 		working.add_child(tabs)
+	else:
+		tabs.free()
 	working.add_child(steps)
 	_show_steps(steps, 0)
 	_let_swipes_through()

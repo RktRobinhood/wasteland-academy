@@ -173,7 +173,7 @@ static func go(tree: SceneTree, route: Dictionary, replace := false) -> void:
 
 
 ## Shows a route in the scene on screen when that scene draws it, or opens its scene,
-## quitting a run in progress first when `leave`.
+## checkpointing a run in progress first when `leave`.
 static func _show(tree: SceneTree, scene: Node, route: Dictionary, leave: bool) -> void:
 	var want := scene_for(route)
 	if scene != null and scene.scene_file_path == want and want != MAP:
@@ -208,7 +208,7 @@ static func listen(tree: SceneTree) -> void:
 
 
 ## The back button or a pasted link. An empty hash is the title screen. A run in
-## progress is quit first, so its Scrap is banked.
+## progress is checkpointed before leaving.
 static func _hash_changed(_args: Array) -> void:
 	if _tree == null:
 		return

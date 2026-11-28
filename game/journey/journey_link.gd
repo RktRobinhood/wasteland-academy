@@ -72,6 +72,15 @@ static func job_words(p_run: Run, save: Dictionary = {}) -> Dictionary:
 	return assets.sheets[e.prop]
 
 
+## Position the presentation at the resumed question without emitting Run signals,
+## marking again, or replaying the animation of the last answer.
+func restore_view() -> void:
+	_on_started(run.region, run.avatar, run.run_seed)
+	_on_opened(run.fight, run.tier)
+	if run.state == "result":
+		_call("settle_restored_view", [])
+
+
 func _on_started(region: String, _avatar: String, run_seed: int) -> void:
 	_fight = -1
 	_call("start_run", [region_for(region), avatar, "rebar", run_seed])

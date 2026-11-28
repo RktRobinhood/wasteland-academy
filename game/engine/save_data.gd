@@ -160,11 +160,16 @@ static func downgrade(data: Dictionary, to: int) -> Dictionary:
 	return out
 
 
+## Validate the checkpoint rather than locking a course on unreadable legacy data.
+static func has_active_run(data: Dictionary) -> bool:
+	var checkpoint: Variant = data.get("settled_run")
+	return checkpoint is Dictionary and not checkpoint.is_empty() and Run.restore_settled(data, checkpoint) != null
+
 ## Puts the save on a course (Courses.ids()). Returns false, changing nothing, for an id
 ## courses.json doesn't list. The cell records stay: a cell is a skill's question, so a
 ## course that shares the skill keeps what the student has done on it.
 static func set_course(data: Dictionary, course: String) -> bool:
-	if not Courses.has(course):
+	if not Courses.has(course) or (course != Courses.of(data) and has_active_run(data)):
 		return false
 	data["course"] = course
 	if data.get("intro") is Dictionary:

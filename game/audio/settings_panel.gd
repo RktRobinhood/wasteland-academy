@@ -31,6 +31,7 @@ var fallback_path := SaveData.PATH
 
 var _showing := false
 var _group: ButtonGroup
+var _course_lock: Label
 var _timer_group: ButtonGroup
 var _motion: Button
 var _text: Button
@@ -86,7 +87,9 @@ func _add_play_settings() -> void:
 	cards.name = "CardsButton"
 	cards.text = "How a fight works"
 	cards.pressed.connect(func() -> void: add_child(FirstRun.fight_cards()))
-	for n in [label, row, cards]:
+	_course_lock = UiTheme.label("Finish or quit your current run to change course.", UiTheme.BODY, UiTheme.DIM)
+	_course_lock.name = "CourseLock"
+	for n in [label, row, _course_lock, cards]:
 		column.add_child(n)
 		column.move_child(n, at)
 		at += 1
@@ -200,9 +203,13 @@ func _set_setting(key: String, value: Variant) -> void:
 func _show_course() -> void:
 	if _group == null:
 		return
-	var id := Courses.of(_current_save())
+	var data := _current_save()
+	var id := Courses.of(data)
+	var locked := SaveData.has_active_run(data)
+	_course_lock.visible = locked
 	for b in _group.get_buttons():
 		b.set_pressed_no_signal(b.name == id)
+		b.disabled = locked
 
 
 func _current_save() -> Dictionary:

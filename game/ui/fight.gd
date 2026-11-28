@@ -91,6 +91,7 @@ static var launch: Dictionary = {}
 var run: Run
 ## The Bazaar perk this run plays with ({} for none).
 var perk: Dictionary = {}
+var _settled_upgrades: Dictionary = {}
 var region := "quadratics"
 var start_floor := 1
 var run_seed := 0
@@ -199,6 +200,8 @@ func _ready() -> void:
 	run_seed = deep.seed
 	first_fight = deep.fight
 	start_run()
+	if run == null or _restored_on_open:
+		return
 	match deep.get("autoplay", ""):
 		"right", "wrong":
 			autoplay(deep.autoplay == "right")
@@ -265,20 +268,40 @@ func show_cards(then: Callable = Callable()) -> FirstRun:
 	return f
 
 
+## Tracks whether a demo URL must leave an actual saved run untouched.
+var _restored_on_open := false
+
+
 ## Starts a run with this screen's region, floor and seed (a fresh seed if 0).
 func start_run() -> void:
+	_restored_on_open = false
+	var raw_checkpoint: Variant = save.get("settled_run", {})
+	var restored: Run = null
+	if raw_checkpoint is Dictionary and not raw_checkpoint.is_empty():
+		restored = Run.restore_settled(save, raw_checkpoint)
+		if restored != null and (restored.region != region or restored.start_floor != start_floor or first_fight != 1):
+			_offer_active_run(restored)
+			return
+	var resuming := restored != null
+	_restored_on_open = resuming
 	if run_seed == 0:
 		run_seed = int(Time.get_unix_time_from_system()) % 1000000 + 1
-	run = Run.new(save, region, start_floor, run_seed)
+	run = restored if resuming else Run.new(save, region, start_floor, run_seed)
 	_taunted = -1
 	_job_fight = -1
 	_announced = -1
 	if first_fight > 1:
 		run.first_fight = first_fight
 		run.records = false
-	# What the Bazaar sold (G6) reaches the run through its modifiers only.
-	perk = Bazaar.equip(run, save)
-	SaveData.store(save, save_path)
+	if resuming:
+		perk = raw_checkpoint.perk.duplicate(true)
+		_settled_upgrades = raw_checkpoint.upgrades.duplicate(true)
+	else:
+		# What the Bazaar sold (G6) reaches the run through its modifiers only.
+		perk = Bazaar.equip(run, save)
+		var shop: Dictionary = Bazaar.record(save)
+		_settled_upgrades = {"max_hp": shop.max_hp, "lifelines": shop.lifelines.duplicate(true)}
+		SaveData.store(save, save_path)
 	run.question_opened.connect(func(_f, _t): _show_question())
 	run.question_opened.connect(func(_f, _t): Audio.play_location(MapLink.music_for(region, run.kind != "fight")))
 	run.question_opened.connect(func(_f, _t):
@@ -300,7 +323,18 @@ func start_run() -> void:
 	scroll.visible = true
 	left.visible = true
 	hp_row.visible = true
-	run.start()
+	if resuming:
+		_taunted = run.fights
+		journey.restore_view()
+		_show_question(false)
+		_restore_entry(raw_checkpoint.get("entry", {}))
+		if run.state == "result":
+			var restored_result: Dictionary = raw_checkpoint.result.duplicate(true)
+			restored_result.solution = run.question.solutions[0] if restored_result.outcome in ["wrong", "timeout"] else {}
+			_show_result(restored_result, false)
+		Audio.play_location(MapLink.music_for(region, run.kind != "fight"))
+	else:
+		run.start()
 
 
 ## The region's backdrop, or a close-up of its island from the world map (the map's
@@ -310,9 +344,8 @@ func _backdrop() -> Texture2D:
 	return map.backdrop_for(region)
 
 
-## The floor select (Q4): floor 1 and the floor after each floor whose boss the player
-## has beaten, the best floor so far, and what opens the next one.
-func show_floor_select() -> void:
+## Shared layout for choosing a starting floor or continuing a saved run.
+func _show_pre_run_panel() -> void:
 	run = null
 	card_frame.visible = false
 	scroll.visible = false
@@ -326,6 +359,11 @@ func show_floor_select() -> void:
 		floor_box.remove_child(c)
 		c.queue_free()
 	title.text = Dungeon.region_name(region)
+
+
+## A new run can start after any previously beaten mile boss.
+func show_floor_select() -> void:
+	_show_pre_run_panel()
 	var head := UiTheme.label("Pick your starting mile", 84, UiTheme.TEAL)
 	head.name = "Heading"
 	head.add_theme_font_override("font", UiTheme.TITLE_FONT)
@@ -368,17 +406,41 @@ func show_floor_select() -> void:
 	(list.get_child(0) as Button).grab_focus.call_deferred()
 
 
+## Changing routes does not abandon the single saved run. The ordinary Quit action
+## on the resumed run is still the only deliberate way to end it.
+func _offer_active_run(saved_run: Run) -> void:
+	_show_pre_run_panel()
+	var saved_region := saved_run.region
+	var saved_floor := saved_run.start_floor
+	floor_box.add_child(UiTheme.label("Run in progress", UiTheme.BIG, UiTheme.TEAL))
+	floor_box.add_child(UiTheme.label("%s · Mile %d" % [Dungeon.region_name(saved_region), saved_run.floor_no], UiTheme.BODY, UiTheme.TEXT))
+	floor_box.add_child(UiTheme.label("Continue your run, or return to the map. To start a different run, quit the current one first.", UiTheme.BODY, UiTheme.DIM))
+	var resume := Button.new()
+	resume.name = "ContinueSavedRun"
+	resume.text = "Continue run"
+	resume.pressed.connect(func():
+		region = saved_region
+		start_floor = saved_floor
+		first_fight = 1
+		start_run())
+	floor_box.add_child(resume)
+	var back := Button.new()
+	back.name = "Map"
+	back.text = "Back to map"
+	back.pressed.connect(to_map)
+	floor_box.add_child(back)
+	resume.grab_focus.call_deferred()
+
 ## Back to the map, on the screen the run was started from (the region's, after a
 ## deep link).
 func to_map() -> void:
 	MapLink.go(get_tree(), MapLink.current if not MapLink.current.is_empty() else MapLink.region_route(region))
 
 
-## Leaving by the browser's back button: a run in progress is quit, so its Scrap is
-## banked.
+## Browser navigation suspends an unanswered question without ending the run.
+## A result is already checkpointed; only the explicit Quit button ends the run.
 func leave_run() -> void:
-	if run != null and run.state != "ended":
-		run.quit()
+	_save_open_question()
 
 
 ## What a floor asks, in a few words.
@@ -734,6 +796,8 @@ func _exit_tree() -> void:
 
 
 func set_away(value: bool) -> void:
+	if value and not away:
+		_save_open_question()
 	if away and not value:
 		_skip_frame = true
 	away = value
@@ -765,7 +829,7 @@ func prompt_text() -> String:
 
 
 ## Draws the run's open question, with the practice screen's card.
-func _show_question() -> void:
+func _show_question(store_continuation := true) -> void:
 	question = run.question
 	if _fall != null:
 		_fall.kill()
@@ -794,10 +858,19 @@ func _show_question() -> void:
 		VoiceLines.say(str(run.enemy.get("speaker", "")), run.enemy.taunt)
 	hint_label = UiTheme.math_label("", UiTheme.BODY, UiTheme.SAND)
 	hint_label.name = "Hint"
-	hint_label.visible = false
+	hint_label.visible = not run.hint.is_empty()
+	if hint_label.visible:
+		hint_label.text = "Hint: " + run.hint
 	card.add_child(hint_label)
 	card.move_child(hint_label, card.get_node("Prompt").get_index() + 1)
+	for id in run.removed:
+		var i := int(id)
+		if i >= 0 and i < _choice_buttons.size():
+			_choice_buttons[i].disabled = true
+			_choice_buttons[i].add_theme_color_override("font_disabled_color", Color(UiTheme.DIM, 0.4))
 	_update_hud()
+	if store_continuation:
+		_save_open_question()
 	# Keyboard focus starts on the first choice (FAL-1601, #187), so the first Tab isn't
 	# a lifeline. A typed answer's box already takes it (practice.gd's _add_slots).
 	if _slots.is_empty() and not _choice_buttons.is_empty():
@@ -809,19 +882,21 @@ func _show_question() -> void:
 func _show_boss_part() -> void:
 	var b: Dictionary = run.boss
 	var n: int = b.parts.size()
+	var part: int = int(run.question.part)
 	var at := 0
 	var head := UiTheme.label("%s · part (%s) of %d" % ["Boss" if b.kind == "boss" else "Mini-boss",
-		QuestionEngine.part_letter(b.part), n] + (" · link question" if run.rule == "link" else ""), UiTheme.BODY, UiTheme.PINK)
+		QuestionEngine.part_letter(part), n] + (" · link question" if run.rule == "link" else ""), UiTheme.BODY, UiTheme.PINK)
 	head.name = "BossPart"
 	card.add_child(head)
 	card.move_child(head, at)
 	at += 1
-	if b.part > 0:
+	if part > 0:
 		var done := VBoxContainer.new()
 		done.name = "PartsDone"
 		done.add_theme_constant_override("separation", 6)
-		var answers: Array = run.answers.slice(-b.part)
-		for i in b.part:
+		var end := run.answers.size() - (1 if run.state == "result" else 0)
+		var answers: Array = run.answers.slice(end - part, end)
+		for i in part:
 			var right: bool = answers[i].outcome in ["right", "late", "glancing"]
 			var pv: Dictionary = b.parts[i].view
 			var asked: String = QuestionEngine.unknown_of(QuestionEngine.type_of(pv.type), pv.unknown).get("asked", "")
@@ -925,7 +1000,8 @@ static func timer_text(left: float, frozen: bool, late: bool) -> String:
 func use_lifeline(id: String) -> void:
 	if run == null:
 		return
-	if run.can_use(id):
+	var applied := run.can_use(id)
+	if applied:
 		Audio.play_sfx("hint")
 	match id:
 		"fifty":
@@ -944,6 +1020,21 @@ func use_lifeline(id: String) -> void:
 		"freeze":
 			run.use_freeze()
 	_update_hud()
+	if applied:
+		_save_open_question()
+
+
+## Checkpoint events, not per-frame writes: opening the question, using an aid,
+## or losing focus. The timer cannot spend time while the tab/app is hidden.
+func _save_open_question() -> void:
+	if run == null or run.state != "question":
+		return
+	var checkpoint := run.continued_checkpoint(_settled_upgrades, perk)
+	if checkpoint.is_empty():
+		return
+	checkpoint.entry = _capture_entry()
+	save.settled_run = checkpoint
+	SaveData.store(save, save_path)
 
 
 ## Marks the answer through the run.
@@ -977,11 +1068,51 @@ static func sfx_for(r: Dictionary) -> String:
 	return "correct" if r.get("outcome", "") in ["right", "glancing", "late"] else "retry"
 
 
-func _show_result(r: Dictionary) -> void:
+# Keep the player's displayed working separate from the normalized question/result.
+# This is local save state; restoring it never calls the marking path.
+func _capture_entry() -> Dictionary:
+	var typed := {}
+	for id in _slots:
+		typed[id] = _slots[id].text
+	return {"typed": typed, "choice": _choice, "picks": _picks.duplicate(true)}
+
+
+func _restore_entry(entry: Variant) -> void:
+	if not entry is Dictionary:
+		return
+	var choice: Variant = entry.get("choice", -1)
+	if (choice is int or choice is float) and choice >= 0 and choice < _choice_buttons.size() and float(choice) == floorf(float(choice)) and not _choice_buttons[int(choice)].disabled:
+		_choice = int(choice)
+		_choice_buttons[_choice].set_pressed_no_signal(true)
+	var typed: Variant = entry.get("typed")
+	if typed is Dictionary:
+		for id in _slots:
+			var value: Variant = typed.get(id)
+			if value is String and value.length() <= 256:
+				_slots[id].text = value
+	var picks: Variant = entry.get("picks")
+	if picks is Dictionary:
+		for id in _pick_buttons:
+			var value: Variant = picks.get(id)
+			if value is String:
+				for button: Button in _pick_buttons[id]:
+					if UiTheme.button_text(button) == value:
+						_picks[id] = value
+						button.set_pressed_no_signal(true)
+
+
+func _show_result(r: Dictionary, settle := true) -> void:
 	result = r
 	answered = true
-	Audio.play_sfx(sfx_for(r))
-	SaveData.store(save, save_path)
+	if settle:
+		Audio.play_sfx(sfx_for(r))
+		# Journey jobs use the same seeded question, rewards and result as a fight.
+		# The checkpoint is an engine concern, not a decision of its artwork/wording.
+		var checkpoint := run.settled_checkpoint(r, _settled_upgrades, perk)
+		if not checkpoint.is_empty():
+			checkpoint.entry = _capture_entry()
+			save.settled_run = checkpoint
+		SaveData.store(save, save_path)
 	feedback.visible = true
 	var color := UiTheme.TEAL
 	# A boss's bar counts parts, not HP: every part answered takes one, right or not (Q9).
@@ -1066,11 +1197,14 @@ func _show_result(r: Dictionary) -> void:
 	_update_hud()
 	_reveal_result()
 	# A boss part missed still uses the part up, but it isn't a hit.
-	if r.enemy_damage > 0 and r.outcome in ["right", "glancing", "late"]:
+	if settle and r.enemy_damage > 0 and r.outcome in ["right", "glancing", "late"]:
 		flash_hurt()
 		spark_hit()
 	if r.defeated:
-		enemy_falls()
+		if settle:
+			enemy_falls()
+		else:
+			enemy_art.modulate.a = 0.0
 
 
 ## On a hit, the enemy's hurt frame for HURT_FLASH seconds, where it has one.
@@ -1184,6 +1318,7 @@ func next_question() -> void:
 
 
 func _show_summary(s: Dictionary) -> void:
+	save.erase("settled_run")
 	SaveData.store(save, save_path)
 	if int(s.get("scrap", 0)) > 0:
 		Audio.play_sfx("reward")

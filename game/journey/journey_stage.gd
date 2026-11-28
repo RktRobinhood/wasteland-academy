@@ -264,6 +264,13 @@ func question_opened(_index: int = 0) -> void:
 	question_open = true
 
 
+## A restored result is already settled. Draw the current encounter at rest;
+## don't strike, play feedback, or advance its encounter counter.
+func settle_restored_view() -> void:
+	question_open = false
+	queue_redraw()
+
+
 func answer_resolved(outcome: String, info: Dictionary = {}) -> void:
 	if not _live():
 		return
