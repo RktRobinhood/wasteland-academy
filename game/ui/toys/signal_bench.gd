@@ -78,7 +78,8 @@ func start(t: Dictionary) -> void:
 		super({})
 	else:
 		super(t)
-	transmit.disabled = false
+	_set_locked(false)
+	feedback.remove_theme_color_override("font_color")
 	scope.reference = Vector2(float(task.amplitude), float(task.period)) if task.get("kind") == "match" else Vector2.ZERO
 	feedback.text = "Match the dotted reference. Then test the transmission." if task.get("kind") == "match" else "Change one dial at a time to see what it controls."
 	_refresh()
@@ -92,12 +93,20 @@ func _refresh() -> void:
 	readout.text = "Live trace: %s V · %s s per cycle  /  Dotted: reference" % [amplitude.value, period.value] if scope.reference.y > 0 else "Live trace: %s V · %s s per cycle" % [amplitude.value, period.value]
 	scope.accessibility_name = readout.text
 
+func _set_locked(locked: bool) -> void:
+	transmit.disabled = locked
+	amplitude.editable = not locked
+	period.editable = not locked
+
+
 func perform(action: Dictionary) -> void:
+	if transmit.disabled:
+		return
 	if action.has("amplitude"):
 		amplitude.value = float(action.amplitude)
 	if action.has("period"):
 		period.value = float(action.period)
-	if action.get("kind") != "send" or transmit.disabled:
+	if action.get("kind") != "send":
 		return
 	if task.get("kind") != "match":
 		_report({"hit": null})
@@ -108,7 +117,7 @@ func perform(action: Dictionary) -> void:
 	if hit:
 		feedback.text = "✓ Signal locked. Peak height and period both match."
 		feedback.add_theme_color_override("font_color", PEN)
-		transmit.disabled = true
+		_set_locked(true)
 	else:
 		feedback.text = "↻ Static. Check the %s, then try again." % ("period" if height else ("amplitude" if spacing else "amplitude and period"))
 		feedback.add_theme_color_override("font_color", REFERENCE)

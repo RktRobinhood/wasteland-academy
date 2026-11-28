@@ -37,8 +37,18 @@ func test_signal_bench_controls_change_the_wave_and_mark_only_on_transmit() -> v
 	check_eq(finishes.size(), 1)
 	check_eq(finishes[0].misses, 1)
 	check(feedback.text.contains("Signal locked"), "affirmative status is not colour only")
+	check(not amp.editable and not period.editable, "completed signal locks both dials")
+	var locked: float = toy.sample(1.5)
+	toy.perform({"amplitude": 1.0, "period": 9.0})
+	check_eq(toy.sample(1.5), locked, "a locked scope cannot redraw a mismatched signal")
 	transmit.pressed.emit()
 	check_eq(finishes.size(), 1, "no completion event can repeat")
+	toy.start({"kind": "match", "amplitude": 1.5, "period": 5.0})
+	check(amp.editable and period.editable and not transmit.disabled, "a new channel re-enables both dials")
+	amp.value = 1.5
+	period.value = 5.0
+	transmit.pressed.emit()
+	check_eq(finishes.size(), 2, "a new channel can complete once")
 	frame.free()
 
 
