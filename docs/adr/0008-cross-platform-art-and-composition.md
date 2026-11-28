@@ -54,3 +54,8 @@ If the viewport or asynchronously loaded composition changes during the zoom bac
 ### Object-source lighting stays 2D
 
 Use a compact glow at each emitter and a separately shaped light footprint on the rock, sand or metal that receives it. Orient and size the footprint in each painting; fade it at the edges and leave the shadow side of the landmark alone. Gate, lantern, furnace and lava lights share the existing clock and blend; avoid a brighter global grade, point markers, real geometry or a second set of high-resolution map images. There is no decorative location dot on the no-art fallback either.
+
+
+### Living light on painted maps
+
+Keep the painted layers. Anchor each emitter in the image; animate light on its receiving surfaces, not the emitter's position or the whole screen. Furnace, lava and welding use smooth, irregular heat flicker; a radio lamp slowly sweeps its ground footprint; lanterns shift more gently and security doors stay steady. Reuse the same blend and daylight sampler for the world and all five boards. Do not add new art downloads, map markers, or rapid flashes. Do not apply this motion to the maths panel.

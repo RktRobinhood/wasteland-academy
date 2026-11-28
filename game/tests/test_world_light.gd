@@ -35,3 +35,20 @@ func test_current_view_catches_up_only_after_the_prompt() -> void:
 		grade.advance(0.25)
 	check(grade.grade.g < 0.80 and grade.grade.g > 0.70, "sunset appeared without changing the scene")
 	check(grade.local_light > 0.39, "light source warmed without a flash")
+
+
+func test_fixture_motion_separates_heat_sweeps_and_steady_doors() -> void:
+	var prior := WorldLight.fixture_motion("heat", 0.0)
+	var low := prior.x
+	var high := prior.x
+	for i in range(1, 241):
+		var now := WorldLight.fixture_motion("heat", float(i) / 60.0)
+		check(now.x > 0.69 and now.x < 1.07 and now.y == 0.0, "continuous hot light, no moving bulb")
+		check(absf(now.x - prior.x) < 0.014, "per-frame exposure cannot jump")
+		low = minf(low, now.x)
+		high = maxf(high, now.x)
+		prior = now
+	check(high - low > 0.23, "visible heat, not a barely detectable fade")
+	check(WorldLight.fixture_motion("search", 3.0).y > 0.20)
+	check(WorldLight.fixture_motion("search", 9.0).y < -0.20)
+	check_eq(WorldLight.fixture_motion("", 99.0), Vector2(1.0, 0.0))

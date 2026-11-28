@@ -64,6 +64,19 @@ static func radial_falloff() -> GradientTexture2D:
 	return glow
 
 
+## The light's origin never moves. x is brightness, y is the receiving
+## footprint's angle. Keep effects smooth and nonzero, never blink on/off.
+static func fixture_motion(kind: String, seconds: float, phase: float = 0.0) -> Vector2:
+	match kind:
+		"heat":
+			return Vector2(0.88 + 0.11 * sin(seconds * 4.7 + phase) + 0.07 * sin(seconds * 2.3 + phase), 0.0)
+		"search":
+			return Vector2(0.96 + 0.04 * cos(seconds * TAU / 12.0 + phase), 0.24 * sin(seconds * TAU / 12.0 + phase))
+		"lantern":
+			return Vector2(0.95 + 0.04 * sin(seconds * 2.1 + phase) + 0.028 * sin(seconds * 3.8 + phase), 0.0)
+	return Vector2(1.0, 0.0)
+
+
 static func local_minute() -> float:
 	var t := Time.get_time_dict_from_system()
 	return float(t.hour) * 60.0 + float(t.minute) + float(t.second) / 60.0
