@@ -69,7 +69,7 @@ export function checkArchive(sources) {
           practice.turn.fallback.parts.length !== 1 || Number(practice.turn.fallback.parts[0].answer) !== expected)
         fail('seat count must match the selected row or stand');
     }
-    if (['balance', 'substitute'].includes(e.activity?.kind)) {
+    if (['balance', 'substitute', 'backtrace', 'price'].includes(e.activity?.kind)) {
       const { options, results, correct } = e.activity.control ?? {};
       if (!Array.isArray(options) || !Array.isArray(results) ||
           options.length !== 2 || results.length !== 2 ||

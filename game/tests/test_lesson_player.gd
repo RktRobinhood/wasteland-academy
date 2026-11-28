@@ -636,7 +636,7 @@ func test_archive_rehearsal_moves_change_the_bench_but_do_not_mark_the_answer() 
 	script.open_preview = true
 	frame.add_child(screen)
 	await _settle()
-	for scene_kind in ["balance", "substitute"]:
+	for scene_kind in ["balance", "substitute", "backtrace", "price"]:
 		var index := -1
 		for i: int in screen.entries.size():
 			if screen.entries[i].activity.get("kind") == scene_kind:
@@ -658,14 +658,15 @@ func test_archive_rehearsal_moves_change_the_bench_but_do_not_mark_the_answer() 
 		p = screen.player
 		p.paused = true
 		await _run(p, func(pl): return pl.state == "input")
-		await _tap(p.actions.get_node("BenchControls/Move1"))
+		var correct := int(p.activity.control.correct)
+		await _tap(p.actions.get_node("BenchControls/Move%d" % (1 - correct)))
 		check_eq(p._activity_signal.phase, "rehearsal-slip", "the wrong operation changes the bench without marking")
-		await _tap(p.actions.get_node("BenchControls/Move0"))
+		await _tap(p.actions.get_node("BenchControls/Move%d" % correct))
 		check_eq(p._activity_signal.phase, "rehearsed", "the right operation changes the bench")
 		check_eq(p.state, "input", "the learner still supplies their own answer")
 		check(p.board.is_empty(), "the operation rehearsal does not write the solution")
 		var entry = p.actions.get_node("Entry/Box")
-		var answer := "7" if scene_kind == "balance" else "23"
+		var answer: String = {"balance": "7", "substitute": "23", "backtrace": "7", "price": "53"}[scene_kind]
 		entry.text = answer
 		entry.text_submitted.emit(answer)
 		check(await _run(p), "a correct final answer completes the lesson")

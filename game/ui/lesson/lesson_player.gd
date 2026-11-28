@@ -1158,7 +1158,7 @@ func _turn_done(t: Dictionary, fb: Dictionary, engine: bool, q: Dictionary, righ
 ## What happened in the world, in the caption's place: teal when the signal goes out,
 ## rust for static or a sparked tile. The next line's caption puts the colour back.
 func _mount_activity() -> void:
-	if str(activity.get("kind", "")) not in ["relay", "track", "gauge", "stands", "balance", "substitute"]:
+	if str(activity.get("kind", "")) not in ["relay", "track", "gauge", "stands", "balance", "substitute", "backtrace", "price"]:
 		return
 	var rail := HBoxContainer.new()
 	rail.name = "RelicActivity"
@@ -1228,6 +1228,9 @@ class ActivitySignal extends Control:
 
 	func _draw() -> void:
 		var y := size.y * 0.5
+		if config.kind == "backtrace" or config.kind == "price":
+			_draw_trade_or_signal(y)
+			return
 		if config.kind == "balance" or config.kind == "substitute":
 			_draw_bench(y)
 			return
@@ -1255,6 +1258,26 @@ class ActivitySignal extends Control:
 			draw_arc(mast, 24.0, -0.75, 0.75, 14, ink, 3.0, true)
 		elif phase == "retry":
 			draw_polyline(PackedVector2Array([relay + Vector2(-8, 5), relay + Vector2(-2, -5), relay + Vector2(3, 4), relay + Vector2(8, -5)]), ink, 2.0, true)
+
+	func _draw_trade_or_signal(y: float) -> void:
+		draw_rect(Rect2(0, y - 29, 155, 58), Explainer.SLATE_DEEP)
+		var success := phase in ["sent", "coached", "rehearsed"]
+		var slipped := phase in ["rehearsal-slip", "retry"]
+		if config.kind == "backtrace":
+			var route := PackedVector2Array([Vector2(133, y), Vector2(84, y), Vector2(48, y + (-14 if slipped else 0)), Vector2(21, y + (-14 if slipped else 0))])
+			draw_polyline(route, ink, 3.0, true)
+			draw_circle(route[0], 6.0, Explainer.IRON_GLOSS, true, -1.0, true)
+			if success:
+				var head := route[3]
+				draw_polyline(PackedVector2Array([head + Vector2(8, -6), head, head + Vector2(8, 6)]), ink, 3.0, true)
+			return
+		# Common unit-length first segment. A 60% error makes the second segment ten times longer.
+		var size_add := 45.0 if slipped else (4.5 if success else 0.0)
+		draw_rect(Rect2(16, y - 8, 75, 16), Explainer.IRON_GLOSS)
+		if size_add > 0.0:
+			draw_rect(Rect2(91, y - 8, size_add, 16), ink)
+		draw_line(Vector2(91, y - 15), Vector2(91, y + 15), Explainer.CHALK, 2.0, true)
+
 
 	func _draw_bench(y: float) -> void:
 		draw_rect(Rect2(0, y - 29, 155, 58), Explainer.SLATE_DEEP)

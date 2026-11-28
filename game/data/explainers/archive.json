@@ -195,6 +195,74 @@
           "correct": 0
         }
       }
+    },
+    {
+      "lesson": "ex.functions.inverse-undo",
+      "title": "Reverse a function",
+      "zone": "Signal Tower",
+      "prompt": "Trace a signal back to its original input.",
+      "activity": {
+        "kind": "backtrace",
+        "title": "Signal Tower · Reverse channel",
+        "waiting": "Awaiting original input",
+        "retry": "Undo the last change first",
+        "sent": "Source signal located",
+        "coached": "Reverse channel · working shown",
+        "control": {
+          "options": [
+            "Divide by 3 first",
+            "Subtract 8 first"
+          ],
+          "results": [
+            "Dividing first leaves the added 8 in the signal",
+            "Addition was last. Undo it first."
+          ],
+          "correct": 1
+        }
+      },
+      "worked": "example-1",
+      "practice": "turn-1",
+      "practice_mode": "authored-twin",
+      "courses": [
+        "aa-sl",
+        "aa-hl",
+        "ai-sl",
+        "ai-hl"
+      ]
+    },
+    {
+      "lesson": "ex.foundations.pre-percent-multiplier",
+      "title": "Price after a percentage rise",
+      "zone": "Bazaar",
+      "prompt": "Set the new price for a coil of wire.",
+      "activity": {
+        "kind": "price",
+        "title": "Bazaar · Price board",
+        "waiting": "Awaiting updated price",
+        "retry": "The new price includes the original 100%",
+        "sent": "New price posted",
+        "coached": "Price board · working shown",
+        "control": {
+          "options": [
+            "× 1.06",
+            "× 1.6"
+          ],
+          "results": [
+            "100% + 6% = 106% of the original",
+            "× 1.6 adds 60%, not 6%"
+          ],
+          "correct": 0
+        }
+      },
+      "worked": "example-1",
+      "practice": "turn-1",
+      "practice_mode": "authored-twin",
+      "courses": [
+        "aa-sl",
+        "aa-hl",
+        "ai-sl",
+        "ai-hl"
+      ]
     }
   ]
 }
