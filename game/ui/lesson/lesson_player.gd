@@ -120,6 +120,11 @@ func _init() -> void:
 	_build()
 
 
+# An archive may attach an in-world prop to the same marked turn.
+var activity: Dictionary = {}
+var _activity_status: Label
+var _activity_signal: RelaySignal
+
 func _ready() -> void:
 	theme = UiTheme.make()
 	callbacks = Lesson.shared("callbacks")
@@ -131,6 +136,7 @@ func _ready() -> void:
 		title.remove_theme_font_override("font")
 	resized.connect(_fit)
 	_fit()
+	_mount_activity()
 	start_section(0)
 
 
@@ -285,6 +291,7 @@ func start_section(i: int) -> void:
 	if i >= all.size():
 		_finish_lesson()
 		return
+	_activity_state("waiting", Explainer.DUST)
 	seg = i
 	if _snapshots.has(i):
 		_set_board(_snapshots[i])
@@ -1105,8 +1112,10 @@ func _turn(t: Dictionary, part: int, misses: int, q: Dictionary) -> void:
 			if not engine and part + 1 < fb.parts.size():
 				_resume([{"_lit": "Part copied.", "_good": true}, {"_turn": t, "_part": part + 1}])
 				return
+			_activity_state("sent", Explainer.TEAL)
 			_resume(_turn_done(t, fb, engine, q, true))
 			return
+		_activity_state("retry", Explainer.RUST)
 		var after: Array = [{"_lit": "Static.", "_good": false}]
 		after.append_array(Lesson.not_yet_for(t.get("not_yet", []), mis, misses + part))
 		after.append({"_turn": t, "_part": part, "_misses": misses + 1, "_question": q})
@@ -1120,7 +1129,9 @@ func _turn(t: Dictionary, part: int, misses: int, q: Dictionary) -> void:
 		show.name = "ShowMe"
 		show.text = "Show me"
 		show.custom_minimum_size.y = TOUCH * 0.8
-		show.pressed.connect(func(): _resume(_turn_done(t, fb, engine, q, false)))
+		show.pressed.connect(func() -> void:
+			_activity_state("coached", Explainer.DUST)
+			_resume(_turn_done(t, fb, engine, q, false)))
 		actions.add_child(show)
 
 
@@ -1145,6 +1156,68 @@ func _turn_done(t: Dictionary, fb: Dictionary, engine: bool, q: Dictionary, righ
 
 ## What happened in the world, in the caption's place: teal when the signal goes out,
 ## rust for static or a sparked tile. The next line's caption puts the colour back.
+func _mount_activity() -> void:
+	if activity.get("kind") != "relay":
+		return
+	var rail := HBoxContainer.new()
+	rail.name = "RelicActivity"
+	rail.add_theme_constant_override("separation", 20)
+	_activity_signal = RelaySignal.new()
+	rail.add_child(_activity_signal)
+	var labels := VBoxContainer.new()
+	labels.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var device := UiTheme.label(str(activity.get("title", "")), UiTheme.SMALL, Explainer.CHALK)
+	device.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	labels.add_child(device)
+	_activity_status = UiTheme.label("", UiTheme.SMALL, Explainer.DUST)
+	_activity_status.name = "ActivityStatus"
+	_activity_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	labels.add_child(_activity_status)
+	rail.add_child(labels)
+	frame.add_child(rail)
+	frame.move_child(rail, 1)
+
+
+func _activity_state(next: String, ink: Color) -> void:
+	if _activity_status == null:
+		return
+	_activity_status.text = str(activity.get(next, ""))
+	_activity_status.add_theme_color_override("font_color", ink)
+	_activity_signal.show_state(next, ink)
+
+
+class RelaySignal extends Control:
+	var phase := ""
+	var ink := Explainer.DUST
+
+	func _init() -> void:
+		custom_minimum_size = Vector2(158, 66)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func show_state(next: String, colour: Color) -> void:
+		phase = next
+		ink = colour
+		queue_redraw()
+
+	func _draw() -> void:
+		var y := size.y * 0.5
+		var left := Vector2(16, y)
+		var relay := Vector2(65, y)
+		var mast := Vector2(124, y)
+		draw_rect(Rect2(0, y - 28, 155, 56), Explainer.SLATE_DEEP)
+		draw_line(left, relay, ink, 4.0, true)
+		draw_line(relay, mast, ink if phase == "sent" else Explainer.IRON, 4.0, true)
+		draw_circle(left, 7.0, ink, true, -1.0, true)
+		draw_rect(Rect2(relay - Vector2(14, 13), Vector2(28, 26)), ink, false, 3.0)
+		draw_line(mast + Vector2(0, -16), mast + Vector2(0, 16), Explainer.IRON_GLOSS, 4.0, true)
+		draw_line(mast + Vector2(-9, -12), mast + Vector2(9, -12), Explainer.IRON_GLOSS, 3.0, true)
+		if phase == "sent":
+			draw_arc(mast, 15.0, -0.8, 0.8, 14, ink, 3.0, true)
+			draw_arc(mast, 24.0, -0.75, 0.75, 14, ink, 3.0, true)
+		elif phase == "retry":
+			draw_polyline(PackedVector2Array([relay + Vector2(-8, 5), relay + Vector2(-2, -5), relay + Vector2(3, 4), relay + Vector2(8, -5)]), ink, 2.0, true)
+
+
 func _show_banner(text: String, good: bool) -> void:
 	_show_caption(text)
 	caption.add_theme_color_override("font_color", Explainer.TEAL if good else Explainer.RUST)

@@ -45,6 +45,14 @@ For now the explicitly authored twin keeps the same demand instead of drawing a
 different topic or missing a question's givens. Existing lesson action kinds remain
 available as small teaching interactions, without adding rewards or gates.
 
+A reviewed `activity` in an archive entry may add an in-world prop to its independent
+Try. A relay consumes the shared player's marking outcome, not the learner's raw input:
+waiting, retryable static, signal sent, or working shown. Its status is available as
+text and art, and replay resets both. The prop never reveals the answer, saves world
+progress, or grants rewards. Keep the lesson's visual consequence and scenario copy in
+data, and reuse existing toys for actions that need manipulation rather than a typed
+transmission. This does not change the signed narration manifest.
+
 ## What it plays
 
 Each section is a part, shown as its act and "part 3 of 10". A part can be replayed (its

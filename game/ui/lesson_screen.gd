@@ -143,6 +143,8 @@ func _open_part(practice: bool) -> void:
 	player = LessonPlayer.make(excerpt, SaveData.load_from().duplicate(true))
 	player.save_path = ""
 	player.allow_why_help = true
+	if practice:
+		player.activity = selected.get("activity", {})
 	player.skip_button.hide()
 	player.replay_button.text = "Restart"
 	player.closed.connect(func() -> void:

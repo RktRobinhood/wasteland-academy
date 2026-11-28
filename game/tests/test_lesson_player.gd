@@ -437,17 +437,37 @@ func test_opt_in_preview_reuses_two_separate_parts_and_verified_recordings() -> 
 	check_eq(p.section().turn.serve, "fallback", "the curated practice is an exact negative linear twin")
 	check(str(p.prompt.text).contains("f(−2)"), "the twin asks for a negative input")
 	check(p.board.is_empty(), "the practice board starts blank")
+	var console := p.find_child("ActivityStatus", true, false) as Label
+	check(console != null, "practice has an in-world relay, separately from the maths board")
+	if console != null:
+		check_eq(console.text, "Awaiting output")
 	await _tap(p.actions.get_node("Keypad").buttons["4"])
 	await _tap(p.actions.get_node("Entry/Send"))
 	await _run(p, func(pl): return pl.state == "input")
 	check_eq(p.state, "input", "a sign slip allows another attempt")
 	check(p.actions.has_node("ShowMe"), "a sign slip exposes the help route")
+	if console != null:
+		check_eq(console.text, "Static · try again", "incorrect maths does not power the relay")
 	var entry = p.actions.get_node("Entry/Box")
 	entry.text = "16"
 	entry.text_submitted.emit("16")
 	check(await _run(p), "a correct response completes the transmission")
+	if console != null:
+		check_eq(console.text, "Signal transmitted", "correct maths powers the relay")
 	check(p.board.any(func(row): return str(row.text).contains("= 16")), "working appears only after the attempt")
 	check(not p.board.any(func(row): return str(row.text).contains("g(−4) = 14")), "Watch does not leak into Try")
+	p.replay_section()
+	await _run(p, func(pl): return pl.state == "input")
+	check(p.board.is_empty(), "replaying clears the board again")
+	if console != null:
+		check_eq(console.text, "Awaiting output", "replay resets the relay")
+	await _tap(p.actions.get_node("Keypad").buttons["4"])
+	await _tap(p.actions.get_node("Entry/Send"))
+	await _run(p, func(pl): return pl.state == "input")
+	await _tap(p.actions.get_node("ShowMe"))
+	check(await _run(p), "help still lets a student finish")
+	if console != null:
+		check_eq(console.text, "Practice signal · working shown", "help does not pretend the learner sent a correct signal")
 	p.close()
 	await _settle()
 	check_eq(tree.root.gui_get_focus_owner(), screen.try_button, "focus restored to Try")
