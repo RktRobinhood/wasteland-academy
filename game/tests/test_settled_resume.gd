@@ -25,6 +25,23 @@ func test_settled_answer_and_earned_scrap_survive_reopening_without_replaying() 
 	check(reward > 0, "the first real answer pays Scrap")
 	frame.free()
 
+	var reopened_screen: Control = (load("res://scenes/fight.tscn") as PackedScene).instantiate()
+	reopened_screen.save_path = path
+	reopened_screen.run_seed = 123
+	reopened_screen.select_first = false
+	reopened_screen.region = "quadratics"
+	var reopened_frame := Control.new()
+	reopened_frame.size = Vector2(1080, 1920)
+	tree.root.add_child(reopened_frame)
+	reopened_frame.add_child(reopened_screen)
+	for _frame: int in 12:
+		await tree.process_frame
+	check_eq(reopened_screen.run.state, "result", "reopening the actual fight shows the settled result")
+	check_eq(MathsEngine.prompt(reopened_screen.run.question), prompt)
+	check_eq(reopened_screen.run.lifelines.hint, 0)
+	check_eq(int(reopened_screen.save.scrap), reward)
+	reopened_frame.free()
+
 	var saved := SaveData.load_from(path)
 	var saved_before := JSON.stringify(saved, "", true, true)
 	var checkpoint: Dictionary = saved.get("settled_run", {})

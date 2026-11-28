@@ -268,20 +268,31 @@ func show_cards(then: Callable = Callable()) -> FirstRun:
 
 ## Starts a run with this screen's region, floor and seed (a fresh seed if 0).
 func start_run() -> void:
+	var raw_checkpoint: Variant = save.get("settled_run", {})
+	var restored: Run = null
+	if raw_checkpoint is Dictionary and not raw_checkpoint.is_empty() and first_fight == 1:
+		restored = Run.restore_settled(save, raw_checkpoint)
+		if restored != null and restored.region != region:
+			restored = null
+	var resuming := restored != null
 	if run_seed == 0:
 		run_seed = int(Time.get_unix_time_from_system()) % 1000000 + 1
-	run = Run.new(save, region, start_floor, run_seed)
+	run = restored if resuming else Run.new(save, region, start_floor, run_seed)
 	_taunted = -1
 	_job_fight = -1
 	_announced = -1
 	if first_fight > 1:
 		run.first_fight = first_fight
 		run.records = false
-	# What the Bazaar sold (G6) reaches the run through its modifiers only.
-	perk = Bazaar.equip(run, save)
-	var shop: Dictionary = Bazaar.record(save)
-	_settled_upgrades = {"max_hp": shop.max_hp, "lifelines": shop.lifelines.duplicate(true)}
-	SaveData.store(save, save_path)
+	if resuming:
+		perk = raw_checkpoint.perk.duplicate(true)
+		_settled_upgrades = raw_checkpoint.upgrades.duplicate(true)
+	else:
+		# What the Bazaar sold (G6) reaches the run through its modifiers only.
+		perk = Bazaar.equip(run, save)
+		var shop: Dictionary = Bazaar.record(save)
+		_settled_upgrades = {"max_hp": shop.max_hp, "lifelines": shop.lifelines.duplicate(true)}
+		SaveData.store(save, save_path)
 	run.question_opened.connect(func(_f, _t): _show_question())
 	run.question_opened.connect(func(_f, _t): Audio.play_location(MapLink.music_for(region, run.kind != "fight")))
 	run.question_opened.connect(func(_f, _t):
@@ -303,7 +314,12 @@ func start_run() -> void:
 	scroll.visible = true
 	left.visible = true
 	hp_row.visible = true
-	run.start()
+	if resuming:
+		_taunted = run.fights
+		_show_question()
+		_show_result(raw_checkpoint.result, false)
+	else:
+		run.start()
 
 
 ## The region's backdrop, or a close-up of its island from the world map (the map's
@@ -980,15 +996,16 @@ static func sfx_for(r: Dictionary) -> String:
 	return "correct" if r.get("outcome", "") in ["right", "glancing", "late"] else "retry"
 
 
-func _show_result(r: Dictionary) -> void:
+func _show_result(r: Dictionary, settle := true) -> void:
 	result = r
 	answered = true
-	Audio.play_sfx(sfx_for(r))
-	if job.is_empty():
-		var checkpoint := run.settled_checkpoint(r, _settled_upgrades, perk)
-		if not checkpoint.is_empty():
-			save.settled_run = checkpoint
-	SaveData.store(save, save_path)
+	if settle:
+		Audio.play_sfx(sfx_for(r))
+		if job.is_empty():
+			var checkpoint := run.settled_checkpoint(r, _settled_upgrades, perk)
+			if not checkpoint.is_empty():
+				save.settled_run = checkpoint
+		SaveData.store(save, save_path)
 	feedback.visible = true
 	var color := UiTheme.TEAL
 	# A boss's bar counts parts, not HP: every part answered takes one, right or not (Q9).
@@ -1073,11 +1090,14 @@ func _show_result(r: Dictionary) -> void:
 	_update_hud()
 	_reveal_result()
 	# A boss part missed still uses the part up, but it isn't a hit.
-	if r.enemy_damage > 0 and r.outcome in ["right", "glancing", "late"]:
+	if settle and r.enemy_damage > 0 and r.outcome in ["right", "glancing", "late"]:
 		flash_hurt()
 		spark_hit()
 	if r.defeated:
-		enemy_falls()
+		if settle:
+			enemy_falls()
+		else:
+			enemy_art.modulate.a = 0.0
 
 
 ## On a hit, the enemy's hurt frame for HURT_FLASH seconds, where it has one.
