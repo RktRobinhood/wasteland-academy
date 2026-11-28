@@ -701,41 +701,19 @@ static func fit_title(t: Label) -> void:
 		t.add_theme_font_size_override("font_size", s)
 
 
-## The course picker (FAL-397): one button per IB course, the save's course pressed.
-## Picking one stores it and draws the screen again, so a region the course has no
-## questions in turns to "Coming soon" and back. Every cell record stays.
-func _course_row() -> Control:
-	var row := HBoxContainer.new()
-	row.name = "Course"
-	row.add_theme_constant_override("separation", 12)
-	var label := UiTheme.label("Your course", UiTheme.SMALL, UiTheme.SAND)
-	label.name = "Label"
-	label.autowrap_mode = TextServer.AUTOWRAP_OFF
-	row.add_child(label)
-	var group := ButtonGroup.new()
-	for id in Courses.ids():
-		var b := Button.new()
-		b.name = id
-		b.text = Courses.info(id).short
-		b.tooltip_text = Courses.info(id).name
-		b.toggle_mode = true
-		b.button_group = group
-		b.set_pressed_no_signal(id == Courses.of(save))
-		b.add_theme_font_size_override("font_size", UiTheme.SMALL)
-		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		b.pressed.connect(set_course.bind(id))
-		row.add_child(b)
-	return row
-
-
 ## Puts the save on a course, stores it and draws the region screen again (as the
 ## "Exam-style only" switch does). False for an id Courses doesn't list.
 func set_course(id: String) -> bool:
 	if not SaveData.set_course(save, id):
 		return false
 	SaveData.store(save, save_path)
-	if screen == "region":
-		_fill_region()
+	match screen:
+		"world":
+			_fill_world()
+		"island":
+			_fill_island()
+		"region":
+			_fill_region()
 	return true
 
 
@@ -1421,6 +1399,9 @@ func _spot(id: String, title: String, state: String, painted: bool = false) -> B
 	if relic:
 		b.disabled = true
 		_place(b, title, "Closed for now", UiTheme.DIM, Callable(), "Relic device: lessons coming")
+	elif state == "locked":
+		b.disabled = true
+		_place(b, title, spot_line(id, state), STATE_COLOR[state], Callable())
 	else:
 		var to := {"screen": "region", "island": route.island, "region": id}
 		_place(b, title, spot_line(id, state), STATE_COLOR[state], func(): zoom_to(island_board, at, go.bind(to)))
@@ -1564,7 +1545,6 @@ func _fill_region() -> void:
 	region_gap.custom_minimum_size.x = _region_hud_gap()
 	head.add_child(region_gap)
 	region_col.add_child(head)
-	region_col.add_child(_course_row())
 
 	if not can_start(id, Courses.of(save)):
 		var soon := UiTheme.label("Coming soon", 72, UiTheme.SAND)
@@ -1573,7 +1553,7 @@ func _fill_region() -> void:
 		region_col.add_child(soon)
 		var course := Courses.info(Courses.of(save))
 		if can_start(id) and not course.is_empty():
-			region_col.add_child(UiTheme.label("No %s questions here yet. Another course has some: pick it above." % course.short, UiTheme.BODY, UiTheme.DIM))
+			region_col.add_child(UiTheme.label("This topic is not available for %s." % course.short, UiTheme.BODY, UiTheme.DIM))
 		else:
 			region_col.add_child(UiTheme.label("No questions here yet. This topic opens as soon as they're built.", UiTheme.BODY, UiTheme.DIM))
 

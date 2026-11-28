@@ -1039,26 +1039,19 @@ func test_a_region_screen_shows_progress_and_its_start_buttons() -> void:
 	_done(made)
 
 
-func test_the_region_screen_picks_the_course_and_keeps_the_progress() -> void:
+func test_the_region_uses_course_from_settings_without_a_second_picker() -> void:
 	var save := SaveData.blank()
 	var shared: Dictionary = Progress.catalogue_cells("quadratics", false, "ai-sl")[0]
 	SaveData.record(save, shared.key, true, 100)
 	var made: Array = await _map(MapLink.parse("#functions/quadratics"), save)
 	var m: Control = made[1]
-	var row: Control = m.region_col.get_node("Course")
-	check_eq(row.get_children().filter(func(c): return c is Button).map(func(b): return String(b.name)), Courses.ids(), "a button per course")
-	check((row.get_node("aa-sl") as Button).button_pressed, "the save is on AA SL")
-	check_eq((row.get_node("ai-sl") as Button).text, "AI SL")
+	check(m.region_col.get_node_or_null("Course") == null, "there is no second course picker on the map")
 	var aa_total: int = Progress.coverage(m.save, "quadratics").total
-	(row.get_node("ai-sl") as Button).button_pressed = true
-	(row.get_node("ai-sl") as Button).pressed.emit()
+	check(m.set_course("ai-sl"), "the map accepts the Settings callback")
 	await tree.process_frame
-	check_eq(m.save.course, "ai-sl", "the map's save")
 	var stored := SaveData.load_from(SAVE)
 	check_eq(stored.course, "ai-sl", "the course is saved")
 	check_eq(stored.cells[shared.key].seen, 1, "the record on a shared cell stays")
-	var row2: Control = m.region_col.get_node("Course")
-	check((row2.get_node("ai-sl") as Button).button_pressed and not (row2.get_node("aa-sl") as Button).button_pressed, "the row shows AI SL")
 	var ai_total: int = Progress.coverage(m.save, "quadratics").total
 	check(ai_total < aa_total, "AI SL's Quadratics has fewer cells (%d) than AA SL's (%d)" % [ai_total, aa_total])
 	check(m.region_col.get_node_or_null("Start") != null, "AI SL still has questions here")
@@ -1067,14 +1060,24 @@ func test_the_region_screen_picks_the_course_and_keeps_the_progress() -> void:
 	_done(made)
 
 
-func test_a_coming_soon_region_still_offers_the_picker_and_says_why() -> void:
+func test_unavailable_landmark_cannot_navigate() -> void:
+	var made: Array = await _map(MapLink.parse("#functions"))
+	var m: Control = made[1]
+	var spot: Button = m._spot("quadratics", "Unavailable topic", "locked", true)
+	check(spot.disabled, "unavailable locations do not get a playable control")
+	var action: Callable = spot.get_meta("enter")
+	check(not action.is_valid(), "unavailable locations have no navigation action")
+	_done(made)
+
+
+func test_a_coming_soon_region_says_why_without_inviting_course_switch() -> void:
 	var id := _unbuilt_region()
 	if id == "":
 		return  # Every region is built: nothing left to be "coming soon".
 	var made: Array = await _map(MapLink.region_route(id))
 	var m: Control = made[1]
 	check(m.region_col.get_node_or_null("ComingSoon") != null, "says coming soon")
-	check(m.region_col.get_node_or_null("Course") != null, "a student on another course can switch from here")
+	check(m.region_col.get_node_or_null("Course") == null, "scenery cannot invite changing course")
 	var said: Array = m.region_col.find_children("*", "Label", true, false).map(func(l): return (l as Label).text)
 	check(said.any(func(t: String): return t.contains("aren't built yet")), "nothing is built in any course: %s" % [said])
 	_done(made)
@@ -1100,8 +1103,9 @@ func test_the_fight_screen_starts_the_run_the_map_asked_for() -> void:
 	var save := SaveData.blank()
 	save.intro = {"course": true, "cards": true}
 	Dungeon.note_floor(save, "quadratics", 1, true)
-	SaveData.store(save, SAVE)
 	for ask in [[2, 2], [5, 1]]:
+		# Independent starts, not a resume from the earlier fixture.
+		SaveData.store(save, SAVE)
 		fight_script.launch = {"region": "quadratics", "floor": ask[0]}
 		var frame := Control.new()
 		frame.size = Vector2(1080, 1920)
@@ -1267,9 +1271,10 @@ func test_a_run_starts_on_every_island_and_in_the_thunderdome() -> void:
 		places.append(Dungeon.all_of(island))
 	var seen := SaveData.blank()
 	seen.intro = {"course": true, "cards": true}
-	SaveData.store(seen, SAVE)
 	for region in places:
 		for fight_no in [1, Tuning.FIGHTS_PER_FLOOR]:
+			# Each location starts from the same fresh test save.
+			SaveData.store(seen, SAVE)
 			fight_script.launch = {"region": region, "floor": 1}
 			var frame := Control.new()
 			frame.size = Vector2(1080, 1920)
