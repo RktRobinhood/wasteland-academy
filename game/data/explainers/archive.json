@@ -73,6 +73,60 @@
         "ai-sl",
         "ai-hl"
       ]
+    },
+    {
+      "lesson": "ex.algebra.arithmetic-sequence",
+      "title": "Seats in one row",
+      "zone": "Fight Pit",
+      "prompt": "Check capacity in one row.",
+      "worked": "example-1",
+      "practice": "turn-1",
+      "practice_mode": "authored-twin",
+      "activity": {
+        "kind": "stands",
+        "title": "Fight Pit · East stand",
+        "waiting": "Awaiting a seat count",
+        "retry": "Check the row number and seat count",
+        "sent": "Row capacity confirmed",
+        "coached": "Seat count · working shown",
+        "mode": "term",
+        "first": 30,
+        "change": 3,
+        "rows": 25
+      },
+      "courses": [
+        "aa-sl",
+        "aa-hl",
+        "ai-sl",
+        "ai-hl"
+      ]
+    },
+    {
+      "lesson": "ex.algebra.arithmetic-series",
+      "title": "Total seats in a stand",
+      "zone": "Fight Pit",
+      "prompt": "Check capacity across the whole stand.",
+      "worked": "example-1",
+      "practice": "turn-1",
+      "practice_mode": "authored-twin",
+      "activity": {
+        "kind": "stands",
+        "title": "Fight Pit · East stand",
+        "waiting": "Awaiting a seat count",
+        "retry": "Count every row, not just the last one",
+        "sent": "Stand capacity confirmed",
+        "coached": "Seat count · working shown",
+        "mode": "total",
+        "first": 30,
+        "change": 3,
+        "rows": 25
+      },
+      "courses": [
+        "aa-sl",
+        "aa-hl",
+        "ai-sl",
+        "ai-hl"
+      ]
     }
   ]
 }

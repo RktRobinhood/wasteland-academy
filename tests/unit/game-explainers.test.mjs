@@ -40,7 +40,7 @@ test('release catalog requires a real worked example and an exact course-fit twi
   const sources = build();
   const original = JSON.parse(sources['archive.json']);
   assert.doesNotThrow(() => checkArchive(sources));
-  assert.deepEqual(original.entries.map(e => e.lesson), ['ex.functions.function-machine', 'ex.functions.gradient', 'ex.foundations.pre-read-and-round'], 'rollout is explicit, not every shipped draft');
+  assert.deepEqual(original.entries.map(e => e.lesson), ['ex.functions.function-machine', 'ex.functions.gradient', 'ex.foundations.pre-read-and-round', 'ex.algebra.arithmetic-sequence', 'ex.algebra.arithmetic-series'], 'rollout is explicit, not every shipped draft');
   const invalid = fields => ({ ...sources, 'archive.json': JSON.stringify({ ...original, entries: [
     { ...original.entries[0], ...fields },
   ] }) });
@@ -57,4 +57,12 @@ test('a published practice dial cannot mark a different reading from its needle'
   const gauge = archive.entries.find(e => e.activity?.kind === 'gauge');
   gauge.activity.needle_step -= 1;
   assert.throws(() => checkArchive({ ...sources, 'archive.json': JSON.stringify(archive) }), /needle must match/);
+});
+
+test('one row and the whole stand must use different marked counts', async () => {
+  const { checkArchive } = await import('../../tools/game-explainers.mjs');
+  const sources = build();
+  const archive = JSON.parse(sources['archive.json']);
+  archive.entries.find(e => e.lesson === 'ex.algebra.arithmetic-series').activity.mode = 'term';
+  assert.throws(() => checkArchive({ ...sources, 'archive.json': JSON.stringify(archive) }), /seat count must match/);
 });

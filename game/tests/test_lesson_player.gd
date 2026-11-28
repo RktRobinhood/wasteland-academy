@@ -573,3 +573,55 @@ func test_archive_pressure_gauge_uses_the_same_interval_as_the_marked_answer() -
 	check(await _run(p), "the matched gauge reading completes the exercise")
 	check(status != null and status.text == "Pressure logged")
 	frame.queue_free()
+
+
+
+func test_archive_one_row_and_the_whole_stand_have_distinct_marks_and_feedback() -> void:
+	var frame := _phone()
+	var scene := load("res://scenes/lesson.tscn") as PackedScene
+	var screen := scene.instantiate()
+	var script: GDScript = screen.get_script()
+	script.open_preview = true
+	frame.add_child(screen)
+	await _settle()
+	for lesson in ["sequence", "series"]:
+		var index := -1
+		for i: int in screen.entries.size():
+			if screen.entries[i].lesson == "ex.algebra.arithmetic-" + lesson:
+				index = i
+				break
+		check(index >= 0, "the reviewed seats lesson is in the archive")
+		if index < 0:
+			continue
+		screen._select_entry(index)
+		await _tap(screen.watch_button)
+		var p: LessonPlayer = screen.player
+		p.paused = true
+		await _run(p, func(pl): return pl.state == "input")
+		await _tap(p.actions.get_node("Choices/Choice0"))
+		check(await _run(p), "the worked example finishes after the why check")
+		var worked := "178" if lesson == "sequence" else "4000"
+		check(p.board.any(func(row): return str(row.text).contains(worked)), "the correct worked capacity is displayed")
+		p.close()
+		await _settle()
+		await _tap(screen.try_button)
+		p = screen.player
+		p.paused = true
+		await _run(p, func(pl): return pl.state == "input")
+		var status := p.find_child("ActivityStatus", true, false) as Label
+		var is_row: bool = lesson == "sequence"
+		var wrong := "1650" if is_row else "102"
+		var answer := "102" if is_row else "1650"
+		var entry = p.actions.get_node("Entry/Box")
+		entry.text = wrong
+		entry.text_submitted.emit(wrong)
+		await _run(p, func(pl): return pl.state == "input")
+		check(status != null and status.text == str(p.activity.retry), "another count is not accepted")
+		entry = p.actions.get_node("Entry/Box")
+		entry.text = answer
+		entry.text_submitted.emit(answer)
+		check(await _run(p), "the right count completes the capacity check")
+		check(status != null and status.text == str(p.activity.sent), "the correct capacity is confirmed")
+		p.close()
+		await _settle()
+	frame.queue_free()

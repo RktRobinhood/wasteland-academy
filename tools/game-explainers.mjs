@@ -60,6 +60,15 @@ export function checkArchive(sources) {
           Number(practice.turn.fallback.parts[0].answer) !== low + (high - low) * needle_step / intervals)
         fail('gauge markings and needle must match the marked answer');
     }
+    if (e.activity?.kind === 'stands') {
+      const { first, change, rows, mode } = e.activity;
+      const last = first + (rows - 1) * change;
+      const expected = mode === 'term' ? last : rows * (first + last) / 2;
+      if (![first, change, rows, expected].every(Number.isSafeInteger) ||
+          first < 1 || last < 1 || rows < 2 || !['term', 'total'].includes(mode) ||
+          practice.turn.fallback.parts.length !== 1 || Number(practice.turn.fallback.parts[0].answer) !== expected)
+        fail('seat count must match the selected row or stand');
+    }
     if (!e.title?.trim() || !e.zone?.trim() || !e.prompt?.trim()) fail('missing student-facing entry text');
     if (!Array.isArray(e.courses) || !e.courses.length || !e.courses.every(c => script.courses.includes(c)) ||
         new Set(e.courses).size !== e.courses.length) fail('course mapping does not match the source lesson');

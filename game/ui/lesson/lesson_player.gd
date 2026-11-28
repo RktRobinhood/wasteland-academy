@@ -1157,7 +1157,7 @@ func _turn_done(t: Dictionary, fb: Dictionary, engine: bool, q: Dictionary, righ
 ## What happened in the world, in the caption's place: teal when the signal goes out,
 ## rust for static or a sparked tile. The next line's caption puts the colour back.
 func _mount_activity() -> void:
-	if str(activity.get("kind", "")) not in ["relay", "track", "gauge"]:
+	if str(activity.get("kind", "")) not in ["relay", "track", "gauge", "stands"]:
 		return
 	var rail := HBoxContainer.new()
 	rail.name = "RelicActivity"
@@ -1203,6 +1203,9 @@ class ActivitySignal extends Control:
 
 	func _draw() -> void:
 		var y := size.y * 0.5
+		if config.kind == "stands":
+			_draw_stands(y)
+			return
 		if config.kind == "gauge":
 			_draw_gauge(y)
 			return
@@ -1224,6 +1227,24 @@ class ActivitySignal extends Control:
 			draw_arc(mast, 24.0, -0.75, 0.75, 14, ink, 3.0, true)
 		elif phase == "retry":
 			draw_polyline(PackedVector2Array([relay + Vector2(-8, 5), relay + Vector2(-2, -5), relay + Vector2(3, 4), relay + Vector2(8, -5)]), ink, 2.0, true)
+
+	func _draw_stands(y: float) -> void:
+		draw_rect(Rect2(0, y - 29, 155, 58), Explainer.SLATE_DEEP)
+		var confirmed := phase == "sent" or phase == "coached"
+		for i in 4:
+			var bottom := y + 17.0 - float(i) * 12.0
+			var left := 29.0 - float(i) * 5.0
+			var right := 111.0 + float(i) * 5.0
+			var highlighted: bool = confirmed and (config.mode == "total" or i == 3)
+			var line := ink if highlighted else Explainer.IRON_GLOSS
+			draw_line(Vector2(left, bottom), Vector2(right, bottom), line, 2.0, true)
+			for j in range(6 + i):
+				draw_circle(Vector2(35.0 - float(i) * 4.0 + float(j) * 10.0, bottom - 4.0), 2.3, line, true, -1.0, true)
+		if phase == "retry":
+			var p := Vector2(138, y)
+			draw_line(p - Vector2(4, 4), p + Vector2(4, 4), ink, 2.0, true)
+			draw_line(p + Vector2(-4, 4), p + Vector2(4, -4), ink, 2.0, true)
+
 
 	func _draw_gauge(y: float) -> void:
 		draw_rect(Rect2(0, y - 29, 155, 58), Explainer.SLATE_DEEP)
