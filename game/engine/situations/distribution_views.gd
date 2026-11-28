@@ -310,7 +310,7 @@ static func number_answer(label: String, v: Q, dec: bool) -> Dictionary:
 ## between 0 and 1), written the way the answer is (no 1/3 among decimals), not on a
 ## 3 s.f. rounding edge, and different to 3 s.f. from the answer and from every option
 ## already kept. One with no ref is a filler (FAL-815): no slip gives it.
-static func wrong(out: Dictionary, v: Variant, ref: String = "", prob: bool = false) -> void:
+static func wrong(out: Dictionary, v: Variant, ref: String = "", prob: bool = false, show_whole_number: bool = false) -> void:
 	if v == null:
 		return
 	var q := Q.of(v)
@@ -322,6 +322,8 @@ static func wrong(out: Dictionary, v: Variant, ref: String = "", prob: bool = fa
 	if ref == "":
 		out.fillers.append(item.values)
 	else:
+		if show_whole_number:
+			item.show_whole_number = true
 		out.wrongs.append(item)
 
 
@@ -864,7 +866,7 @@ func u_expected_count(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	steps.append("So %s." % Answer.text(ans))
 	out.methods = {"n-times-p": {"steps": steps, "result": res(s.count)}}
 	if not s.count.is_int():
-		wrong(out, Q.new(half_up(s.count)), "SL4.5.expected-occurrences#0")
+		wrong(out, Q.new(half_up(s.count)), "SL4.5.expected-occurrences#0", false, p2(s))
 	wrong(out, s.pe, "SL4.5.expected-occurrences#1")
 	wrong(out, Q.new(1).sub(s.pe).mul(s.n), R_NOT_EVENT)
 	for i in inn:

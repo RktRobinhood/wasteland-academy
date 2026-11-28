@@ -952,7 +952,12 @@ static func _choices(ans: Dictionary, b: Dictionary, rng: Seeded) -> Array:
 	var opts: Array = [{"text": Answer.text(ans), "values": ans.values, "correct": true, "ref": ""}]
 	for w in picked:
 		var trap: bool = w.get("trap", false)
-		var o := {"text": Answer.trap_text(ans, w.values) if trap else Answer.text(ans, w.values), "values": w.values,
+		# A deliberate whole-number slip must look like that mistake, not like a 3 s.f.
+		# approximation. Only its displayed text changes: canon, slots and marking use ans.
+		var shown := ans
+		if w.get("show_whole_number", false) and ans.kind == "number" and Q.of(w.values.v).is_int():
+			shown = ans.merged({"show": ""}, true)
+		var o := {"text": Answer.trap_text(ans, w.values) if trap else Answer.text(shown, w.values), "values": w.values,
 			"correct": false, "ref": w.ref, "trap": trap, "src": w.src, "gi": w.get("gi", -1)}
 		# The answer in a form the question rules out (x(6x + 2) for "factorise fully"):
 		# picking it is a glancing hit with the note, as typing it is.

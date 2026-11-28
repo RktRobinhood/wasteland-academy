@@ -3032,7 +3032,13 @@ def check_distribution(q):
         for v in parts:
             need(v > 0 and (not prob or v < 1), f"option {o['text']!r} is out of range")
             need(not on_edge(v), f"option {o['text']!r} is on a 3 s.f. rounding edge")
-        need(o["text"] == value_text(ov), f"option text {o['text']!r} doesn't say its value {ov}")
+        if paper == 2 and u == "expected-count" and o["ref"] == "SL4.5.expected-occurrences#0":
+            # This misconception rounds to a whole number, not to three significant figures.
+            need(ov.is_Integer, f"whole-number slip {ov} is not an integer")
+            rendered = label + str(ov)
+        else:
+            rendered = value_text(ov)
+        need(o["text"] == rendered, f"option text {o['text']!r} doesn't say its value {ov}")
         key = tuple(sig3(v) for v in parts)
         need(key not in keys, f"two options are the same to 3 s.f.: {o['text']!r}")
         keys.add(key)
